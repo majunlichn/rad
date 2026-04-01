@@ -1,0 +1,9 @@
+BasedOnStyle: LLVM
+Language: Cpp
+
+AllowShortFunctionsOnASingleLine: None
+AlwaysBreakTemplateDeclarations: Yes
+ColumnLimit: 120
+BreakBeforeBraces: Allman
+IndentWidth: 4
+ReflowComments: true

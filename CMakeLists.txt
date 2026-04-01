@@ -35,14 +35,17 @@ endif()
 
 set(RAD_HEADERS
     rad/Common/Platform.h
+    rad/Common/Integer.h
 )
 
 set(RAD_SOURCES
     rad/Common/Platform.cpp
+    rad/Common/Integer.cpp
 )
 
 set(RAD_TEST_SOURCES
     rad/Common/Platform.test.cpp
+    rad/Common/Integer.test.cpp
     rad/tests.cpp
 )
 
