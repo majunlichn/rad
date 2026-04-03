@@ -42,6 +42,7 @@ set(RAD_HEADERS
     rad/Common/BFloat16.h
     rad/Common/Random.h
     rad/Common/Hash.h
+    rad/Common/Math.h
 )
 
 set(RAD_SOURCES
@@ -50,6 +51,7 @@ set(RAD_SOURCES
     rad/Common/Float.cpp
     rad/Common/Random.cpp
     rad/Common/Hash.cpp
+    rad/Common/Math.cpp
 )
 
 set(RAD_TEST_SOURCES
@@ -57,6 +59,7 @@ set(RAD_TEST_SOURCES
     rad/Common/Integer.test.cpp
     rad/Common/Float.test.cpp
     rad/Common/Random.test.cpp
+    rad/Common/Math.test.cpp
     rad/tests.cpp
 )
 
