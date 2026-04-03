@@ -4,6 +4,14 @@
 
 #include <rad/Common/Float.h>
 
+#ifndef HALF_ROUND_STYLE
+#define HALF_ROUND_STYLE std::round_to_nearest
+#endif
+#ifndef HALF_ROUND_TIES_TO_EVEN
+#define HALF_ROUND_TIES_TO_EVEN 1
+#endif
+#include <half.hpp>
+
 #if defined(RAD_COMPILER_GCC) || defined(RAD_COMPILER_CLANG)
 #if defined(RAD_ARCH_X86) && defined(__F16C__)
 #define RAD_X86_F16C 1
@@ -298,17 +306,11 @@ inline uint32_t fp16_ieee_to_fp32_bits(uint16_t h)
     return sign | ((((nonsign << renorm_shift >> 3) + ((0x70 - renorm_shift) << 23)) | inf_nan_mask) & ~zero_mask);
 }
 
-#if defined(RAD_COMPILER_GCC) || defined(RAD_COMPILER_CLANG)
-
-#define Float16 _Float16
-
-#else // Float16 fallback implementation
-
-struct alignas(2) Float16
+struct alignas(2) Float16Portable
 {
     uint16_t m_bits;
-    Float16() = default;
-    Float16(float value) : m_bits(fp16_ieee_from_fp32_value(value))
+    Float16Portable() = default;
+    Float16Portable(float value) : m_bits(fp16_ieee_from_fp32_value(value))
     {
     }
 
@@ -317,40 +319,47 @@ struct alignas(2) Float16
         return fp16_ieee_to_fp32_value(m_bits);
     }
 
-    Float16 &operator=(float rhs)
+    Float16Portable &operator=(float rhs)
     {
         m_bits = fp16_ieee_from_fp32_value(rhs);
         return *this;
     }
 
-    Float16 &operator+=(float rhs)
+    Float16Portable &operator+=(float rhs)
     {
         m_bits = fp16_ieee_from_fp32_value(fp16_ieee_to_fp32_value(m_bits) + rhs);
         return *this;
     }
 
-    Float16 &operator-=(float rhs)
+    Float16Portable &operator-=(float rhs)
     {
         m_bits = fp16_ieee_from_fp32_value(fp16_ieee_to_fp32_value(m_bits) - rhs);
         return *this;
     }
 
-    Float16 &operator*=(float rhs)
+    Float16Portable &operator*=(float rhs)
     {
         m_bits = fp16_ieee_from_fp32_value(fp16_ieee_to_fp32_value(m_bits) * rhs);
         return *this;
     }
 
-    Float16 &operator/=(float rhs)
+    Float16Portable &operator/=(float rhs)
     {
         m_bits = fp16_ieee_from_fp32_value(fp16_ieee_to_fp32_value(m_bits) / rhs);
         return *this;
     }
 
-}; // struct Float16
+}; // struct Float16Portable
+
+static_assert(sizeof(Float16Portable) == 2);
+
+#if defined(RAD_COMPILER_GCC) || defined(RAD_COMPILER_CLANG)
+#define Float16 _Float16
+#else // Float16 fallback implementation
+// https://github.com/ROCm/half
+using Float16 = half_float::half;
+#endif
 
 static_assert(sizeof(Float16) == 2);
-
-#endif // Float16 fallback implementation
 
 } // namespace rad
