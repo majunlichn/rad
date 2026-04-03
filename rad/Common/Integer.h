@@ -22,6 +22,9 @@ using Uint16 = std::uint16_t;
 using Uint32 = std::uint32_t;
 using Uint64 = std::uint64_t;
 
+template <typename T>
+constexpr size_t BitCount = sizeof(T) * CHAR_BIT;
+
 [[nodiscard]] constexpr uint16_t HighPart32(uint32_t value) noexcept
 {
     return static_cast<uint16_t>(value >> 16);
@@ -52,6 +55,43 @@ template <std::unsigned_integral T>
 [[nodiscard]] constexpr bool HasNoBits(T mask, T bits) noexcept
 {
     return ((mask & bits) == 0);
+}
+
+template <std::unsigned_integral T>
+[[nodiscard]] constexpr auto SignExtend(T value, size_t bits) noexcept
+{
+    assert((bits > 0) && bits <= BitCount<T>);
+    T mask = T(1) << (bits - 1);
+    T extended = (value ^ mask) - mask;
+    return static_cast<std::make_signed_t<T>>(extended);
+}
+
+// Bits are counted from the LSB.
+template <std::unsigned_integral T>
+[[nodiscard]] constexpr T ExtractBits(T value, size_t start, size_t count) noexcept
+{
+    assert((start >= 0) && (count >= 0));
+    assert(start + count <= BitCount<T>);
+    if (count == BitCount<T>) [[unlikely]]
+    {
+        return value;
+    }
+    T mask = ((T(1) << count) - 1);
+    return (value >> start) & mask;
+}
+
+// Bits are counted from the LSB.
+template <std::unsigned_integral T>
+[[nodiscard]] constexpr T ReplaceBits(T dest, T src, size_t start, size_t count) noexcept
+{
+    assert(start >= 0 && count >= 0);
+    assert(start + count <= BitCount<T>);
+    if (count == BitCount<T>) [[unlikely]]
+    {
+        return src;
+    }
+    T mask = ((T(1) << count) - 1) << start;
+    return (dest & ~mask) | ((src << start) & mask);
 }
 
 template <std::unsigned_integral T>
@@ -194,7 +234,7 @@ template <std::unsigned_integral T>
 [[nodiscard]] constexpr T RoundUpToNextPow2(T x) noexcept
 {
     // Pre: x < 2^(digits-1), so the next power of two fits in T.
-    assert(x < (T(1) << (std::numeric_limits<T>::digits - 1)));
+    assert(x < (T(1) << (BitCount<T> - 1)));
     return T(1) << std::bit_width(x);
 }
 
@@ -203,7 +243,7 @@ template <std::unsigned_integral T>
 [[nodiscard]] constexpr T RoundUpToPow2(T x) noexcept
 {
     // Pre: x <= 2^(digits-1), so the next power of two fits in T.
-    assert(x <= (T(1) << (std::numeric_limits<T>::digits - 1)));
+    assert(x <= (T(1) << (BitCount<T> - 1)));
     return std::bit_ceil(x);
 }
 

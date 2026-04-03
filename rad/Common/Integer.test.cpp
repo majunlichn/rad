@@ -1,4 +1,5 @@
 #include <rad/Common/Integer.h>
+
 #include <iostream>
 
 #include <gtest/gtest.h>
@@ -74,10 +75,48 @@ void TestDivRoundUp()
     EXPECT_EQ(rad::DivRoundUp(0xFFFFFFFFFFFFFFFFull, 0x100000000ull), 0x100000000ull);
 }
 
+void TestSignExtend()
+{
+    EXPECT_EQ(rad::SignExtend<uint32_t>(0x000000u, 24), 0);
+    EXPECT_EQ(rad::SignExtend<uint32_t>(0xFFFFFFu, 24), -1);
+    EXPECT_EQ(rad::SignExtend<uint32_t>(0x800000u, 24), -8388608);
+    EXPECT_EQ(rad::SignExtend<uint32_t>(0x7FFFFFu, 24), 8388607);
+}
+
+void TestExtractBits()
+{
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0b1010, 0, 3), 0b010u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0b1010, 1, 3), 0b101u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 24, 8), 0x12u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 20, 8), 0x23u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 16, 8), 0x34u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 12, 8), 0x45u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 8, 8), 0x56u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 4, 8), 0x67u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 0, 8), 0x78u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 0, 32), 0x12345678u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(0x12345678u, 0, 0), 0x0u);
+}
+
+void TestReplaceBits()
+{
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0b1010, 0b10, 1, 2), 0b1100);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x00u, 0, 8), 0xFFFFFF00);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x00u, 8, 8), 0xFFFF00FF);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x00u, 16, 8), 0xFF00FFFF);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x00u, 24, 8), 0x00FFFFFF);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x12345678u, 0, 0), 0xFFFFFFFFu);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x12345678u, 8, 0), 0xFFFFFFFFu);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x12345678u, 0, 32), 0x12345678u);
+}
+
 TEST(Common, Integer)
 {
     TestBitScanReverse32();
     TestCountBits();
     TestReverseBits();
     TestDivRoundUp();
+    TestSignExtend();
+    TestExtractBits();
+    TestReplaceBits();
 }
