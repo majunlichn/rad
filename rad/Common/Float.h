@@ -105,12 +105,12 @@ template <std::unsigned_integral T>
     return float(value) * interval;
 }
 
-[[nodiscard]] float DequantizeUnorm8(uint8_t value) noexcept
+[[nodiscard]] constexpr float DequantizeUnorm8(uint8_t value) noexcept
 {
     return DequantizeUnorm(value);
 }
 
-[[nodiscard]] float DequantizeUnorm16(uint16_t value) noexcept
+[[nodiscard]] constexpr float DequantizeUnorm16(uint16_t value) noexcept
 {
     return DequantizeUnorm(value);
 }
