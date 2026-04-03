@@ -39,18 +39,21 @@ set(RAD_HEADERS
     rad/Common/Float.h
     rad/Common/Float16.h
     rad/Common/BFloat16.h
+    rad/Common/Random.h
 )
 
 set(RAD_SOURCES
     rad/Common/Platform.cpp
     rad/Common/Integer.cpp
     rad/Common/Float.cpp
+    rad/Common/Random.cpp
 )
 
 set(RAD_TEST_SOURCES
     rad/Common/Platform.test.cpp
     rad/Common/Integer.test.cpp
     rad/Common/Float.test.cpp
+    rad/Common/Random.test.cpp
     rad/tests.cpp
 )
 
@@ -70,6 +73,7 @@ target_include_directories(rad
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imported/half/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imported/pcg-cpp/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
