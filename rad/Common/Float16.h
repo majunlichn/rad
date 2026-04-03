@@ -105,14 +105,8 @@ inline float fp16_ieee_to_fp32_value(uint16_t h)
     constexpr uint32_t exp_offset = UINT32_C(0xE0) << 23;
     // const float exp_scale = 0x1.0p-112f;
     constexpr uint32_t scale_bits = (uint32_t)15 << 23;
-    float exp_scale_val = 0;
-#if defined(_MSC_VER) && defined(__clang__)
-    __builtin_memcpy(&exp_scale_val, &scale_bits, sizeof(exp_scale_val));
-#else
-    std::memcpy(&exp_scale_val, &scale_bits, sizeof(exp_scale_val));
-#endif
 
-    const float exp_scale = exp_scale_val;
+    constexpr float exp_scale = std::bit_cast<float>(scale_bits);
     const float normalized_value = fp32_from_bits((two_w >> 4) + exp_offset) * exp_scale;
 
     /*
@@ -310,7 +304,7 @@ struct alignas(2) Float16Portable
 {
     uint16_t m_bits;
     Float16Portable() = default;
-    Float16Portable(float value) : m_bits(fp16_ieee_from_fp32_value(value))
+    explicit Float16Portable(float value) : m_bits(fp16_ieee_from_fp32_value(value))
     {
     }
 
@@ -349,14 +343,33 @@ struct alignas(2) Float16Portable
         return *this;
     }
 
+    friend Float16Portable operator+(Float16Portable lhs, Float16Portable rhs)
+    {
+        return Float16Portable(static_cast<float>(lhs) + static_cast<float>(rhs));
+    }
+
+    friend Float16Portable operator-(Float16Portable lhs, Float16Portable rhs)
+    {
+        return Float16Portable(static_cast<float>(lhs) - static_cast<float>(rhs));
+    }
+
+    friend Float16Portable operator*(Float16Portable lhs, Float16Portable rhs)
+    {
+        return Float16Portable(static_cast<float>(lhs) * static_cast<float>(rhs));
+    }
+
+    friend Float16Portable operator/(Float16Portable lhs, Float16Portable rhs)
+    {
+        return Float16Portable(static_cast<float>(lhs) / static_cast<float>(rhs));
+    }
+
 }; // struct Float16Portable
 
 static_assert(sizeof(Float16Portable) == 2);
 
 #if defined(RAD_COMPILER_GCC) || defined(RAD_COMPILER_CLANG)
-#define Float16 _Float16
-#else // Float16 fallback implementation
-// https://github.com/ROCm/half
+using Float16 = _Float16;
+#else
 using Float16 = half_float::half;
 #endif
 
