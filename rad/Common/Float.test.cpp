@@ -1,6 +1,7 @@
 #include <rad/Common/Float.h>
 #include <rad/Common/Float16.h>
 #include <rad/Common/BFloat16.h>
+#include <rad/Common/Float8.h>
 
 #include <format>
 #include <iostream>
@@ -52,10 +53,30 @@ void TestBFloat16()
     EXPECT_NEAR(c, 3.4 * 5 + 3, 0.01);
 }
 
+void TestFloat8E4M3()
+{
+    rad::Float8E4M3 a(3.4);
+    rad::Float8E4M3 b(5);
+    rad::Float8E4M3 c = a * b;
+    c += 3;
+    EXPECT_NEAR(c, 3.4 * 5 + 3, 0.01);
+}
+
+void TestFloat8E5M2()
+{
+    rad::Float8E5M2 a(3.4);
+    rad::Float8E5M2 b(5);
+    rad::Float8E5M2 c = a * b;
+    c += 3;
+    EXPECT_NEAR(c, 3.4 * 5 + 3, 0.1);
+}
+
 TEST(Common, Float)
 {
     TestQuantization<uint8_t>();
     TestQuantization<uint16_t>();
     TestFloat16();
     TestBFloat16();
+    TestFloat8E4M3();
+    TestFloat8E5M2();
 }

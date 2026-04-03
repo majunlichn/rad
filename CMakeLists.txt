@@ -38,6 +38,7 @@ set(RAD_HEADERS
     rad/Common/Integer.h
     rad/Common/Float.h
     rad/Common/Float16.h
+    rad/Common/Float8.h
     rad/Common/BFloat16.h
     rad/Common/Random.h
     rad/Common/Hash.h
