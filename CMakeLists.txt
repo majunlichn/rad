@@ -37,6 +37,7 @@ set(RAD_HEADERS
     rad/Common/Platform.h
     rad/Common/Integer.h
     rad/Common/Float.h
+    rad/Common/Float16.h
 )
 
 set(RAD_SOURCES

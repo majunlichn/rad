@@ -1,4 +1,5 @@
 #include <rad/Common/Float.h>
+#include <rad/Common/Float16.h>
 
 #include <format>
 #include <iostream>
@@ -32,8 +33,18 @@ void TestQuantization()
               << std::endl;
 }
 
+void TestFloat16()
+{
+    rad::Float16 a(3.4);
+    rad::Float16 b(5);
+    rad::Float16 c = a * b;
+    c += 3;
+    EXPECT_NEAR(c, 3.4 * 5 + 3, 0.001);
+}
+
 TEST(Common, Float)
 {
     TestQuantization<uint8_t>();
     TestQuantization<uint16_t>();
+    TestFloat16();
 }
