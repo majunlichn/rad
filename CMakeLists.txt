@@ -99,11 +99,13 @@ target_include_directories(rad
 find_package(boost_container REQUIRED CONFIG)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
+find_package(xxHash CONFIG REQUIRED)
 
 target_link_libraries(rad
     PUBLIC pystring::pystring
     PUBLIC Boost::container
     PUBLIC Boost::locale
+    PUBLIC xxHash::xxhash
 )
 
 target_compile_features(rad PUBLIC cxx_std_20)

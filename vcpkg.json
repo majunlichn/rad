@@ -3,6 +3,7 @@
     "boost-container",
     "boost-locale",
     "gtest",
-    "pystring"
+    "pystring",
+    "xxhash"
   ]
 }
