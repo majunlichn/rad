@@ -42,6 +42,7 @@ set(RAD_HEADERS
     rad/Common/BFloat16.h
     rad/Common/Random.h
     rad/Common/Hash.h
+    rad/Common/MurmurHash3.h
     rad/Common/Math.h
     rad/Common/Memory.h
     rad/Common/String.h
@@ -56,6 +57,7 @@ set(RAD_SOURCES
     rad/Common/Float.cpp
     rad/Common/Random.cpp
     rad/Common/Hash.cpp
+    rad/Common/MurmurHash3.cpp
     rad/Common/Math.cpp
     rad/Common/Memory.cpp
     rad/Common/String.cpp
