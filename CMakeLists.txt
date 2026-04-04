@@ -43,6 +43,7 @@ set(RAD_HEADERS
     rad/Common/Random.h
     rad/Common/Hash.h
     rad/Common/Math.h
+    rad/Common/Memory.h
 )
 
 set(RAD_SOURCES
@@ -52,6 +53,7 @@ set(RAD_SOURCES
     rad/Common/Random.cpp
     rad/Common/Hash.cpp
     rad/Common/Math.cpp
+    rad/Common/Memory.cpp
 )
 
 set(RAD_TEST_SOURCES
