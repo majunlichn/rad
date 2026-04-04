@@ -1,5 +1,6 @@
 {
   "dependencies": [
+    "boost-container",
     "boost-locale",
     "gtest",
     "pystring"

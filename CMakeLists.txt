@@ -45,6 +45,7 @@ set(RAD_HEADERS
     rad/Common/Math.h
     rad/Common/Memory.h
     rad/Common/String.h
+    rad/Container/SmallVector.h
 )
 
 set(RAD_SOURCES
@@ -88,11 +89,13 @@ target_include_directories(rad
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+find_package(boost_container REQUIRED CONFIG)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
 
 target_link_libraries(rad
     PUBLIC pystring::pystring
+    PUBLIC Boost::container
     PUBLIC Boost::locale
 )
 
