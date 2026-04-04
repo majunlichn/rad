@@ -1,9 +1,20 @@
 BasedOnStyle: LLVM
 Language: Cpp
 
-AllowShortFunctionsOnASingleLine: None
-AlwaysBreakTemplateDeclarations: Yes
-ColumnLimit: 120
-BreakBeforeBraces: Allman
 IndentWidth: 4
-ReflowComments: true
+ColumnLimit: 120
+UseTab: Never
+TabWidth: 4
+
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: None
+
+PackConstructorInitializers: Never
+
+AlwaysBreakTemplateDeclarations: Yes
+
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+NamespaceIndentation: None
+AccessModifierOffset: -4

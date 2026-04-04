@@ -44,6 +44,7 @@ set(RAD_HEADERS
     rad/Common/Hash.h
     rad/Common/Math.h
     rad/Common/Memory.h
+    rad/Common/String.h
 )
 
 set(RAD_SOURCES
@@ -54,6 +55,7 @@ set(RAD_SOURCES
     rad/Common/Hash.cpp
     rad/Common/Math.cpp
     rad/Common/Memory.cpp
+    rad/Common/String.cpp
 )
 
 set(RAD_TEST_SOURCES
@@ -62,6 +64,7 @@ set(RAD_TEST_SOURCES
     rad/Common/Float.test.cpp
     rad/Common/Random.test.cpp
     rad/Common/Math.test.cpp
+    rad/Common/String.test.cpp
     rad/tests.cpp
 )
 
@@ -83,6 +86,14 @@ target_include_directories(rad
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imported/half/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imported/pcg-cpp/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+find_package(boost_locale CONFIG REQUIRED)
+find_package(pystring CONFIG REQUIRED)
+
+target_link_libraries(rad
+    PUBLIC pystring::pystring
+    PUBLIC Boost::locale
 )
 
 target_compile_features(rad PUBLIC cxx_std_20)

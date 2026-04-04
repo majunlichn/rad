@@ -1,5 +1,7 @@
 {
   "dependencies": [
-    "gtest"
+    "boost-locale",
+    "gtest",
+    "pystring"
   ]
 }
