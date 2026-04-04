@@ -47,6 +47,7 @@ set(RAD_HEADERS
     rad/Common/String.h
     rad/Container/SmallVector.h
     rad/Container/Span.h
+    rad/IO/File.h
 )
 
 set(RAD_SOURCES
@@ -58,6 +59,7 @@ set(RAD_SOURCES
     rad/Common/Math.cpp
     rad/Common/Memory.cpp
     rad/Common/String.cpp
+    rad/IO/File.cpp
 )
 
 set(RAD_TEST_SOURCES
@@ -68,6 +70,7 @@ set(RAD_TEST_SOURCES
     rad/Common/Math.test.cpp
     rad/Common/String.test.cpp
     rad/Container/Span.test.cpp
+    rad/IO/File.test.cpp
     rad/tests.cpp
 )
 
