@@ -41,6 +41,7 @@ set(RAD_HEADERS
     rad/Common/Float8.h
     rad/Common/BFloat16.h
     rad/Common/Random.h
+    rad/Common/Range.h
     rad/Common/Hash.h
     rad/Common/MurmurHash3.h
     rad/Common/Math.h
@@ -69,6 +70,7 @@ set(RAD_TEST_SOURCES
     rad/Common/Integer.test.cpp
     rad/Common/Float.test.cpp
     rad/Common/Random.test.cpp
+    rad/Common/Range.test.cpp
     rad/Common/Math.test.cpp
     rad/Common/String.test.cpp
     rad/Container/Span.test.cpp
@@ -99,12 +101,14 @@ target_include_directories(rad
 find_package(boost_container REQUIRED CONFIG)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_link_libraries(rad
     PUBLIC pystring::pystring
     PUBLIC Boost::container
     PUBLIC Boost::locale
+    PUBLIC range-v3::range-v3
     PUBLIC xxHash::xxhash
 )
 
