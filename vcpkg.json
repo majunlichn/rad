@@ -1,0 +1,21 @@
+{
+  "dependencies": [
+    "backward-cpp",
+    "boost-asio",
+    "boost-container",
+    "boost-filesystem",
+    "boost-locale",
+    "boost-nowide",
+    "boost-process",
+    "boost-smart-ptr",
+    "cpu-features",
+    "gtest",
+    "pystring",
+    "range-v3",
+    "spdlog",
+    "stb",
+    "vulkan-headers",
+    "vulkan-memory-allocator",
+    "xxhash"
+  ]
+}
