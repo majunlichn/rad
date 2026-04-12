@@ -14,6 +14,7 @@ message(STATUS "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
 project(rad VERSION 0.0.0 LANGUAGES CXX)
 
 # Build options
+option(RAD_BUILD_VULKAN "Build Vulkan support" ON)
 option(RAD_BUILD_TESTS "Build unit tests" ON)
 option(RAD_ENABLE_INSTALL "Enable installation rules" ON)
 
@@ -200,6 +201,12 @@ if(RAD_BUILD_TESTS)
         PROPERTY VS_STARTUP_PROJECT rad_unit_tests
     )
     gtest_discover_tests(rad_unit_tests)
+endif()
+
+### Optional Features ##############################################################################
+
+if (RAD_BUILD_VULKAN AND DEFINED ENV{VULKAN_SDK})
+    add_subdirectory(src/rad/Vulkan)
 endif()
 
 ### Installation ###################################################################################

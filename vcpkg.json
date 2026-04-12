@@ -14,6 +14,8 @@
     "range-v3",
     "spdlog",
     "stb",
+    "vulkan-headers",
+    "vulkan-memory-allocator",
     "xxhash"
   ]
 }
