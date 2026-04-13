@@ -19,6 +19,7 @@ option(RAD_BUILD_TESTS "Build unit tests" ON)
 option(RAD_ENABLE_INSTALL "Enable installation rules" ON)
 
 include(cmake/radCompileOptions.cmake)
+include(cmake/radSanitizers.cmake)
 
 # Set output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
