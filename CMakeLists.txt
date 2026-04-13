@@ -18,10 +18,7 @@ option(RAD_BUILD_VULKAN "Build Vulkan support" ON)
 option(RAD_BUILD_TESTS "Build unit tests" ON)
 option(RAD_ENABLE_INSTALL "Enable installation rules" ON)
 
-# C++ standard configuration
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+include(cmake/radCompileOptions.cmake)
 
 # Set output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
