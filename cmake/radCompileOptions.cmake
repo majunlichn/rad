@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(MSVC)
+    # https://learn.microsoft.com/en-us/cpp/build/reference/permissive-standards-conformance
+    add_compile_options(/permissive-)
+endif()
+
 cmake_host_system_information(RESULT CPU_CORE_COUNT QUERY NUMBER_OF_PHYSICAL_CORES)
 
 if(CPU_CORE_COUNT LESS_EQUAL 0)
