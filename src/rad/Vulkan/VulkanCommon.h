@@ -75,15 +75,75 @@ struct VulkanVersion
     uint32_t GetMinor() const { return VK_API_VERSION_MINOR(m_bits); }
     uint32_t GetPatch() const { return VK_API_VERSION_PATCH(m_bits); }
 
-    bool IsGreater(uint32_t major, uint32_t minor, uint32_t patch) const
+    bool IsLowerThan(uint32_t major, uint32_t minor, uint32_t patch) const
     {
-        return (VK_API_VERSION_MAJOR(m_bits) > major) || (VK_API_VERSION_MINOR(m_bits) > minor) ||
-               (VK_API_VERSION_PATCH(m_bits) > patch);
+        if (GetMajor() != major)
+        {
+            return GetMajor() < major;
+        }
+        if (GetMinor() != minor)
+        {
+            return GetMinor() < minor;
+        }
+        return GetPatch() < patch;
     }
-    bool IsGreaterEqual(uint32_t major, uint32_t minor, uint32_t patch) const
+
+    bool IsLowerEqualThan(uint32_t major, uint32_t minor, uint32_t patch) const
     {
-        return (VK_API_VERSION_MAJOR(m_bits) >= major) && (VK_API_VERSION_MINOR(m_bits) >= minor) &&
-               (VK_API_VERSION_PATCH(m_bits) >= patch);
+        if (GetMajor() != major)
+        {
+            return GetMajor() < major;
+        }
+        if (GetMinor() != minor)
+        {
+            return GetMinor() < minor;
+        }
+        return GetPatch() <= patch;
+    }
+
+    bool IsGreaterThan(uint32_t major, uint32_t minor, uint32_t patch) const
+    {
+        if (GetMajor() != major)
+        {
+            return GetMajor() > major;
+        }
+        if (GetMinor() != minor)
+        {
+            return GetMinor() > minor;
+        }
+        return GetPatch() > patch;
+    }
+
+    bool IsGreaterEqualThan(uint32_t major, uint32_t minor, uint32_t patch) const
+    {
+        if (GetMajor() != major)
+        {
+            return GetMajor() > major;
+        }
+        if (GetMinor() != minor)
+        {
+            return GetMinor() > minor;
+        }
+        return GetPatch() >= patch;
+    }
+
+    bool operator==(const VulkanVersion& other) const { return m_bits == other.m_bits; }
+    bool operator!=(const VulkanVersion& other) const { return m_bits != other.m_bits; }
+    bool operator<(const VulkanVersion& other) const
+    {
+        return IsLowerThan(other.GetMajor(), other.GetMinor(), other.GetPatch());
+    }
+    bool operator<=(const VulkanVersion& other) const
+    {
+        return IsLowerEqualThan(other.GetMajor(), other.GetMinor(), other.GetPatch());
+    }
+    bool operator>(const VulkanVersion& other) const
+    {
+        return IsGreaterThan(other.GetMajor(), other.GetMinor(), other.GetPatch());
+    }
+    bool operator>=(const VulkanVersion& other) const
+    {
+        return IsGreaterEqualThan(other.GetMajor(), other.GetMinor(), other.GetPatch());
     }
 
 }; // struct VulkanVersion
