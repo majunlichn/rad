@@ -1,11 +1,13 @@
 set(RAD_VULKAN_HEADERS
     VulkanCommon.h
     VulkanInstance.h
+    VulkanDevice.h
 )
 
 set(RAD_VULKAN_SOURCES
     VulkanCommon.cpp
     VulkanInstance.cpp
+    VulkanDevice.cpp
 )
 
 set(RAD_VULKAN_TEST_SOURCES

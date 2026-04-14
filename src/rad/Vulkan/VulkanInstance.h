@@ -8,15 +8,16 @@ namespace rad
 struct VulkanInstanceConfig
 {
     bool enableValidationLayer;
-    std::set<std::string> requiredLayers;
-    std::set<std::string> requiredExtensions;
+    std::set<std::string> layers;
+    std::set<std::string> extensions;
+    vk::PFN_DebugUtilsMessengerCallbackEXT pfnUserCallback = DebugUtilsMessengerCallback;
 }; // struct VulkanInstanceConfig
 
 class VulkanInstance : public RefCounted<VulkanInstance>
 {
 public:
-    static Ref<VulkanInstance> Create(std::string_view appName, uint32_t appVersion,
-                                      std::string_view engineName, uint32_t engineVersion,
+    static Ref<VulkanInstance> Create(cstring_view appName, uint32_t appVersion,
+                                      cstring_view engineName, uint32_t engineVersion,
                                       const VulkanInstanceConfig& config = {});
 
     VulkanInstance();
@@ -31,10 +32,10 @@ public:
     std::vector<vk::ExtensionProperties> EnumerateInstanceExtensions(
         vk::Optional<const std::string> layerName = nullptr);
 
-    bool Init(std::string_view appName, uint32_t appVersion, std::string_view engineName,
+    bool Init(cstring_view appName, uint32_t appVersion, cstring_view engineName,
               uint32_t engineVersion, const VulkanInstanceConfig& config = {});
 
-    uint32_t GetApiVersion() const { return m_apiVersion; }
+    VulkanVersion GetApiVersion() const { return m_apiVersion; }
 
     bool IsLayerEnabled(std::string_view name) const
     {
@@ -48,10 +49,10 @@ public:
 
     std::vector<vk::raii::PhysicalDevice>& GetPhysicalDevices() { return m_physicalDevices; }
 
-    static vk::raii::Context s_raiiContext;
+    vk::raii::Context m_apiContext;
 
     vk::raii::Instance m_instance = {nullptr};
-    uint32_t m_apiVersion = 0;
+    VulkanVersion m_apiVersion = 0;
     VulkanInstanceConfig m_config = {};
     std::set<std::string, StringLess> m_enabledLayers;
     std::set<std::string, StringLess> m_enabledExtensions;

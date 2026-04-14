@@ -10,14 +10,15 @@
 namespace rad
 {
 
-vk::raii::Context VulkanInstance::s_raiiContext;
-
-Ref<VulkanInstance> VulkanInstance::Create(std::string_view appName, uint32_t appVersion,
-                                           std::string_view engineName, uint32_t engineVersion,
+Ref<VulkanInstance> VulkanInstance::Create(cstring_view appName, uint32_t appVersion,
+                                           cstring_view engineName, uint32_t engineVersion,
                                            const VulkanInstanceConfig& config)
 {
     Ref<VulkanInstance> instance = RAD_NEW VulkanInstance();
-    instance->Init(appName, appVersion, engineName, engineVersion, config);
+    if (!instance->Init(appName, appVersion, engineName, engineVersion, config))
+    {
+        return nullptr;
+    }
     return instance;
 }
 
@@ -31,29 +32,28 @@ VulkanInstance::~VulkanInstance()
 
 std::vector<vk::LayerProperties> VulkanInstance::EnumerateInstanceLayers()
 {
-    return s_raiiContext.enumerateInstanceLayerProperties();
+    return m_apiContext.enumerateInstanceLayerProperties();
 }
 
 std::vector<vk::ExtensionProperties> VulkanInstance::EnumerateInstanceExtensions(
     vk::Optional<const std::string> layerName)
 {
-    return s_raiiContext.enumerateInstanceExtensionProperties(layerName);
+    return m_apiContext.enumerateInstanceExtensionProperties(layerName);
 }
 
-bool VulkanInstance::Init(std::string_view appName, uint32_t appVersion,
-                          std::string_view engineName, uint32_t engineVersion,
-                          const VulkanInstanceConfig& config)
+bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_view engineName,
+                          uint32_t engineVersion, const VulkanInstanceConfig& config)
 {
-    m_apiVersion = s_raiiContext.enumerateInstanceVersion();
-    VK_LOG(info, "Instance Version: {}.{}.{}", VK_VERSION_MAJOR(m_apiVersion),
-           VK_VERSION_MINOR(m_apiVersion), VK_VERSION_PATCH(m_apiVersion));
+    m_apiVersion.m_bits = m_apiContext.enumerateInstanceVersion();
+    VK_LOG(info, "Instance Version: {}.{}.{}", m_apiVersion.GetMajor(), m_apiVersion.GetMinor(),
+           m_apiVersion.GetPatch());
 
     m_config = config;
 
     vk::ApplicationInfo appInfo;
-    appInfo.pApplicationName = appName.data();
+    appInfo.pApplicationName = appName.c_str();
     appInfo.applicationVersion = appVersion;
-    appInfo.pEngineName = engineName.data();
+    appInfo.pEngineName = engineName.c_str();
     appInfo.engineVersion = engineVersion;
     appInfo.apiVersion = m_apiVersion;
 
@@ -64,30 +64,30 @@ bool VulkanInstance::Init(std::string_view appName, uint32_t appVersion,
     auto supportedLayers = EnumerateInstanceLayers();
     auto supportedExtensions = EnumerateInstanceExtensions(nullptr);
 
-    const auto& requiredLayers = m_config.requiredLayers;
-    const auto& requiredExtensions = m_config.requiredExtensions;
+    const auto& requestedLayers = m_config.layers;
+    const auto& requestedExtensions = m_config.extensions;
 
-    for (const std::string& requiredLayer : requiredLayers)
+    for (const std::string& requestedLayer : requestedLayers)
     {
-        if (HasLayer(supportedLayers, requiredLayer))
+        if (HasLayer(supportedLayers, requestedLayer))
         {
-            m_enabledLayers.insert(requiredLayer);
+            m_enabledLayers.insert(requestedLayer);
         }
         else
         {
-            VK_LOG(warn, "Instance layer not supported: {}", requiredLayer);
+            VK_LOG(warn, "Requested instance layer not supported: {}", requestedLayer);
         }
     }
 
-    for (const std::string& requiredExtension : requiredExtensions)
+    for (const std::string& requestedExtension : requestedExtensions)
     {
-        if (HasExtension(supportedExtensions, requiredExtension))
+        if (HasExtension(supportedExtensions, requestedExtension))
         {
-            m_enabledExtensions.insert(requiredExtension);
+            m_enabledExtensions.insert(requestedExtension);
         }
         else
         {
-            VK_LOG(warn, "Instance extension not supported: {}", requiredExtension);
+            VK_LOG(warn, "Requested instance extension not supported: {}", requestedExtension);
         }
     }
 
@@ -152,7 +152,7 @@ bool VulkanInstance::Init(std::string_view appName, uint32_t appVersion,
     debugUtilsMessengerCreateInfo.messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
                                                 vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
                                                 vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
-    debugUtilsMessengerCreateInfo.pfnUserCallback;
+    debugUtilsMessengerCreateInfo.pfnUserCallback = m_config.pfnUserCallback;
 
     if (m_enabledLayers.contains("VK_LAYER_KHRONOS_validation") &&
         m_enabledExtensions.contains(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
@@ -181,7 +181,7 @@ bool VulkanInstance::Init(std::string_view appName, uint32_t appVersion,
     instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
     instanceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-    m_instance = s_raiiContext.createInstance(instanceCreateInfo);
+    m_instance = m_apiContext.createInstance(instanceCreateInfo);
     for (const std::string& layer : m_enabledLayers)
     {
         VK_LOG(info, "Instance layer enabled: {}", layer);

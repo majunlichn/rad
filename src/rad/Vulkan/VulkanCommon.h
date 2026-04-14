@@ -4,6 +4,7 @@
 #define VK_ENABLE_BETA_EXTENSIONS 1
 
 #include <rad/Common/RefCounted.h>
+#include <rad/Common/TypeTraits.h>
 #include <rad/IO/Logging.h>
 #include <rad/Container/SmallVector.h>
 #include <rad/Container/Span.h>
@@ -151,7 +152,7 @@ struct VulkanVersion
 using VulkanInstanceDispatcher = vk::raii::detail::InstanceDispatcher;
 using VulkanDeviceDispatcher = vk::raii::detail::DeviceDispatcher;
 
-inline bool HasLayer(const Span<vk::LayerProperties>& layers, std::string_view name)
+inline bool HasLayer(Span<const vk::LayerProperties> layers, std::string_view name)
 {
     for (const auto& layer : layers)
     {
@@ -163,7 +164,7 @@ inline bool HasLayer(const Span<vk::LayerProperties>& layers, std::string_view n
     return false;
 }
 
-inline bool HasExtension(Span<vk::ExtensionProperties> extensions, std::string_view name)
+inline bool HasExtension(Span<const vk::ExtensionProperties> extensions, std::string_view name)
 {
     for (const auto& extension : extensions)
     {
@@ -179,5 +180,16 @@ VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugUtilsMessengerCallback(
     vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     vk::DebugUtilsMessageTypeFlagsEXT messageTypes,
     const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+
+enum class VulkanQueueFamily : uint32_t
+{
+    Universal,
+    Compute,  // Async Compute Engine (ACE)
+    Transfer, // Async Transfer (DMA)
+    Count
+};
+
+// Forward declarations
+class VulkanInstance;
 
 } // namespace rad
