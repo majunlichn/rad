@@ -22,9 +22,9 @@ public:
     ~VulkanDevice();
 
     vk::PhysicalDevice GetPhysicalDevice() const { return m_physicalDevice; }
-    vk::Device GetHandle() const { return static_cast<vk::Device>(m_device); }
-    const VulkanDeviceDispatcher* GetDispatcher() const { return m_device.getDispatcher(); }
-    PFN_vkVoidFunction GetProcAddr(const char* name) const { return m_device.getProcAddr(name); }
+    vk::Device GetHandle() const { return static_cast<vk::Device>(m_handle); }
+    const VulkanDeviceDispatcher* GetDispatcher() const { return m_handle.getDispatcher(); }
+    PFN_vkVoidFunction GetProcAddr(const char* name) const { return m_handle.getProcAddr(name); }
 
     const char* GetName() const { return m_properties.deviceName; }
 
@@ -54,12 +54,12 @@ public:
 
     vk::raii::Queue GetQueue(VulkanQueueFamily queueFamily)
     {
-        return m_device.getQueue(GetQueueFamilyIndex(queueFamily), 0);
+        return m_handle.getQueue(GetQueueFamilyIndex(queueFamily), 0);
     }
 
     vk::raii::Queue GetQueue(const vk::DeviceQueueInfo2& queueInfo)
     {
-        return m_device.getQueue2(queueInfo);
+        return m_handle.getQueue2(queueInfo);
     }
 
     std::set<std::string, rad::StringLess> m_enabledExtensions;
@@ -70,7 +70,7 @@ public:
 
     rad::Ref<VulkanInstance> m_instance;
     vk::raii::PhysicalDevice m_physicalDevice;
-    vk::raii::Device m_device = {nullptr};
+    vk::raii::Device m_handle = {nullptr};
     std::array<uint32_t, UnderlyingCast(VulkanQueueFamily::Count)> m_queueFamilyIndices;
     VmaAllocator m_allocator = nullptr;
 

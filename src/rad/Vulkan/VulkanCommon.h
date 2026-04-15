@@ -191,5 +191,8 @@ enum class VulkanQueueFamily : uint32_t
 
 // Forward declarations
 class VulkanInstance;
+class VulkanDevice;
+class VulkanCommandPool;
+class VulkanCommandBuffer;
 
 } // namespace rad

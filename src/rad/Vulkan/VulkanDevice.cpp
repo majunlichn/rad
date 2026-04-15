@@ -161,7 +161,7 @@ VulkanDevice::VulkanDevice(rad::Ref<VulkanInstance> instance,
     createInfo.setPEnabledExtensionNames(enabledExtensions);
     createInfo.pEnabledFeatures = nullptr;
 
-    m_device = m_physicalDevice.createDevice(createInfo);
+    m_handle = m_physicalDevice.createDevice(createInfo);
 
     // Vma Initialization
     // https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html#quick_start_initialization
@@ -169,7 +169,7 @@ VulkanDevice::VulkanDevice(rad::Ref<VulkanInstance> instance,
     allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_3;
     allocatorCreateInfo.instance = m_instance->GetHandle();
     allocatorCreateInfo.physicalDevice = static_cast<vk::PhysicalDevice>(m_physicalDevice);
-    allocatorCreateInfo.device = static_cast<vk::Device>(m_device);
+    allocatorCreateInfo.device = static_cast<vk::Device>(m_handle);
     VmaVulkanFunctions vmaFunctions = {};
     vmaFunctions.vkGetInstanceProcAddr = m_physicalDevice.getDispatcher()->vkGetInstanceProcAddr;
     vmaFunctions.vkGetDeviceProcAddr = m_physicalDevice.getDispatcher()->vkGetDeviceProcAddr;

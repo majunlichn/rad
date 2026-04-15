@@ -23,10 +23,10 @@ public:
     VulkanInstance();
     ~VulkanInstance();
 
-    vk::Instance GetHandle() const { return static_cast<vk::Instance>(m_instance); }
-    const VulkanInstanceDispatcher* GetDispatcher() const { return m_instance.getDispatcher(); }
+    vk::Instance GetHandle() const { return static_cast<vk::Instance>(m_handle); }
+    const VulkanInstanceDispatcher* GetDispatcher() const { return m_handle.getDispatcher(); }
 
-    PFN_vkVoidFunction GetProcAddr(const char* name) const { return m_instance.getProcAddr(name); }
+    PFN_vkVoidFunction GetProcAddr(const char* name) const { return m_handle.getProcAddr(name); }
 
     std::vector<vk::LayerProperties> EnumerateInstanceLayers();
     std::vector<vk::ExtensionProperties> EnumerateInstanceExtensions(
@@ -51,7 +51,7 @@ public:
 
     vk::raii::Context m_apiContext;
 
-    vk::raii::Instance m_instance = {nullptr};
+    vk::raii::Instance m_handle = {nullptr};
     VulkanVersion m_apiVersion = 0;
     VulkanInstanceConfig m_config = {};
     std::set<std::string, StringLess> m_enabledLayers;

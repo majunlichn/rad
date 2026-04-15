@@ -181,7 +181,7 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
     instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
     instanceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-    m_instance = m_apiContext.createInstance(instanceCreateInfo);
+    m_handle = m_apiContext.createInstance(instanceCreateInfo);
     for (const std::string& layer : m_enabledLayers)
     {
         VK_LOG(info, "Instance layer enabled: {}", layer);
@@ -194,10 +194,10 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
     if (enableValidation)
     {
         m_debugUtilsMessenger =
-            m_instance.createDebugUtilsMessengerEXT(debugUtilsMessengerCreateInfo);
+            m_handle.createDebugUtilsMessengerEXT(debugUtilsMessengerCreateInfo);
     }
 
-    m_physicalDevices = m_instance.enumeratePhysicalDevices();
+    m_physicalDevices = m_handle.enumeratePhysicalDevices();
     for (size_t physicalDeviceIndex = 0; physicalDeviceIndex < m_physicalDevices.size();
          physicalDeviceIndex++)
     {
