@@ -17,7 +17,7 @@ struct VulkanDeviceConfig
 class VulkanDevice : public RefCounted<VulkanDevice>
 {
 public:
-    VulkanDevice(rad::Ref<VulkanInstance> instance, vk::raii::PhysicalDevice physicalDevice,
+    VulkanDevice(Ref<VulkanInstance> instance, vk::raii::PhysicalDevice physicalDevice,
                  const VulkanDeviceConfig& config);
     ~VulkanDevice();
 
@@ -62,13 +62,13 @@ public:
         return m_handle.getQueue2(queueInfo);
     }
 
-    std::set<std::string, rad::StringLess> m_enabledExtensions;
+    std::set<std::string, StringLess> m_enabledExtensions;
     bool IsExtensionEnabled(std::string_view name) const
     {
         return m_enabledExtensions.contains(name);
     }
 
-    rad::Ref<VulkanInstance> m_instance;
+    Ref<VulkanInstance> m_instance;
     vk::raii::PhysicalDevice m_physicalDevice;
     vk::raii::Device m_handle = {nullptr};
     std::array<uint32_t, UnderlyingCast(VulkanQueueFamily::Count)> m_queueFamilyIndices;

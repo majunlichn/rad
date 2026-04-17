@@ -7,7 +7,7 @@
 namespace rad
 {
 
-VulkanCommandPool::VulkanCommandPool(rad::Ref<VulkanDevice> device, VulkanQueueFamily queueFamily,
+VulkanCommandPool::VulkanCommandPool(Ref<VulkanDevice> device, VulkanQueueFamily queueFamily,
                                      vk::CommandPoolCreateFlags flags) :
     m_device(std::move(device)),
     m_queueFamily(queueFamily)
@@ -20,7 +20,7 @@ VulkanCommandPool::~VulkanCommandPool()
 {
 }
 
-std::vector<rad::Ref<VulkanCommandBuffer>> VulkanCommandPool::AllocateCommandBuffers(
+std::vector<Ref<VulkanCommandBuffer>> VulkanCommandPool::AllocateCommandBuffers(
     vk::CommandBufferLevel level, uint32_t count)
 {
     vk::CommandBufferAllocateInfo allocateInfo;
@@ -31,7 +31,7 @@ std::vector<rad::Ref<VulkanCommandBuffer>> VulkanCommandPool::AllocateCommandBuf
     VK_CHECK_RETURN(m_device->GetDispatcher()->vkAllocateCommandBuffers(
         m_device->GetHandle(), reinterpret_cast<const VkCommandBufferAllocateInfo*>(&allocateInfo),
         reinterpret_cast<VkCommandBuffer*>(cmdBufferHandles.data())));
-    std::vector<rad::Ref<VulkanCommandBuffer>> cmdBuffers(count);
+    std::vector<Ref<VulkanCommandBuffer>> cmdBuffers(count);
     for (size_t i = 0; i < count; ++i)
     {
         cmdBuffers[i] = RAD_NEW VulkanCommandBuffer(this, cmdBufferHandles[i]);
@@ -39,7 +39,7 @@ std::vector<rad::Ref<VulkanCommandBuffer>> VulkanCommandPool::AllocateCommandBuf
     return cmdBuffers;
 }
 
-rad::Ref<VulkanCommandBuffer> VulkanCommandPool::AllocateCommandBuffer(vk::CommandBufferLevel level)
+Ref<VulkanCommandBuffer> VulkanCommandPool::AllocateCommandBuffer(vk::CommandBufferLevel level)
 {
     vk::CommandBufferAllocateInfo allocateInfo;
     allocateInfo.commandPool = GetHandle();
@@ -53,7 +53,7 @@ rad::Ref<VulkanCommandBuffer> VulkanCommandPool::AllocateCommandBuffer(vk::Comma
     return RAD_NEW VulkanCommandBuffer(this, cmdBufferHandle);
 }
 
-VulkanCommandBuffer::VulkanCommandBuffer(rad::Ref<VulkanCommandPool> cmdPool,
+VulkanCommandBuffer::VulkanCommandBuffer(Ref<VulkanCommandPool> cmdPool,
                                          vk::CommandBuffer cmdBufferHandle) :
     m_cmdPool(std::move(cmdPool))
 {

@@ -7,7 +7,7 @@
 namespace rad
 {
 
-VulkanDevice::VulkanDevice(rad::Ref<VulkanInstance> instance,
+VulkanDevice::VulkanDevice(Ref<VulkanInstance> instance,
                            vk::raii::PhysicalDevice physicalDevice,
                            const VulkanDeviceConfig& config) :
     m_instance(std::move(instance)),
