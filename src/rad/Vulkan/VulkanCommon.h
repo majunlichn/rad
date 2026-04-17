@@ -194,5 +194,8 @@ class VulkanInstance;
 class VulkanDevice;
 class VulkanCommandPool;
 class VulkanCommandBuffer;
+class VulkanFence;
+class VulkanSemaphore;
+class VulkanEvent;
 
 } // namespace rad
