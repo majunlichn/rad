@@ -7,6 +7,7 @@ set(RAD_VULKAN_HEADERS
     VulkanSemaphore.h
     VulkanEvent.h
     VulkanRenderPass.h
+    VulkanPipeline.h
 )
 
 set(RAD_VULKAN_SOURCES
@@ -18,6 +19,7 @@ set(RAD_VULKAN_SOURCES
     VulkanSemaphore.cpp
     VulkanEvent.cpp
     VulkanRenderPass.cpp
+    VulkanPipeline.cpp
 )
 
 set(RAD_VULKAN_TEST_SOURCES
