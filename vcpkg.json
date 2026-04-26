@@ -5,6 +5,8 @@
     "gtest",
     "pystring",
     "range-v3",
+    "spdlog",
+    "stb",
     "xxhash"
   ]
 }
