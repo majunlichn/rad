@@ -40,3 +40,4 @@ if(RAD_BUILD_TESTS)
 endif()
 
 add_subdirectory(src/rad/Common)
+add_subdirectory(src/rad/Container)
