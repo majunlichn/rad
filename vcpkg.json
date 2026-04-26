@@ -1,7 +1,13 @@
 {
   "builtin-baseline": "d46283cf33cf5de7bd88e12156ce03882be1f179",
   "dependencies": [
+    "backward-cpp",
+    "boost-asio",
+    "boost-filesystem",
     "boost-locale",
+    "boost-nowide",
+    "boost-process",
+    "cpu-features",
     "gtest",
     "pystring",
     "range-v3",

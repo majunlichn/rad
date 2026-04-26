@@ -8,6 +8,7 @@ set(RAD_COMMON_HEADERS
     Integer.h
     Math.h
     Memory.h
+    MemoryDebug.h
     Platform.h
     Random.h
     Range.h
@@ -24,6 +25,7 @@ set(RAD_COMMON_SOURCES
     Integer.cpp
     Math.cpp
     Memory.cpp
+    MemoryDebug.cpp
     Platform.cpp
     Random.cpp
     String.cpp
