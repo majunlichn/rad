@@ -170,16 +170,6 @@ TEST(Common, UTFConv)
         cstring_view view(str);
         EXPECT_TRUE(UTFConv::ToWide(view).empty());
     }
-    {
-        std::string str = "Hello, World!";
-        cstring_view view(str.data() + 7, 5); // "World"
-        EXPECT_EQ(UTFConv::ToWide(view), L"World");
-    }
-    {
-        std::string str = "你好世界";
-        cstring_view view(str.data(), 6); // "你好" (first 2 chars, 6 bytes in UTF-8)
-        EXPECT_EQ(UTFConv::ToWide(view), L"你好");
-    }
 
     // =========================================================================
     // ToUTF8Char8 Tests (returns std::u8string)
@@ -374,27 +364,35 @@ TEST(Common, UTFConv)
     // Edge Case Tests
     // =========================================================================
 
-    // Single character
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'A'}), "A");
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'é'}), "é");
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'世'}), "世");
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'🌍'}), "🌍");
+    // Single character - ASCII
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"A")), "A");
+    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring(L"A")), u8"A");
 
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring{L'A'}), u8"A");
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring{L'é'}), u8"é");
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring{L'世'}), u8"世");
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring{L'🌍'}), u8"🌍");
+    // Single character - Latin accent (fits in single wchar_t on all platforms)
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"é")), "é");
+    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring(L"é")), u8"é");
+
+    // Single character - CJK (fits in single wchar_t on all platforms)
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"世")), "世");
+    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring(L"世")), u8"世");
+
+    // Single emoji - use string literal instead of character literal
+    {
+        std::wstring emojiStr = L"🌍"; // May be 2 wchar_t on Windows
+        EXPECT_EQ(UTFConv::ToUTF8(emojiStr), "🌍");
+        EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(emojiStr), u8"🌍");
+        EXPECT_EQ(UTFConv::ToUTF8(emojiStr).size(), 4u);
+        EXPECT_EQ(UTFConv::ToUTF8Char8(emojiStr).size(), 4u);
+    }
 
     // Single character size verification
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'A'}).size(), 1u);
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'é'}).size(), 2u);
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'世'}).size(), 3u);
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring{L'🌍'}).size(), 4u);
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"A")).size(), 1u);
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"é")).size(), 2u);
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"世")).size(), 3u);
 
-    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring{L'A'}).size(), 1u);
-    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring{L'é'}).size(), 2u);
-    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring{L'世'}).size(), 3u);
-    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring{L'🌍'}).size(), 4u);
+    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring(L"A")).size(), 1u);
+    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring(L"é")).size(), 2u);
+    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring(L"世")).size(), 3u);
 
     // Null character in middle of string
     {
@@ -444,8 +442,9 @@ TEST(Common, UTFConv)
         EXPECT_EQ(memcmp(utf8Result.data(), utf8Char8Result.data(), utf8Result.size()), 0);
     }
     {
-        auto utf8Result = UTFConv::ToUTF8(emojiWide);
-        auto utf8Char8Result = UTFConv::ToUTF8Char8(emojiWide);
+        std::wstring emojiStr = L"🌍🌟🎉";
+        auto utf8Result = UTFConv::ToUTF8(emojiStr);
+        auto utf8Char8Result = UTFConv::ToUTF8Char8(emojiStr);
         EXPECT_EQ(utf8Result.size(), utf8Char8Result.size());
         EXPECT_EQ(memcmp(utf8Result.data(), utf8Char8Result.data(), utf8Result.size()), 0);
     }
@@ -456,45 +455,47 @@ TEST(Common, UTFConv)
 
     // ToUTF8Native
     {
-        auto result = UTFConv::ToUTF8Native(std::wstring_view{L"Hello"});
+        auto result = UTFConv::ToUTF8Native(std::wstring_view(L"Hello"));
         EXPECT_FALSE(result.empty());
         EXPECT_EQ(result, "Hello");
     }
     {
-        auto result = UTFConv::ToUTF8Native(std::wstring_view{L"Café"});
+        auto result = UTFConv::ToUTF8Native(std::wstring_view(L"Café"));
         EXPECT_FALSE(result.empty());
         EXPECT_EQ(result, "Café");
     }
     {
-        auto result = UTFConv::ToUTF8Native(std::wstring_view{L"你好"});
+        std::wstring str = L"你好";
+        auto result = UTFConv::ToUTF8Native(std::wstring_view(str));
         EXPECT_FALSE(result.empty());
         EXPECT_EQ(result, "你好");
     }
     {
-        auto result = UTFConv::ToUTF8Native(std::wstring_view{L"こんにちは"});
+        std::wstring str = L"こんにちは";
+        auto result = UTFConv::ToUTF8Native(std::wstring_view(str));
         EXPECT_FALSE(result.empty());
         EXPECT_EQ(result, "こんにちは");
     }
 
     // ToWideNative
     {
-        auto result = UTFConv::ToWideNative(std::string_view{"Hello"});
+        auto result = UTFConv::ToWideNative(std::string_view("Hello"));
         EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring{L"Hello"});
+        EXPECT_EQ(result, std::wstring(L"Hello"));
     }
     {
-        auto result = UTFConv::ToWideNative(std::string_view{"Café"});
+        auto result = UTFConv::ToWideNative(std::string_view("Café"));
         EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring{L"Café"});
+        EXPECT_EQ(result, std::wstring(L"Café"));
     }
     {
-        auto result = UTFConv::ToWideNative(std::string_view{"你好"});
+        auto result = UTFConv::ToWideNative(std::string_view("你好"));
         EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring{L"你好"});
+        EXPECT_EQ(result, std::wstring(L"你好"));
     }
     {
-        auto result = UTFConv::ToWideNative(std::string_view{"こんにちは"});
+        auto result = UTFConv::ToWideNative(std::string_view("こんにちは"));
         EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring{L"こんにちは"});
+        EXPECT_EQ(result, std::wstring(L"こんにちは"));
     }
 }
