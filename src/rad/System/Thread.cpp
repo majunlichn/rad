@@ -1,5 +1,7 @@
-#include <rad/Common/String.h>
 #include <rad/System/Thread.h>
+
+#include <rad/Common/String.h>
+#include <rad/Common/UTFConv.h>
 
 #include <algorithm>
 #include <array>
@@ -29,7 +31,7 @@ namespace rad
 bool SetThreadName(cstring_view name)
 {
 #if defined(RAD_OS_WINDOWS)
-    std::wstring nameWide = MultiByteToWide(name);
+    std::wstring nameWide = UTFConv::ToWide(name);
     HRESULT hr = ::SetThreadDescription(::GetCurrentThread(), nameWide.c_str());
     return SUCCEEDED(hr);
 #elif defined(HAS_PTHREAD_SETNAME_NP)
@@ -53,7 +55,7 @@ std::string GetThreadName()
         std::wstring nameWide = ppszThreadDescription;
         LocalFree(ppszThreadDescription);
         ppszThreadDescription = nullptr;
-        return WideToMultiByte(nameWide);
+        return UTFConv::ToUTF8(nameWide);
     }
     else
     {

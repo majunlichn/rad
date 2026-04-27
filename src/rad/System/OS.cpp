@@ -1,5 +1,6 @@
 #include <rad/System/OS.h>
 
+#include <rad/Common/UTFConv.h>
 #include <rad/IO/File.h>
 #include <rad/IO/Logging.h>
 
@@ -41,7 +42,7 @@ std::string getlogin()
     {
         // Strip trailing null characters:
         buffer.resize(count > 0 ? count - 1 : 0);
-        return WideToMultiByte(buffer);
+        return UTFConv::ToUTF8(buffer);
     }
     return {};
 #else

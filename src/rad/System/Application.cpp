@@ -2,6 +2,7 @@
 
 #include <rad/System/Application.h>
 
+#include <rad/Common/UTFConv.h>
 #include <rad/IO/Logging.h>
 #include <rad/System/CpuInfo.h>
 #include <rad/System/OS.h>
@@ -106,7 +107,7 @@ std::string Application::GetExecutablePath() const
     }
     if (length > 0)
     {
-        return WideToMultiByte(std::wstring(buffer.data(), length));
+        return UTFConv::ToUTF8(std::wstring(buffer.data(), length));
     }
     else
     {

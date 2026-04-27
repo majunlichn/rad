@@ -16,6 +16,7 @@ set(RAD_COMMON_HEADERS
     Result.h
     String.h
     TypeTraits.h
+    UTFConv.h
     imported/smhasher/src/MurmurHash3.h
 )
 
@@ -29,6 +30,7 @@ set(RAD_COMMON_SOURCES
     Platform.cpp
     Random.cpp
     String.cpp
+    UTFConv.cpp
     imported/smhasher/src/MurmurHash3.cpp
 )
 
@@ -36,6 +38,7 @@ set(RAD_COMMON_TEST_SOURCES
     Common.test.h
     Common.test.cpp
     Integer.test.cpp
+    UTFConv.test.cpp
 )
 
 add_library(rad_common STATIC)

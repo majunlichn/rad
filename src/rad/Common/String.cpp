@@ -130,44 +130,6 @@ void StrTrimInPlace(std::string& str, std::string_view charlist)
     str.erase(0, str.find_first_not_of(charlist));
 }
 
-std::string WideToMultiByte(std::wstring_view wstr)
-{
-#if defined(RAD_OS_WINDOWS)
-    std::string str;
-    int charCount = ::WideCharToMultiByte(CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.length()),
-                                          NULL, 0, NULL, NULL);
-    if (charCount > 0)
-    {
-        str.resize(charCount, 0);
-        ::WideCharToMultiByte(CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.length()), &str[0],
-                              charCount, NULL, NULL);
-    }
-    str.resize(strlen(str.data()));
-    return str;
-#else
-    return boost::locale::conv::utf_to_utf<char>(wstr.data());
-#endif
-}
-
-std::wstring MultiByteToWide(std::string_view str)
-{
-#if defined(RAD_OS_WINDOWS)
-    std::wstring wstr;
-    int charCount =
-        ::MultiByteToWideChar(CP_UTF8, 0, str.data(), static_cast<int>(str.length()), NULL, 0);
-    if (charCount > 0)
-    {
-        wstr.resize(charCount, 0);
-        ::MultiByteToWideChar(CP_UTF8, 0, str.data(), static_cast<int>(str.length()), &wstr[0],
-                              charCount);
-    }
-    wstr.resize(wcsnlen_s(wstr.data(), wstr.size()));
-    return wstr;
-#else
-    return boost::locale::conv::utf_to_utf<wchar_t>(str.data());
-#endif
-}
-
 bool IsDigit(char c)
 {
     return (c >= '0' && c <= '9');

@@ -1,5 +1,7 @@
 #include <rad/System/Process.h>
 
+#include <rad/Common/UTFConv.h>
+
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
@@ -39,7 +41,7 @@ std::string Process::ExecuteAndCaptureOutput(const std::string& executable,
 
     auto env = boost::process::environment::current();
 
-    filesystem::path exePath(MultiByteToWide(executable));
+    filesystem::path exePath(UTFConv::ToWide(executable));
     if (!exePath.has_parent_path() && !boost::filesystem::exists(exePath))
     {
         exePath = boost::process::environment::find_executable(exePath, env);

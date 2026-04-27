@@ -54,10 +54,6 @@ void StrLowerInPlace(std::string& s);
 std::string StrTrim(std::string_view str, std::string_view charlist = " \t\n\v\f\r");
 void StrTrimInPlace(std::string& str, std::string_view charlist = " \t\n\v\f\r");
 
-// Multi-byte string (UTF-8) <-> wide string (UTF-16 on Windows, UTF-32 on Linux/macOS)
-std::string WideToMultiByte(std::wstring_view wstr);
-std::wstring MultiByteToWide(std::string_view str);
-
 bool IsDigit(char c);
 bool IsHexDigit(char c);
 bool StrIsDecInteger(std::string_view str);
