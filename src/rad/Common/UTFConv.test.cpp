@@ -149,27 +149,11 @@ TEST(Common, UTFConv)
     EXPECT_EQ(UTFConv::ToWide(mixedUtf8), mixedWide);
     EXPECT_TRUE(UTFConv::ToWide(emptyUtf8).empty());
 
-    // From cstring_view
-    {
-        std::string str = "Hello, World!";
-        cstring_view view(str);
-        EXPECT_EQ(UTFConv::ToWide(view), asciiWide);
-    }
-    {
-        std::string str = "你好世界";
-        cstring_view view(str);
-        EXPECT_EQ(UTFConv::ToWide(view), chineseWide);
-    }
-    {
-        std::string str = "Café résumé naïve";
-        cstring_view view(str);
-        EXPECT_EQ(UTFConv::ToWide(view), latinWide);
-    }
-    {
-        std::string str;
-        cstring_view view(str);
-        EXPECT_TRUE(UTFConv::ToWide(view).empty());
-    }
+    // From cstring_view (null-terminated)
+    EXPECT_EQ(UTFConv::ToWide(cstring_view("Hello, World!")), asciiWide);
+    EXPECT_EQ(UTFConv::ToWide(cstring_view("你好世界")), chineseWide);
+    EXPECT_EQ(UTFConv::ToWide(cstring_view("Café résumé naïve")), latinWide);
+    EXPECT_TRUE(UTFConv::ToWide(cstring_view("")).empty());
 
     // =========================================================================
     // ToUTF8Char8 Tests (returns std::u8string)
@@ -454,48 +438,16 @@ TEST(Common, UTFConv)
     // =========================================================================
 
     // ToUTF8Native
-    {
-        auto result = UTFConv::ToUTF8Native(std::wstring_view(L"Hello"));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, "Hello");
-    }
-    {
-        auto result = UTFConv::ToUTF8Native(std::wstring_view(L"Café"));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, "Café");
-    }
-    {
-        std::wstring str = L"你好";
-        auto result = UTFConv::ToUTF8Native(std::wstring_view(str));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, "你好");
-    }
-    {
-        std::wstring str = L"こんにちは";
-        auto result = UTFConv::ToUTF8Native(std::wstring_view(str));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, "こんにちは");
-    }
+    EXPECT_FALSE(UTFConv::ToUTF8Native(L"Hello").empty());
+    EXPECT_EQ(UTFConv::ToUTF8Native(L"Hello"), "Hello");
+    EXPECT_EQ(UTFConv::ToUTF8Native(L"Café"), "Café");
+    EXPECT_EQ(UTFConv::ToUTF8Native(L"你好"), "你好");
+    EXPECT_EQ(UTFConv::ToUTF8Native(L"こんにちは"), "こんにちは");
 
     // ToWideNative
-    {
-        auto result = UTFConv::ToWideNative(std::string_view("Hello"));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring(L"Hello"));
-    }
-    {
-        auto result = UTFConv::ToWideNative(std::string_view("Café"));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring(L"Café"));
-    }
-    {
-        auto result = UTFConv::ToWideNative(std::string_view("你好"));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring(L"你好"));
-    }
-    {
-        auto result = UTFConv::ToWideNative(std::string_view("こんにちは"));
-        EXPECT_FALSE(result.empty());
-        EXPECT_EQ(result, std::wstring(L"こんにちは"));
-    }
+    EXPECT_FALSE(UTFConv::ToWideNative("Hello").empty());
+    EXPECT_EQ(UTFConv::ToWideNative("Hello"), std::wstring(L"Hello"));
+    EXPECT_EQ(UTFConv::ToWideNative("Café"), std::wstring(L"Café"));
+    EXPECT_EQ(UTFConv::ToWideNative("你好"), std::wstring(L"你好"));
+    EXPECT_EQ(UTFConv::ToWideNative("こんにちは"), std::wstring(L"こんにちは"));
 }
