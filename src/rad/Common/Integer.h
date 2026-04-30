@@ -87,6 +87,10 @@ template <std::unsigned_integral T>
 {
     assert((start >= 0) && (count >= 0));
     assert(start + count <= BitCount<T>);
+    if (count == 0) [[unlikely]]
+    {
+        return 0;
+    }
     if (count == BitCount<T>) [[unlikely]]
     {
         return value;
@@ -101,6 +105,10 @@ template <std::unsigned_integral T>
 {
     assert(start >= 0 && count >= 0);
     assert(start + count <= BitCount<T>);
+    if (count == 0) [[unlikely]]
+    {
+        return dest;
+    }
     if (count == BitCount<T>) [[unlikely]]
     {
         return src;
@@ -112,6 +120,7 @@ template <std::unsigned_integral T>
 template <std::unsigned_integral T>
 [[nodiscard]] constexpr int BitScanReverse(T value) noexcept
 {
+    assert(value != 0);
     return std::bit_width(value) - 1;
 }
 

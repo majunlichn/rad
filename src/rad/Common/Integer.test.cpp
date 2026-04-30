@@ -59,12 +59,15 @@ void TestExtractReplaceBits()
     EXPECT_EQ(rad::ExtractBits<uint32_t>(value, 8, 8), 0xBEu);
     EXPECT_EQ(rad::ExtractBits<uint32_t>(value, 16, 16), 0xDEADu);
     EXPECT_EQ(rad::ExtractBits<uint32_t>(value, 0, rad::BitCount<uint32_t>), value);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(value, rad::BitCount<uint32_t>, 0), 0u);
+    EXPECT_EQ(rad::ExtractBits<uint32_t>(value, 0, 0), 0u);
 
     // ReplaceBits: replace a nibble and a full-width replacement.
     EXPECT_EQ(rad::ReplaceBits<uint32_t>(0x00000000u, 0xFu, 0, 4), 0x0000000Fu);
     EXPECT_EQ(rad::ReplaceBits<uint32_t>(0x00000000u, 0xAu, 4, 4), 0x000000A0u);
     EXPECT_EQ(rad::ReplaceBits<uint32_t>(0xFFFFFFFFu, 0x0u, 8, 8), 0xFFFF00FFu);
     EXPECT_EQ(rad::ReplaceBits<uint32_t>(0x11111111u, 0x22222222u, 0, rad::BitCount<uint32_t>), 0x22222222u);
+    EXPECT_EQ(rad::ReplaceBits<uint32_t>(0x12345678u, 0xFFFFFFFFu, rad::BitCount<uint32_t>, 0), 0x12345678u);
 }
 
 void TestBitScanReverse32()
