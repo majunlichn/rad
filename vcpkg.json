@@ -6,6 +6,7 @@
     "boost-filesystem",
     "boost-locale",
     "boost-nowide",
+    "boost-outcome",
     "boost-process",
     "cpu-features",
     "gtest",

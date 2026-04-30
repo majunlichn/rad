@@ -14,6 +14,7 @@ message(STATUS "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
 project(rad VERSION 0.0.0 LANGUAGES CXX)
 
 # Build options
+option(RAD_BUILD_VULKAN "Build the Vulkan library" ON)
 option(RAD_BUILD_TESTS "Build tests" ON)
 option(RAD_ENABLE_INSTALL "Enable installation rules" ON)
 
@@ -43,3 +44,6 @@ add_subdirectory(src/rad/Common)
 add_subdirectory(src/rad/Container)
 add_subdirectory(src/rad/IO)
 add_subdirectory(src/rad/System)
+if (RAD_BUILD_VULKAN AND DEFINED ENV{VULKAN_SDK})
+    add_subdirectory(src/rad/Vulkan)
+endif()
