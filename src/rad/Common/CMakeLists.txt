@@ -37,6 +37,7 @@ set(RAD_COMMON_SOURCES
 set(RAD_COMMON_TEST_SOURCES
     Common.test.h
     Common.test.cpp
+    Float.test.cpp
     Integer.test.cpp
     UTFConv.test.cpp
 )

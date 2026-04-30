@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <bit>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 namespace rad
@@ -51,7 +52,21 @@ inline constexpr auto Epsilon = std::numeric_limits<T>::epsilon();
 template <std::floating_point T>
 [[nodiscard]] constexpr bool AlmostEqual(T a, T b, T eps = Epsilon<T>) noexcept
 {
-    return (a == b) || (std::fabs(a - b) <= std::min(std::fabs(a), std::fabs(b)) * eps);
+    if (std::isnan(a) || std::isnan(b))
+    {
+        return false;
+    }
+    if (std::isinf(a) || std::isinf(b))
+    {
+        return a == b;
+    }
+    if (a == b)
+    {
+        return true;
+    }
+    const T diff = std::fabs(a - b);
+    const T scale = std::max(T(1), std::max(std::fabs(a), std::fabs(b)));
+    return diff <= (scale * eps);
 }
 
 // https://entity-toolkit.github.io/wiki/content/useful/float-comparison/#the-simpler-way
@@ -63,7 +78,7 @@ template <std::floating_point T>
 
 // Normalize a value to [0, 1] range
 template <std::floating_point T>
-[[nodiscard]] constexpr float Normalize(T value, T min, T max) noexcept
+[[nodiscard]] constexpr T Normalize(T value, T min, T max) noexcept
 {
     assert(min < max);
     if (value <= min)
@@ -80,7 +95,7 @@ template <std::floating_point T>
     }
 }
 
-template <std::integral T>
+template <std::unsigned_integral T>
 [[nodiscard]] constexpr T QuantizeUnorm(float value, float min, float max) noexcept
 {
     float normalized = Normalize(value, min, max);
