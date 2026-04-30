@@ -4,6 +4,9 @@
 #include <Windows.h>
 #endif
 
+#include <cassert>
+#include <limits>
+
 namespace rad
 {
 
@@ -13,14 +16,17 @@ namespace UTFConv
 std::string ToUTF8Native(std::wstring_view wstr)
 {
 #if defined(RAD_OS_WINDOWS)
+    assert(wstr.size() <= static_cast<size_t>(std::numeric_limits<int>::max()));
     std::string str;
-    int charCount = ::WideCharToMultiByte(CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.length()),
-                                          NULL, 0, NULL, NULL);
+    const int srcLen = static_cast<int>(wstr.length());
+    const DWORD flags = WC_ERR_INVALID_CHARS;
+    int charCount =
+        ::WideCharToMultiByte(CP_UTF8, flags, wstr.data(), srcLen, nullptr, 0, nullptr, nullptr);
     if (charCount > 0)
     {
         str.resize(charCount, 0);
-        ::WideCharToMultiByte(CP_UTF8, 0, wstr.data(), static_cast<int>(wstr.length()), &str[0],
-                              charCount, NULL, NULL);
+        ::WideCharToMultiByte(CP_UTF8, flags, wstr.data(), srcLen, str.data(), charCount, nullptr,
+                              nullptr);
     }
     return str;
 #else
@@ -33,14 +39,15 @@ std::string ToUTF8Native(std::wstring_view wstr)
 std::wstring ToWideNative(std::string_view str)
 {
 #if defined(RAD_OS_WINDOWS)
+    assert(str.size() <= static_cast<size_t>(std::numeric_limits<int>::max()));
     std::wstring wstr;
-    int charCount =
-        ::MultiByteToWideChar(CP_UTF8, 0, str.data(), static_cast<int>(str.length()), NULL, 0);
+    const int srcLen = static_cast<int>(str.length());
+    const DWORD flags = MB_ERR_INVALID_CHARS;
+    int charCount = ::MultiByteToWideChar(CP_UTF8, flags, str.data(), srcLen, nullptr, 0);
     if (charCount > 0)
     {
         wstr.resize(charCount, 0);
-        ::MultiByteToWideChar(CP_UTF8, 0, str.data(), static_cast<int>(str.length()), &wstr[0],
-                              charCount);
+        ::MultiByteToWideChar(CP_UTF8, flags, str.data(), srcLen, wstr.data(), charCount);
     }
     return wstr;
 #else

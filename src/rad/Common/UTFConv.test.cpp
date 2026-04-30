@@ -2,95 +2,124 @@
 
 #include <gtest/gtest.h>
 
+#include <cstring>
 #include <string>
 #include <string_view>
 
 using namespace rad;
 
-// Helper to compare std::u8string without using EXPECT_EQ directly
+// Helper to compare std::u8string without using EXPECT_EQ directly.
 #define EXPECT_U8STRING_EQ(val1, val2) EXPECT_EQ(UTFConv::ToUTF8(val1), UTFConv::ToUTF8(val2))
 
-TEST(Common, UTFConv)
+namespace
 {
-    // Test strings
-    // ASCII
+struct UTFConvTestStrings
+{
     std::string asciiNarrow = "Hello, World!";
     std::wstring asciiWide = L"Hello, World!";
     std::u8string asciiUtf8 = u8"Hello, World!";
     std::u16string asciiUtf16 = u"Hello, World!";
     std::u32string asciiUtf32 = U"Hello, World!";
 
-    // Unicode with Latin accents
     std::string latinNarrow = "Café résumé naïve";
     std::wstring latinWide = L"Café résumé naïve";
     std::u8string latinUtf8 = u8"Café résumé naïve";
     std::u16string latinUtf16 = u"Café résumé naïve";
     std::u32string latinUtf32 = U"Café résumé naïve";
 
-    // Japanese
     std::string japaneseNarrow = "こんにちは世界";
     std::wstring japaneseWide = L"こんにちは世界";
     std::u8string japaneseUtf8 = u8"こんにちは世界";
     std::u16string japaneseUtf16 = u"こんにちは世界";
     std::u32string japaneseUtf32 = U"こんにちは世界";
 
-    // Chinese (Simplified)
     std::string chineseNarrow = "你好世界";
     std::wstring chineseWide = L"你好世界";
     std::u8string chineseUtf8 = u8"你好世界";
     std::u16string chineseUtf16 = u"你好世界";
     std::u32string chineseUtf32 = U"你好世界";
 
-    // Chinese (Traditional)
     std::string chineseTradNarrow = "漢字測試";
     std::wstring chineseTradWide = L"漢字測試";
     std::u8string chineseTradUtf8 = u8"漢字測試";
     std::u16string chineseTradUtf16 = u"漢字測試";
     std::u32string chineseTradUtf32 = U"漢字測試";
 
-    // Emoji
     std::string emojiNarrow = "🌍🌟🎉";
     std::wstring emojiWide = L"🌍🌟🎉";
     std::u8string emojiUtf8 = u8"🌍🌟🎉";
     std::u16string emojiUtf16 = u"🌍🌟🎉";
     std::u32string emojiUtf32 = U"🌍🌟🎉";
 
-    // Mixed scripts
     std::string mixedNarrow = "Hello 你好 こんにちは 🌍 Café";
     std::wstring mixedWide = L"Hello 你好 こんにちは 🌍 Café";
     std::u8string mixedUtf8 = u8"Hello 你好 こんにちは 🌍 Café";
     std::u16string mixedUtf16 = u"Hello 你好 こんにちは 🌍 Café";
     std::u32string mixedUtf32 = U"Hello 你好 こんにちは 🌍 Café";
 
-    // Empty strings
-    std::string emptyNarrow;
-    std::wstring emptyWide;
-    std::u8string emptyUtf8;
-    std::u16string emptyUtf16;
-    std::u32string emptyUtf32;
-
-    // Special characters
     std::wstring specialWide = L"\n\t\r\\\"'";
+};
 
-    // =========================================================================
-    // ToUTF8 Tests (returns std::string)
-    // =========================================================================
+template <typename ToWideFunction>
+void ExpectInvalidUtf8IsRejectedOrReplaced(ToWideFunction&& toWide, const std::string& invalidUtf8)
+{
+    const auto w = toWide(invalidUtf8);
+    // Different backends/configurations either return empty or insert replacement characters.
+    EXPECT_TRUE(w.empty() || (w.find(static_cast<wchar_t>(0xFFFD)) != std::wstring::npos));
+}
+} // namespace
 
-    // From wstring
-    EXPECT_EQ(UTFConv::ToUTF8(asciiWide), asciiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(latinWide), latinNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(japaneseWide), japaneseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(chineseWide), chineseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(chineseTradWide), chineseTradNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(emojiWide), emojiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(mixedWide), mixedNarrow);
-    EXPECT_TRUE(UTFConv::ToUTF8(emptyWide).empty());
+TEST(UTFConv, ToUTF8)
+{
+    const UTFConvTestStrings t;
 
-    // From wstring_view
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring_view(asciiWide)), asciiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring_view(chineseWide)), chineseNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.asciiWide), t.asciiNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.latinWide), t.latinNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.japaneseWide), t.japaneseNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.chineseWide), t.chineseNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.chineseTradWide), t.chineseTradNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.emojiWide), t.emojiNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.mixedWide), t.mixedNarrow);
 
-    // From wstring_view substring
+    EXPECT_EQ(UTFConv::ToUTF8(t.asciiUtf8), t.asciiNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.asciiUtf16), t.asciiNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(t.asciiUtf32), t.asciiNarrow);
+}
+
+TEST(UTFConv, ToWide)
+{
+    const UTFConvTestStrings t;
+
+    EXPECT_EQ(UTFConv::ToWide(t.asciiNarrow), t.asciiWide);
+    EXPECT_EQ(UTFConv::ToWide(t.latinNarrow), t.latinWide);
+    EXPECT_EQ(UTFConv::ToWide(t.japaneseNarrow), t.japaneseWide);
+    EXPECT_EQ(UTFConv::ToWide(t.chineseNarrow), t.chineseWide);
+    EXPECT_EQ(UTFConv::ToWide(t.chineseTradNarrow), t.chineseTradWide);
+    EXPECT_EQ(UTFConv::ToWide(t.emojiNarrow), t.emojiWide);
+    EXPECT_EQ(UTFConv::ToWide(t.mixedNarrow), t.mixedWide);
+
+    EXPECT_EQ(UTFConv::ToWide(t.asciiUtf8), t.asciiWide);
+    EXPECT_EQ(UTFConv::ToWide(cstring_view("Hello, World!")), t.asciiWide);
+    EXPECT_TRUE(UTFConv::ToWide(cstring_view("")).empty());
+}
+
+TEST(UTFConv, ToUTF16AndToUTF32)
+{
+    const UTFConvTestStrings t;
+
+    EXPECT_EQ(UTFConv::ToUTF16(t.asciiWide), t.asciiUtf16);
+    EXPECT_EQ(UTFConv::ToUTF16(t.mixedNarrow), t.mixedUtf16);
+    EXPECT_EQ(UTFConv::ToUTF32(t.asciiWide), t.asciiUtf32);
+    EXPECT_EQ(UTFConv::ToUTF32(t.mixedUtf8), t.mixedUtf32);
+}
+
+TEST(UTFConv, ViewsAndSubstrings)
+{
+    const UTFConvTestStrings t;
+
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring_view(t.asciiWide)), t.asciiNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(std::wstring_view(t.chineseWide)), t.chineseNarrow);
+
     {
         std::wstring testStr = L"Hello, World!";
         std::wstring_view view(testStr.data() + 7, 5); // "World"
@@ -101,353 +130,170 @@ TEST(Common, UTFConv)
         std::wstring_view view(testStr.data() + 2, 2); // "世界"
         EXPECT_EQ(UTFConv::ToUTF8(view), "世界");
     }
+}
 
-    // From u8string
-    EXPECT_EQ(UTFConv::ToUTF8(asciiUtf8), asciiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(chineseUtf8), chineseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(emojiUtf8), emojiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(mixedUtf8), mixedNarrow);
+TEST(UTFConv, RoundTrips)
+{
+    const UTFConvTestStrings t;
 
-    // From u16string
-    EXPECT_EQ(UTFConv::ToUTF8(asciiUtf16), asciiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(latinUtf16), latinNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(japaneseUtf16), japaneseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(chineseUtf16), chineseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(emojiUtf16), emojiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(mixedUtf16), mixedNarrow);
+    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(t.mixedWide)), t.mixedWide);
+    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(t.mixedWide)), t.mixedWide);
 
-    // From u32string
-    EXPECT_EQ(UTFConv::ToUTF8(asciiUtf32), asciiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(latinUtf32), latinNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(japaneseUtf32), japaneseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(chineseUtf32), chineseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(chineseTradUtf32), chineseTradNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(emojiUtf32), emojiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(mixedUtf32), mixedNarrow);
+    EXPECT_EQ(UTFConv::ToUTF8(UTFConv::ToWide(t.mixedNarrow)), t.mixedNarrow);
+    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(UTFConv::ToWide(t.mixedNarrow)), t.mixedUtf8);
 
-    // =========================================================================
-    // ToWide Tests (returns std::wstring)
-    // =========================================================================
-
-    // From narrow string
-    EXPECT_EQ(UTFConv::ToWide(asciiNarrow), asciiWide);
-    EXPECT_EQ(UTFConv::ToWide(latinNarrow), latinWide);
-    EXPECT_EQ(UTFConv::ToWide(japaneseNarrow), japaneseWide);
-    EXPECT_EQ(UTFConv::ToWide(chineseNarrow), chineseWide);
-    EXPECT_EQ(UTFConv::ToWide(chineseTradNarrow), chineseTradWide);
-    EXPECT_EQ(UTFConv::ToWide(emojiNarrow), emojiWide);
-    EXPECT_EQ(UTFConv::ToWide(mixedNarrow), mixedWide);
-    EXPECT_TRUE(UTFConv::ToWide(emptyNarrow).empty());
-
-    // From u8string
-    EXPECT_EQ(UTFConv::ToWide(asciiUtf8), asciiWide);
-    EXPECT_EQ(UTFConv::ToWide(latinUtf8), latinWide);
-    EXPECT_EQ(UTFConv::ToWide(japaneseUtf8), japaneseWide);
-    EXPECT_EQ(UTFConv::ToWide(chineseUtf8), chineseWide);
-    EXPECT_EQ(UTFConv::ToWide(chineseTradUtf8), chineseTradWide);
-    EXPECT_EQ(UTFConv::ToWide(emojiUtf8), emojiWide);
-    EXPECT_EQ(UTFConv::ToWide(mixedUtf8), mixedWide);
-    EXPECT_TRUE(UTFConv::ToWide(emptyUtf8).empty());
-
-    // From cstring_view (null-terminated)
-    EXPECT_EQ(UTFConv::ToWide(cstring_view("Hello, World!")), asciiWide);
-    EXPECT_EQ(UTFConv::ToWide(cstring_view("你好世界")), chineseWide);
-    EXPECT_EQ(UTFConv::ToWide(cstring_view("Café résumé naïve")), latinWide);
-    EXPECT_TRUE(UTFConv::ToWide(cstring_view("")).empty());
-
-    // =========================================================================
-    // ToUTF8Char8 Tests (returns std::u8string)
-    // =========================================================================
-
-    // From wstring - compare via ToUTF8 conversion
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(asciiWide), asciiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(latinWide), latinUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(japaneseWide), japaneseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseWide), chineseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseTradWide), chineseTradUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(emojiWide), emojiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(mixedWide), mixedUtf8);
-    EXPECT_TRUE(UTFConv::ToUTF8Char8(emptyWide).empty());
-
-    // From narrow string
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(asciiNarrow), asciiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(latinNarrow), latinUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(japaneseNarrow), japaneseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseNarrow), chineseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseTradNarrow), chineseTradUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(emojiNarrow), emojiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(mixedNarrow), mixedUtf8);
-    EXPECT_TRUE(UTFConv::ToUTF8Char8(emptyNarrow).empty());
-
-    // From u16string
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(asciiUtf16), asciiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(latinUtf16), latinUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(japaneseUtf16), japaneseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseUtf16), chineseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseTradUtf16), chineseTradUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(emojiUtf16), emojiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(mixedUtf16), mixedUtf8);
-    EXPECT_TRUE(UTFConv::ToUTF8Char8(emptyUtf16).empty());
-
-    // From u32string
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(asciiUtf32), asciiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(latinUtf32), latinUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(japaneseUtf32), japaneseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseUtf32), chineseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(chineseTradUtf32), chineseTradUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(emojiUtf32), emojiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(mixedUtf32), mixedUtf8);
-    EXPECT_TRUE(UTFConv::ToUTF8Char8(emptyUtf32).empty());
-
-    // =========================================================================
-    // ToUTF16 Tests (returns std::u16string)
-    // =========================================================================
-
-    // From wstring
-    EXPECT_EQ(UTFConv::ToUTF16(asciiWide), asciiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(latinWide), latinUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(japaneseWide), japaneseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseWide), chineseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseTradWide), chineseTradUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(emojiWide), emojiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(mixedWide), mixedUtf16);
-    EXPECT_TRUE(UTFConv::ToUTF16(emptyWide).empty());
-
-    // From narrow string
-    EXPECT_EQ(UTFConv::ToUTF16(asciiNarrow), asciiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(latinNarrow), latinUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(japaneseNarrow), japaneseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseNarrow), chineseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseTradNarrow), chineseTradUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(emojiNarrow), emojiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(mixedNarrow), mixedUtf16);
-    EXPECT_TRUE(UTFConv::ToUTF16(emptyNarrow).empty());
-
-    // From u8string
-    EXPECT_EQ(UTFConv::ToUTF16(asciiUtf8), asciiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(latinUtf8), latinUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(japaneseUtf8), japaneseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseUtf8), chineseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseTradUtf8), chineseTradUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(emojiUtf8), emojiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(mixedUtf8), mixedUtf16);
-    EXPECT_TRUE(UTFConv::ToUTF16(emptyUtf8).empty());
-
-    // From u32string
-    EXPECT_EQ(UTFConv::ToUTF16(asciiUtf32), asciiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(latinUtf32), latinUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(japaneseUtf32), japaneseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseUtf32), chineseUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(chineseTradUtf32), chineseTradUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(emojiUtf32), emojiUtf16);
-    EXPECT_EQ(UTFConv::ToUTF16(mixedUtf32), mixedUtf16);
-    EXPECT_TRUE(UTFConv::ToUTF16(emptyUtf32).empty());
-
-    // =========================================================================
-    // ToUTF32 Tests (returns std::u32string)
-    // =========================================================================
-
-    // From wstring
-    EXPECT_EQ(UTFConv::ToUTF32(asciiWide), asciiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(latinWide), latinUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(japaneseWide), japaneseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseWide), chineseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseTradWide), chineseTradUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(emojiWide), emojiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(mixedWide), mixedUtf32);
-    EXPECT_TRUE(UTFConv::ToUTF32(emptyWide).empty());
-
-    // From narrow string
-    EXPECT_EQ(UTFConv::ToUTF32(asciiNarrow), asciiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(latinNarrow), latinUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(japaneseNarrow), japaneseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseNarrow), chineseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseTradNarrow), chineseTradUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(emojiNarrow), emojiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(mixedNarrow), mixedUtf32);
-    EXPECT_TRUE(UTFConv::ToUTF32(emptyNarrow).empty());
-
-    // From u8string
-    EXPECT_EQ(UTFConv::ToUTF32(asciiUtf8), asciiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(latinUtf8), latinUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(japaneseUtf8), japaneseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseUtf8), chineseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseTradUtf8), chineseTradUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(emojiUtf8), emojiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(mixedUtf8), mixedUtf32);
-    EXPECT_TRUE(UTFConv::ToUTF32(emptyUtf8).empty());
-
-    // From u16string
-    EXPECT_EQ(UTFConv::ToUTF32(asciiUtf16), asciiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(latinUtf16), latinUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(japaneseUtf16), japaneseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseUtf16), chineseUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(chineseTradUtf16), chineseTradUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(emojiUtf16), emojiUtf32);
-    EXPECT_EQ(UTFConv::ToUTF32(mixedUtf16), mixedUtf32);
-    EXPECT_TRUE(UTFConv::ToUTF32(emptyUtf16).empty());
-
-    // =========================================================================
-    // Round-Trip Conversion Tests
-    // =========================================================================
-
-    // Wide -> UTF8 -> Wide
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(asciiWide)), asciiWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(latinWide)), latinWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(japaneseWide)), japaneseWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(chineseWide)), chineseWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(chineseTradWide)), chineseTradWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(emojiWide)), emojiWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(mixedWide)), mixedWide);
-
-    // Wide -> UTF8Char8 -> Wide
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(asciiWide)), asciiWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(latinWide)), latinWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(japaneseWide)), japaneseWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(chineseWide)), chineseWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(emojiWide)), emojiWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(mixedWide)), mixedWide);
-
-    // Narrow -> Wide -> UTF8
-    EXPECT_EQ(UTFConv::ToUTF8(UTFConv::ToWide(asciiNarrow)), asciiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(UTFConv::ToWide(latinNarrow)), latinNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(UTFConv::ToWide(japaneseNarrow)), japaneseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(UTFConv::ToWide(chineseNarrow)), chineseNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(UTFConv::ToWide(emojiNarrow)), emojiNarrow);
-    EXPECT_EQ(UTFConv::ToUTF8(UTFConv::ToWide(mixedNarrow)), mixedNarrow);
-
-    // Narrow -> Wide -> UTF8Char8
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(UTFConv::ToWide(asciiNarrow)), asciiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(UTFConv::ToWide(latinNarrow)), latinUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(UTFConv::ToWide(japaneseNarrow)), japaneseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(UTFConv::ToWide(chineseNarrow)), chineseUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(UTFConv::ToWide(emojiNarrow)), emojiUtf8);
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(UTFConv::ToWide(mixedNarrow)), mixedUtf8);
-
-    // All formats round-trip: UTF8Char8 -> UTF16 -> UTF32 -> UTF8Char8
+    // UTF8Char8 -> UTF16 -> UTF32 -> UTF8Char8.
     {
-        auto utf16Result = UTFConv::ToUTF16(mixedUtf8);
-        auto utf32Result = UTFConv::ToUTF32(utf16Result);
-        auto utf8Result = UTFConv::ToUTF8Char8(utf32Result);
-        EXPECT_U8STRING_EQ(utf8Result, mixedUtf8);
+        const auto utf16Result = UTFConv::ToUTF16(t.mixedUtf8);
+        const auto utf32Result = UTFConv::ToUTF32(utf16Result);
+        const auto utf8Result = UTFConv::ToUTF8Char8(utf32Result);
+        EXPECT_U8STRING_EQ(utf8Result, t.mixedUtf8);
     }
 
-    // All formats round-trip: UTF8 -> UTF16 -> UTF32 -> UTF8
+    // Special characters.
+    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(t.specialWide)), t.specialWide);
+    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(t.specialWide)), t.specialWide);
+}
+
+TEST(UTFConv, EmbeddedNulls)
+{
+    // std::string/std::wstring conversions should preserve embedded NULs (size-based inputs).
     {
-        auto utf16Result = UTFConv::ToUTF16(mixedNarrow);
-        auto utf32Result = UTFConv::ToUTF32(utf16Result);
-        auto utf8Result = UTFConv::ToUTF8(utf32Result);
-        EXPECT_EQ(utf8Result, mixedNarrow);
-    }
-
-    // Special characters round-trip
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8(specialWide)), specialWide);
-    EXPECT_EQ(UTFConv::ToWide(UTFConv::ToUTF8Char8(specialWide)), specialWide);
-
-    // =========================================================================
-    // Edge Case Tests
-    // =========================================================================
-
-    // Single character - ASCII
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"A")), "A");
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring(L"A")), u8"A");
-
-    // Single character - Latin accent (fits in single wchar_t on all platforms)
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"é")), "é");
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring(L"é")), u8"é");
-
-    // Single character - CJK (fits in single wchar_t on all platforms)
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"世")), "世");
-    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(std::wstring(L"世")), u8"世");
-
-    // Single emoji - use string literal instead of character literal
-    {
-        std::wstring emojiStr = L"🌍"; // May be 2 wchar_t on Windows
-        EXPECT_EQ(UTFConv::ToUTF8(emojiStr), "🌍");
-        EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(emojiStr), u8"🌍");
-        EXPECT_EQ(UTFConv::ToUTF8(emojiStr).size(), 4u);
-        EXPECT_EQ(UTFConv::ToUTF8Char8(emojiStr).size(), 4u);
-    }
-
-    // Single character size verification
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"A")).size(), 1u);
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"é")).size(), 2u);
-    EXPECT_EQ(UTFConv::ToUTF8(std::wstring(L"世")).size(), 3u);
-
-    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring(L"A")).size(), 1u);
-    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring(L"é")).size(), 2u);
-    EXPECT_EQ(UTFConv::ToUTF8Char8(std::wstring(L"世")).size(), 3u);
-
-    // Null character in middle of string
-    {
-        std::wstring strWithNull = L"Hello\0World";
-        strWithNull.resize(11);
-        auto result = UTFConv::ToUTF8(strWithNull);
-        EXPECT_EQ(result.size(), 11u);
-        EXPECT_EQ(result[5], '\0');
+        const std::string narrowWithNull("Hi\0There", 8);
+        const auto wide = UTFConv::ToWide(narrowWithNull);
+        EXPECT_EQ(wide.size(), 8u);
+        EXPECT_EQ(wide[2], L'\0');
+        EXPECT_EQ(UTFConv::ToUTF8(wide), narrowWithNull);
     }
     {
-        std::wstring strWithNull = L"Hello\0World";
-        strWithNull.resize(11);
-        auto result = UTFConv::ToUTF8Char8(strWithNull);
-        EXPECT_EQ(result.size(), 11u);
-        EXPECT_EQ(static_cast<char>(result[5]), '\0');
+        std::wstring wideWithNull = L"Hello\0World";
+        wideWithNull.resize(11);
+        const auto utf8 = UTFConv::ToUTF8(wideWithNull);
+        EXPECT_EQ(utf8.size(), 11u);
+        EXPECT_EQ(utf8[5], '\0');
     }
 
-    // Very long string
+    // cstring_view is NTBS: it stops at the first NUL.
     {
-        std::wstring longStr(10000, L'A');
-        auto result = UTFConv::ToUTF8(longStr);
-        EXPECT_EQ(result.size(), 10000u);
-        EXPECT_EQ(result, std::string(10000, 'A'));
+        static const char ntbsWithNull[] = "Hi\0There";
+        const auto wide = UTFConv::ToWide(cstring_view(ntbsWithNull));
+        EXPECT_EQ(wide, std::wstring(L"Hi"));
     }
-    {
-        std::wstring longStr(10000, L'A');
-        auto result = UTFConv::ToUTF8Char8(longStr);
-        EXPECT_EQ(result.size(), 10000u);
-        EXPECT_U8STRING_EQ(result, std::u8string(10000, u8'A'));
-    }
+}
 
-    // =========================================================================
-    // Binary Content Verification Tests
-    // =========================================================================
+TEST(UTFConv, BinaryContentMatches)
+{
+    const UTFConvTestStrings t;
 
-    // ToUTF8 and ToUTF8Char8 produce identical binary content
-    {
-        auto utf8Result = UTFConv::ToUTF8(chineseWide);
-        auto utf8Char8Result = UTFConv::ToUTF8Char8(chineseWide);
-        EXPECT_EQ(utf8Result.size(), utf8Char8Result.size());
-        EXPECT_EQ(memcmp(utf8Result.data(), utf8Char8Result.data(), utf8Result.size()), 0);
-    }
-    {
-        auto utf8Result = UTFConv::ToUTF8(mixedWide);
-        auto utf8Char8Result = UTFConv::ToUTF8Char8(mixedWide);
-        EXPECT_EQ(utf8Result.size(), utf8Char8Result.size());
-        EXPECT_EQ(memcmp(utf8Result.data(), utf8Char8Result.data(), utf8Result.size()), 0);
-    }
-    {
-        std::wstring emojiStr = L"🌍🌟🎉";
-        auto utf8Result = UTFConv::ToUTF8(emojiStr);
-        auto utf8Char8Result = UTFConv::ToUTF8Char8(emojiStr);
-        EXPECT_EQ(utf8Result.size(), utf8Char8Result.size());
-        EXPECT_EQ(memcmp(utf8Result.data(), utf8Char8Result.data(), utf8Result.size()), 0);
-    }
+    const auto utf8Result = UTFConv::ToUTF8(t.mixedWide);
+    const auto utf8Char8Result = UTFConv::ToUTF8Char8(t.mixedWide);
+    ASSERT_EQ(utf8Result.size(), utf8Char8Result.size());
+    EXPECT_EQ(std::memcmp(utf8Result.data(), utf8Char8Result.data(), utf8Result.size()), 0);
+}
 
-    // =========================================================================
-    // Native Function Tests
-    // =========================================================================
+TEST(UTFConv, EmptyInputs)
+{
+    EXPECT_TRUE(UTFConv::ToUTF8(std::string()).empty());
+    EXPECT_TRUE(UTFConv::ToUTF8(std::wstring()).empty());
+    EXPECT_TRUE(UTFConv::ToUTF8(std::u8string()).empty());
+    EXPECT_TRUE(UTFConv::ToUTF8(std::u16string()).empty());
+    EXPECT_TRUE(UTFConv::ToUTF8(std::u32string()).empty());
 
-    // ToUTF8Native
-    EXPECT_FALSE(UTFConv::ToUTF8Native(L"Hello").empty());
+    EXPECT_TRUE(UTFConv::ToWide(std::string()).empty());
+    EXPECT_TRUE(UTFConv::ToWide(std::wstring()).empty());
+    EXPECT_TRUE(UTFConv::ToWide(std::u8string()).empty());
+    EXPECT_TRUE(UTFConv::ToWide(std::u16string()).empty());
+    EXPECT_TRUE(UTFConv::ToWide(std::u32string()).empty());
+
+    EXPECT_TRUE(UTFConv::ToUTF8Char8(std::string()).empty());
+    EXPECT_TRUE(UTFConv::ToUTF8Char8(std::wstring()).empty());
+    EXPECT_TRUE(UTFConv::ToUTF16(std::string()).empty());
+    EXPECT_TRUE(UTFConv::ToUTF32(std::string()).empty());
+
+    EXPECT_TRUE(UTFConv::ToUTF8Native(std::wstring()).empty());
+    EXPECT_TRUE(UTFConv::ToWideNative(std::string()).empty());
+}
+
+TEST(UTFConv, NativeFunctions)
+{
+    const UTFConvTestStrings t;
+
     EXPECT_EQ(UTFConv::ToUTF8Native(L"Hello"), "Hello");
     EXPECT_EQ(UTFConv::ToUTF8Native(L"Café"), "Café");
     EXPECT_EQ(UTFConv::ToUTF8Native(L"你好"), "你好");
     EXPECT_EQ(UTFConv::ToUTF8Native(L"こんにちは"), "こんにちは");
 
-    // ToWideNative
-    EXPECT_FALSE(UTFConv::ToWideNative("Hello").empty());
     EXPECT_EQ(UTFConv::ToWideNative("Hello"), std::wstring(L"Hello"));
     EXPECT_EQ(UTFConv::ToWideNative("Café"), std::wstring(L"Café"));
     EXPECT_EQ(UTFConv::ToWideNative("你好"), std::wstring(L"你好"));
     EXPECT_EQ(UTFConv::ToWideNative("こんにちは"), std::wstring(L"こんにちは"));
+}
+
+TEST(UTFConv, ExplicitSurrogatePairInputs)
+{
+    // U+1F30D (EARTH GLOBE EUROPE-AFRICA) in UTF-16: D83C DF0D.
+    const std::u16string earthUtf16 = {0xD83C, 0xDF0D};
+    const std::u32string earthUtf32 = {0x0001F30D};
+
+    const std::string earthUtf8 = "🌍";
+    const std::u8string earthUtf8c = u8"🌍";
+
+    EXPECT_EQ(UTFConv::ToUTF8(earthUtf16), earthUtf8);
+    EXPECT_EQ(UTFConv::ToUTF8(earthUtf32), earthUtf8);
+    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(earthUtf16), earthUtf8c);
+    EXPECT_U8STRING_EQ(UTFConv::ToUTF8Char8(earthUtf32), earthUtf8c);
+
+    // Round-trip back to UTF-16/UTF-32.
+    EXPECT_EQ(UTFConv::ToUTF16(earthUtf8), earthUtf16);
+    EXPECT_EQ(UTFConv::ToUTF32(earthUtf8), earthUtf32);
+
+    // Platform detail: wchar_t is UTF-16 on Windows, UTF-32 on most Unix-likes.
+    const auto wide = UTFConv::ToWide(earthUtf8);
+#if defined(RAD_OS_WINDOWS)
+    EXPECT_EQ(wide.size(), 2u);
+#else
+    EXPECT_EQ(wide.size(), 1u);
+#endif
+}
+
+TEST(UTFConv, InvalidUtfInputs)
+{
+    // Truncated UTF-8 sequence (invalid).
+    const std::string invalidUtf8Truncated = std::string("\xE3\x81", 2);
+    // UTF-8 encoding of a surrogate code point is invalid (ED A0 80 = U+D800).
+    const std::string invalidUtf8Surrogate = std::string("\xED\xA0\x80", 3);
+    // Overlong UTF-8 encoding (invalid).
+    const std::string invalidUtf8Overlong = std::string("\xC0\xAF", 2);
+    // Bad continuation byte (invalid).
+    const std::string invalidUtf8BadContinuation = std::string("\xE2\x28\xA1", 3);
+
+#if defined(RAD_OS_WINDOWS)
+    EXPECT_TRUE(UTFConv::ToWideNative(invalidUtf8Truncated).empty());
+    EXPECT_TRUE(UTFConv::ToWideNative(invalidUtf8Surrogate).empty());
+    EXPECT_TRUE(UTFConv::ToWideNative(invalidUtf8Overlong).empty());
+    EXPECT_TRUE(UTFConv::ToWideNative(invalidUtf8BadContinuation).empty());
+#else
+    ExpectInvalidUtf8IsRejectedOrReplaced(UTFConv::ToWideNative, invalidUtf8Truncated);
+    ExpectInvalidUtf8IsRejectedOrReplaced(UTFConv::ToWideNative, invalidUtf8Surrogate);
+    ExpectInvalidUtf8IsRejectedOrReplaced(UTFConv::ToWideNative, invalidUtf8Overlong);
+    ExpectInvalidUtf8IsRejectedOrReplaced(UTFConv::ToWideNative, invalidUtf8BadContinuation);
+#endif
+
+    ExpectInvalidUtf8IsRejectedOrReplaced([](const std::string& s) { return UTFConv::ToWide(s); },
+                                          invalidUtf8Truncated);
+    ExpectInvalidUtf8IsRejectedOrReplaced([](const std::string& s) { return UTFConv::ToWide(s); },
+                                          invalidUtf8Surrogate);
+    ExpectInvalidUtf8IsRejectedOrReplaced([](const std::string& s) { return UTFConv::ToWide(s); },
+                                          invalidUtf8Overlong);
+    ExpectInvalidUtf8IsRejectedOrReplaced(
+        [](const std::string& s) { return UTFConv::ToWide(s); }, invalidUtf8BadContinuation);
+
+    // Lone surrogate in UTF-16 input should be rejected by strict native conversion on Windows.
+    std::wstring loneHighSurrogate(1, static_cast<wchar_t>(0xD800));
+#if defined(RAD_OS_WINDOWS)
+    EXPECT_TRUE(UTFConv::ToUTF8Native(loneHighSurrogate).empty());
+#else
+    const auto utf8 = UTFConv::ToUTF8Native(loneHighSurrogate);
+    EXPECT_FALSE(utf8.empty());
+#endif
 }
