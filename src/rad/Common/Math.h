@@ -1,11 +1,8 @@
 #pragma once
 
-#include <rad/Common/Float.h>
-
-#include <cassert>
+#include <algorithm>
 #include <cmath>
-
-#include <numbers>
+#include <limits>
 
 // e = e_v<double>;
 // log2e = log2e_v<double>;
@@ -21,19 +18,44 @@
 // egamma = egamma_v<double>; // the Euler-Mascheroni constant: https://en.wikipedia.org/wiki/Euler%27s_constant
 // phi = phi_v<double>; // the golden ratio: (1+sqrt(5))/2 = 1.618033988749...
 
-#if !defined(M_PI)
-#define M_E 2.71828182845904523536        // e
-#define M_LOG2E 1.44269504088896340736    // log2(e)
-#define M_LOG10E 0.434294481903251827651  // log10(e)
-#define M_LN2 0.693147180559945309417     // ln(2)
-#define M_LN10 2.30258509299404568402     // ln(10)
-#define M_PI 3.14159265358979323846       // pi
-#define M_PI_2 1.57079632679489661923     // pi/2
-#define M_PI_4 0.785398163397448309616    // pi/4
-#define M_1_PI 0.318309886183790671538    // 1/pi
-#define M_2_PI 0.636619772367581343076    // 2/pi
+// Legacy C-style constants (when not provided by the platform / math headers).
+#ifndef M_E
+#define M_E 2.71828182845904523536 // e
+#endif
+#ifndef M_LOG2E
+#define M_LOG2E 1.44269504088896340736 // log2(e)
+#endif
+#ifndef M_LOG10E
+#define M_LOG10E 0.434294481903251827651 // log10(e)
+#endif
+#ifndef M_LN2
+#define M_LN2 0.693147180559945309417 // ln(2)
+#endif
+#ifndef M_LN10
+#define M_LN10 2.30258509299404568402 // ln(10)
+#endif
+#ifndef M_PI
+#define M_PI 3.14159265358979323846 // pi
+#endif
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923 // pi/2
+#endif
+#ifndef M_PI_4
+#define M_PI_4 0.785398163397448309616 // pi/4
+#endif
+#ifndef M_1_PI
+#define M_1_PI 0.318309886183790671538 // 1/pi
+#endif
+#ifndef M_2_PI
+#define M_2_PI 0.636619772367581343076 // 2/pi
+#endif
+#ifndef M_2_SQRTPI
 #define M_2_SQRTPI 1.12837916709551257390 // 2/sqrt(pi)
-#define M_SQRT2 1.41421356237309504880    // sqrt(2)
+#endif
+#ifndef M_SQRT2
+#define M_SQRT2 1.41421356237309504880 // sqrt(2)
+#endif
+#ifndef M_SQRT1_2
 #define M_SQRT1_2 0.707106781186547524401 // 1/sqrt(2)
 #endif
 
@@ -46,7 +68,7 @@ namespace rad
 // https://pbr-book.org/3ed-2018/Utilities/Mathematical_Routines
 // https://github.com/mmp/pbrt-v4/blob/master/src/pbrt/util/math.h
 template <typename Float>
-constexpr bool SolveQuadratic(Float a, Float b, Float c, Float& t0, Float& t1)
+bool SolveQuadratic(Float a, Float b, Float c, Float& t0, Float& t1)
 {
     // Handle case of $a=0$ for quadratic solution
     if (a == 0) [[unlikely]]
@@ -67,11 +89,19 @@ constexpr bool SolveQuadratic(Float a, Float b, Float c, Float& t0, Float& t1)
         t0 = t1 = -c / b;
         return true;
     }
-    // Find quadratic discriminant: b^2 - 4ac
-    Float discrim = std::fma(b, b, -4 * a * c);
-    if (discrim < 0)
+    // Discriminant b^2 - 4ac via FMA for better rounding than (b*b - 4*a*c).
+    const Float four_ac = Float(4) * a * c;
+    Float discrim = std::fma(b, b, -four_ac);
+    if (discrim < Float(0))
     {
-        return false;
+        // Tiny negative discriminants are usually rounding noise when roots are tangent/discrim ~ 0.
+        const Float scale = (std::max)(std::fabs(b * b), std::fabs(four_ac)) + Float(1);
+        const Float tol = std::numeric_limits<Float>::epsilon() * scale * Float(8);
+        if (discrim < -tol)
+        {
+            return false;
+        }
+        discrim = Float(0);
     }
     Float rootDiscrim = std::sqrt(discrim);
     // Compute quadratic _t_ values
