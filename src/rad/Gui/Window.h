@@ -1,0 +1,149 @@
+#pragma once
+
+#include <rad/Gui/GuiApplication.h>
+#include <rad/Gui/GuiEventHandler.h>
+
+#include <rad/Common/String.h>
+
+#include <SDL3/SDL.h>
+
+#include <cstdint>
+#include <vector>
+
+namespace rad
+{
+
+class Application;
+
+class Window : public GuiEventHandler
+{
+public:
+    Window();
+    ~Window();
+
+    virtual bool Create(cstring_view title, int w, int h, SDL_WindowFlags flags = 0);
+    virtual void Destroy();
+
+    SDL_Window* GetHandle() { return m_handle; }
+    SDL_WindowID GetID() const { return m_id; }
+
+    float GetPixelDensity();
+    float GetDisplayScale();
+    bool SetFullscreenMode(const SDL_DisplayMode* mode);
+    bool SetFullscreenMode(const SDL_DisplayMode& mode);
+    bool SetBorderlessFullscreenDesktopMode();
+    const SDL_DisplayMode* GetFullscreenMode();
+    // Returns ICC profile bytes for the window's current display. Empty on failure.
+    std::vector<uint8_t> GetICCProfile();
+    Uint32 GetPixelFormat();
+
+    SDL_WindowFlags GetFlags();
+    bool SetTitle(cstring_view title);
+    const char* GetTitle();
+    bool SetIcon(SDL_Surface* icon);
+    bool SetPosition(int x, int y);
+    bool GetPosition(int* x, int* y);
+    bool SetSize(int w, int h);
+    bool Resize(int w, int h);
+    bool GetSize(int* w, int* h);
+    bool GetSafeArea(SDL_Rect* rect);
+    bool SetAspectRatio(float minAspect, float maxAspect);
+    bool GetAspectRatio(float* minAspect, float* maxAspect);
+    bool GetBordersSize(int* top, int* left, int* bottom, int* right);
+    bool GetSizeInPixels(int* w, int* h);
+    bool SetMinimumSize(int w, int h);
+    bool GetMinimumSize(int* w, int* h);
+    bool SetMaximumSize(int w, int h);
+    bool GetMaximumSize(int* w, int* h);
+    bool SetBordered(bool bordered);
+    bool SetResizable(bool resizable);
+    bool SetAlwaysOnTop(bool onTop);
+
+    bool Show();
+    bool Hide();
+    bool Raise();
+    bool Maximize();
+    bool Minimize();
+    bool Restore();
+    bool SetFullscreen(bool fullscreen);
+    bool Sync();
+
+    bool HasSurface();
+    SDL_Surface* GetSurface();
+    bool SetSurfaceVSync(int vsync);
+    bool GetSurfaceVSync(int* vsync);
+    bool UpdateSurface();
+    bool UpdateSurfaceRects(rad::Span<SDL_Rect> rects);
+    bool DestroySurface();
+
+    bool SetKeyboardGrab(bool grabbed);
+    bool SetMouseGrab(bool grabbed);
+    bool GetKeyboardGrab();
+    bool GetMouseGrab();
+
+    bool SetMouseRect(const SDL_Rect* rect);
+    bool SetMouseRect(const SDL_Rect& rect);
+    const SDL_Rect* GetMouseRect();
+
+    bool SetOpacity(float opacity);
+    bool GetOpacity(float* opacity);
+    bool SetFocusable(bool focusable);
+
+    bool ShowSystemMenu(int x, int y);
+    bool SetShape(SDL_Surface* shape);
+    bool Flash(SDL_FlashOperation operation);
+
+protected:
+    SDL_Window* m_handle = nullptr;
+    SDL_WindowID m_id = 0;
+    // Custom event handlers.
+    std::vector<GuiEventHandler*> m_eventHandlers;
+
+    virtual bool OnEvent(const SDL_Event& event) override;
+    virtual void OnIdle() override;
+
+    // Window events:
+    virtual void OnWindowEvent(const SDL_WindowEvent& event);
+    virtual void OnShown() {}
+    virtual void OnHidden() {}
+    virtual void OnExposed() {}
+    virtual void OnMoved(int x, int y) {}
+    virtual void OnResized(int width, int height) {}
+    virtual void OnPixelSizeChanged(int width, int height) {}
+    virtual void OnMinimized() {}
+    virtual void OnMaximized() {}
+    virtual void OnRestored() {}
+    virtual void OnMouseEnter() {}
+    virtual void OnMouseLeave() {}
+    // Window has gained keyboard focus.
+    virtual void OnFocusGained() {}
+    // Window has lost keyboard focus.
+    virtual void OnFocusLost() {}
+    virtual void OnCloseRequested() { Destroy(); }
+    virtual void OnHitTest() {}
+    virtual void OnIccProfileChanged() {}
+    virtual void OnDisplayChanged() {}
+    virtual void OnDisplayScaleChanged() {}
+    virtual void OnOccluded() {}
+    virtual void OnEnterFullscreen() {}
+    virtual void OnLeaveFullscreen() {}
+    virtual void OnDestroyed() {}
+
+    // Keyboard events:
+    virtual void OnKeyDown(const SDL_KeyboardEvent& keyDown) {}
+    virtual void OnKeyUp(const SDL_KeyboardEvent& keyUp) {}
+    virtual void OnTextEditing(const SDL_TextEditingEvent& textEditing) {}
+    virtual void OnTextInput(const SDL_TextInputEvent& textInput) {}
+
+    // Mouse events:
+    virtual void OnMouseMove(const SDL_MouseMotionEvent& mouseMotion) {}
+    virtual void OnMouseButtonDown(const SDL_MouseButtonEvent& mouseButton) {}
+    virtual void OnMouseButtonUp(const SDL_MouseButtonEvent& mouseButton) {}
+    virtual void OnMouseWheel(const SDL_MouseWheelEvent& mouseWheel) {}
+
+    // User
+    virtual void OnUserEvent(const SDL_UserEvent& user) {}
+
+}; // class Window
+
+} // namespace rad

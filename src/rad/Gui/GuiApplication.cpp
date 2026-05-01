@@ -1,3 +1,5 @@
+#include <rad/Common/MemoryDebug.h>
+
 #include <rad/Gui/GuiApplication.h>
 
 namespace rad
@@ -12,8 +14,19 @@ GuiApplication::~GuiApplication()
     Destroy();
 }
 
+GuiApplication* GuiApplication::GetInstance()
+{
+    static Ref<GuiApplication> g_app = RAD_NEW GuiApplication();
+    return g_app.get();
+}
+
 bool GuiApplication::Init(int argc, char** argv)
 {
+    if (m_initialized)
+    {
+        return true;
+    }
+
     Application::Init(argc, argv);
     RAD_LOG_GUI(info, "SDL compiled version: {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
                 SDL_MICRO_VERSION);
@@ -22,6 +35,7 @@ bool GuiApplication::Init(int argc, char** argv)
     if (!m_initialized)
     {
         RAD_LOG_GUI(err, "SDL_Init failed: {}", SDL_GetError());
+        m_status = Status::Unknown;
         return false;
     }
     int version = SDL_GetVersion();
@@ -47,13 +61,58 @@ bool GuiApplication::Init(int argc, char** argv)
 
 void GuiApplication::Destroy()
 {
-    if (m_initialized)
+    if (!m_initialized)
     {
-        SDL_Quit();
-        RAD_LOG_GUI(info, "SDL quit.");
-        m_initialized = false;
         m_status = Status::Unknown;
+        return;
     }
+
+    SDL_Quit();
+    m_initialized = false;
+    m_status = Status::Unknown;
+}
+
+int GuiApplication::Run()
+{
+    if (!m_initialized)
+    {
+        RAD_LOG_GUI(err, "GuiApplication::Run called before Init().");
+        return -1;
+    }
+
+    // If the caller didn't set a status, treat this as starting execution.
+    if (m_status == Status::Initialized)
+    {
+        m_status = Status::Running;
+    }
+
+    SDL_Event event;
+    while (m_status != Status::Exited)
+    {
+        // Process all pending events.
+        while (SDL_PollEvent(&event))
+        {
+            OnEvent(event);
+            if (m_status == Status::Exited)
+            {
+                break;
+            }
+        }
+
+        // One idle tick per loop iteration (update/render, etc.).
+        if (m_status != Status::Exited)
+        {
+            OnIdle();
+        }
+
+        // Avoid a tight spin-loop when idle with no events.
+        if (m_status != Status::Exited)
+        {
+            SDL_Delay(1);
+        }
+    }
+
+    return m_errCode.load();
 }
 
 SDL_InitFlags GuiApplication::GetInitFlags() const
@@ -68,24 +127,19 @@ bool GuiApplication::IsSubsystemInitialized(SDL_InitFlags flags)
     return HasBits(flags, mask);
 }
 
-bool GuiApplication::SetMetadataProperty(std::string_view name, std::string_view value)
+bool GuiApplication::SetMetadataProperty(cstring_view name, cstring_view value)
 {
-    bool result = SDL_SetAppMetadataProperty(name.data(), value.data());
-    if (result)
+    if (SDL_SetAppMetadataProperty(name.c_str(), value.c_str()))
     {
         return true;
     }
-    else
-    {
-        RAD_LOG_GUI(err, "SDL_SetAppMetadataProperty({}, {}) failed: {}", name, value,
-                    SDL_GetError());
-        return false;
-    }
+    RAD_LOG_GUI(err, "SDL_SetAppMetadataProperty({}, {}) failed: {}", name, value, SDL_GetError());
+    return false;
 }
 
-const char* GuiApplication::GetMetadataProperty(std::string_view name)
+const char* GuiApplication::GetMetadataProperty(cstring_view name)
 {
-    return SDL_GetAppMetadataProperty(name.data());
+    return SDL_GetAppMetadataProperty(name.c_str());
 }
 
 bool GuiApplication::InitSubSystem(SDL_InitFlags flags)
@@ -116,13 +170,11 @@ bool GuiApplication::RunOnMainThread(SDL_MainThreadCallback callback, void* user
 
 void GuiApplication::RegisterEventHandler(GuiEventHandler* handler)
 {
-    std::lock_guard<std::mutex> lock(m_eventMutex);
     m_eventHandlers.push_back(handler);
 }
 
 void GuiApplication::UnregisterEventHandler(GuiEventHandler* handler)
 {
-    std::lock_guard<std::mutex> lock(m_eventMutex);
     std::erase(m_eventHandlers, handler);
 }
 
@@ -155,10 +207,18 @@ bool GuiApplication::WaitEventTimeout(SDL_Event* outEvent, Sint32 timeoutMs)
     return SDL_WaitEventTimeout(outEvent, timeoutMs);
 }
 
+bool GuiApplication::RequestQuit()
+{
+    SDL_Event event = {};
+    event.type = SDL_EVENT_QUIT;
+    return PushEvent(event);
+}
+
 void GuiApplication::OnEvent(const SDL_Event& event)
 {
     m_status = Status::Running;
-    for (GuiEventHandler* handler : m_eventHandlers)
+    const std::vector<GuiEventHandler*> handlers = m_eventHandlers;
+    for (GuiEventHandler* handler : handlers)
     {
         if (handler->OnEvent(event))
         {
@@ -218,12 +278,13 @@ void GuiApplication::OnEvent(const SDL_Event& event)
 
 void GuiApplication::OnIdle()
 {
-    for (GuiEventHandler* handler : m_eventHandlers)
+    const std::vector<GuiEventHandler*> handlers = m_eventHandlers;
+    for (GuiEventHandler* handler : handlers)
     {
         handler->OnIdle();
     }
 
-    if (m_eventHandlers.empty())
+    if (handlers.empty())
     {
         m_status = Status::Exited;
     }
@@ -237,7 +298,7 @@ void GuiApplication::Exit(int errCode)
 
 bool GuiApplication::IsScreenSaverEnabled()
 {
-    return (SDL_ScreenSaverEnabled() == true);
+    return SDL_ScreenSaverEnabled();
 }
 
 bool GuiApplication::EnableScreenSaver()
@@ -299,7 +360,7 @@ std::string GuiApplication::GetClipboardText()
 
 bool GuiApplication::HasClipboardText()
 {
-    return (SDL_HasClipboardText() == true);
+    return SDL_HasClipboardText();
 }
 
 bool GuiApplication::SetPrimarySelectionText(const char* text)
@@ -333,7 +394,7 @@ std::string GuiApplication::GetPrimarySelectionText()
 
 bool GuiApplication::HasPrimarySelectionText()
 {
-    return (SDL_HasPrimarySelectionText() == true);
+    return SDL_HasPrimarySelectionText();
 }
 
 bool GuiApplication::SetClipboardData(SDL_ClipboardDataCallback callback,
@@ -354,7 +415,7 @@ bool GuiApplication::SetClipboardData(SDL_ClipboardDataCallback callback,
 
 bool GuiApplication::ClearClipboardData()
 {
-    return (SDL_ClearClipboardData() == true);
+    return SDL_ClearClipboardData();
 }
 
 const void* GuiApplication::GetClipboardData(const char* mimeType, size_t* size)
@@ -372,7 +433,7 @@ const void* GuiApplication::GetClipboardData(const char* mimeType, size_t* size)
 
 bool GuiApplication::HasClipboardData(const char* mimeType)
 {
-    return (SDL_HasClipboardData(mimeType) == true);
+    return SDL_HasClipboardData(mimeType);
 }
 
 std::string GuiApplication::GetBasePath()
@@ -417,7 +478,7 @@ PowerInfo GuiApplication::GetPowerInfo()
 }
 
 bool GuiApplication::ShowSimpleMessageBox(Uint32 flags, cstring_view title, cstring_view message,
-                                         SDL_Window* parent)
+                                          SDL_Window* parent)
 {
     bool result = SDL_ShowSimpleMessageBox(flags, title.c_str(), message.c_str(), parent);
     if (!result)

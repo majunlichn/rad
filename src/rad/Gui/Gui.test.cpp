@@ -10,8 +10,11 @@ TestEnvironment::TestEnvironment(int argc, char** argv) :
 
 void TestEnvironment::SetUp()
 {
-    m_app = RAD_NEW rad::GuiApplication();
-    m_app->Init(m_argc, m_argv);
+    rad::GuiApplication* app = rad::GuiApplication::GetInstance();
+    app->Init(m_argc, m_argv);
+    m_window = RAD_NEW rad::Window();
+    m_window->Create("GuiTest", 1920, 1080);
+    app->Run();
 }
 
 void TestEnvironment::TearDown()

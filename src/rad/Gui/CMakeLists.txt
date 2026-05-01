@@ -2,12 +2,14 @@ set(RAD_GUI_HEADERS
     GuiCommon.h
     GuiApplication.h
     GuiEventHandler.h
+    Window.h
 )
 
 set(RAD_GUI_SOURCES
     GuiCommon.cpp
     GuiApplication.cpp
     GuiEventHandler.cpp
+    Window.cpp
 )
 
 set(RAD_GUI_TEST_SOURCES

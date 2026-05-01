@@ -7,7 +7,6 @@
 #include <rad/System/Application.h>
 
 #include <atomic>
-#include <mutex>
 #include <string>
 
 namespace rad
@@ -49,7 +48,7 @@ struct PowerInfo
     int percent = -1;
 };
 
-// Make sure only one instance of GuiApplication exists.
+// Singleton: only one instance of GuiApplication exists.
 class GuiApplication : public Application
 {
 public:
@@ -64,16 +63,24 @@ public:
     GuiApplication();
     ~GuiApplication();
 
+    static GuiApplication* GetInstance();
+
     bool Init(int argc, char** argv);
     void Destroy();
+    bool IsInitialized() const { return m_initialized; }
+    // Explicit shutdown for tests/tools; safe to call multiple times.
+    void Shutdown() { Destroy(); }
+    // Run the SDL event loop until Exit() is called or all handlers are gone.
+    int Run();
 
     const std::vector<DisplayInfo>& GetDisplayInfos() { return m_displays; }
 
     SDL_InitFlags GetInitFlags() const;
     bool IsSubsystemInitialized(SDL_InitFlags flags);
 
-    bool SetMetadataProperty(std::string_view name, std::string_view value);
-    const char* GetMetadataProperty(std::string_view name);
+    // SDL requires NTBS strings for metadata properties.
+    bool SetMetadataProperty(cstring_view name, cstring_view value);
+    const char* GetMetadataProperty(cstring_view name);
 
     // SDL init/subsystem helpers.
     bool InitSubSystem(SDL_InitFlags flags);
@@ -82,6 +89,8 @@ public:
     bool IsMainThread();
     bool RunOnMainThread(SDL_MainThreadCallback callback, void* userData, bool waitComplete);
 
+    // Not thread-safe. Expected to be called on the main thread.
+    // Registered handlers will be included on the next dispatch.
     void RegisterEventHandler(GuiEventHandler* handler);
     void UnregisterEventHandler(GuiEventHandler* handler);
     // Return true on success; false if the event is filtered or on failure (event queue being full).
@@ -93,6 +102,9 @@ public:
     void PumpEvents();
     bool PollEvent(SDL_Event* outEvent);
     bool WaitEventTimeout(SDL_Event* outEvent, Sint32 timeoutMs);
+
+    // Request the main loop to exit by pushing SDL_EVENT_QUIT.
+    bool RequestQuit();
 
     void SetStatus(Status status) { m_status = status; }
     Status GetStatus() { return m_status; }
@@ -135,7 +147,6 @@ public:
 private:
     void UpdateDisplayInfos();
 
-    std::mutex m_eventMutex;
     std::vector<GuiEventHandler*> m_eventHandlers;
 
     bool m_initialized = false;

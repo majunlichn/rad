@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rad/Gui/GuiApplication.h>
-#include <rad/IO/Logging.h>
+#include <rad/Gui/Window.h>
 
 #include <gtest/gtest.h>
 
@@ -19,6 +19,7 @@ private:
     int m_argc = 0;
     char** m_argv = nullptr;
     rad::Ref<rad::GuiApplication> m_app;
+    rad::Ref<rad::Window> m_window;
 
 }; // TestEnvironment
 
