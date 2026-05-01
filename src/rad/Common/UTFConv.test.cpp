@@ -288,12 +288,13 @@ TEST(UTFConv, InvalidUtfInputs)
     ExpectInvalidUtf8IsRejectedOrReplaced(
         [](const std::string& s) { return UTFConv::ToWide(s); }, invalidUtf8BadContinuation);
 
-    // Lone surrogate in UTF-16 input should be rejected by strict native conversion on Windows.
+    // U+D800 is never a valid Unicode scalar: as UTF-16 it is an unmatched surrogate; as UTF-32
+    // (typical Linux wchar_t) surrogate scalars are forbidden. Native UTF-8 conversion must not
+    // emit ordinary text; Windows returns empty (WC_ERR_INVALID_CHARS). Boost.Locale on POSIX
+    // also yields empty for this wchar_t input rather than encoding ED A0 80 (invalid UTF-8).
     std::wstring loneHighSurrogate(1, static_cast<wchar_t>(0xD800));
-#if defined(RAD_OS_WINDOWS)
-    EXPECT_TRUE(UTFConv::ToUTF8Native(loneHighSurrogate).empty());
-#else
-    const auto utf8 = UTFConv::ToUTF8Native(loneHighSurrogate);
-    EXPECT_FALSE(utf8.empty());
-#endif
+    const auto utf8FromLoneSurrogate = UTFConv::ToUTF8Native(loneHighSurrogate);
+    static constexpr char utf8ReplacementChar[] = "\xEF\xBF\xBD"; // U+FFFD
+    EXPECT_TRUE(utf8FromLoneSurrogate.empty()
+                || utf8FromLoneSurrogate == std::string(utf8ReplacementChar, 3));
 }
