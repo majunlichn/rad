@@ -12,6 +12,12 @@
     "gtest",
     "pystring",
     "range-v3",
+    {
+      "name": "sdl3",
+      "features": [
+        "vulkan"
+      ]
+    },
     "spdlog",
     "stb",
     "xxhash"
