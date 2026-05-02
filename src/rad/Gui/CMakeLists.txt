@@ -14,6 +14,8 @@ set(RAD_GUI_HEADERS
     imgui/imstb_truetype.h
     imgui/backends/imgui_impl_sdl3.h
     imgui/backends/imgui_impl_sdlrenderer3.h
+    implot/implot_internal.h
+    implot/implot.h
 )
 
 set(RAD_GUI_SOURCES
@@ -31,6 +33,9 @@ set(RAD_GUI_SOURCES
     imgui/imgui.cpp
     imgui/backends/imgui_impl_sdl3.cpp
     imgui/backends/imgui_impl_sdlrenderer3.cpp
+    implot/implot_demo.cpp
+    implot/implot_items.cpp
+    implot/implot.cpp
 )
 
 if (DEFINED ENV{VULKAN_SDK})
