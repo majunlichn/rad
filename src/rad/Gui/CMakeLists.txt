@@ -64,15 +64,17 @@ target_include_directories(rad_gui
     PUBLIC imgui
 )
 
-if (DEFINED ENV{VULKAN_SDK})
-    target_include_directories(rad_gui
-        PUBLIC ${VULKAN_SDK_INCLUDE_DIR}
-    )
-endif()
+find_package(Vulkan REQUIRED)
+
+# Ensure the SDL3 headers from vcpkg win over SDL3 headers bundled in VulkanSDK.
+target_include_directories(rad_gui BEFORE
+    PUBLIC $<TARGET_PROPERTY:SDL3::SDL3,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
 target_link_libraries(rad_gui
     PUBLIC rad_system
     PUBLIC SDL3::SDL3
+    PUBLIC Vulkan::Headers
 )
 
 if(RAD_BUILD_TESTS)

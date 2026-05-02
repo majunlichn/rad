@@ -55,6 +55,9 @@ add_library(rad_vulkan STATIC)
 target_sources(rad_vulkan PRIVATE ${RAD_VULKAN_HEADERS} ${RAD_VULKAN_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_VULKAN_HEADERS} ${RAD_VULKAN_SOURCES})
 
+# https://cmake.org/cmake/help/latest/module/FindVulkan.html
+find_package(Vulkan REQUIRED COMPONENTS SPIRV-Tools glslc)
+
 set(VULKAN_SDK_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
 set(VULKAN_SDK_LIB_DIR "$ENV{VULKAN_SDK}/lib")
 if (WIN32)
@@ -62,17 +65,11 @@ if (WIN32)
     set(VULKAN_SDK_LIB_DIR "$ENV{VULKAN_SDK}/Lib")
 endif()
 
-find_package(boost_outcome CONFIG REQUIRED)
-
-target_include_directories(rad_vulkan
-    PUBLIC ${VULKAN_SDK_INCLUDE_DIR}
-)
-
 target_link_libraries(rad_vulkan
     PUBLIC rad_common
     PUBLIC rad_container
     PUBLIC rad_io
-    PUBLIC Boost::outcome
+    PUBLIC Vulkan::Headers
 )
 
 if(WIN32)

@@ -59,12 +59,14 @@ target_include_directories(rad_common
 )
 
 find_package(boost_locale CONFIG REQUIRED)
+find_package(boost_outcome CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
 find_package(range-v3 CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_link_libraries(rad_common
     PUBLIC Boost::locale
+    PUBLIC Boost::outcome
     PUBLIC pystring::pystring
     PUBLIC range-v3::range-v3
     PUBLIC xxHash::xxhash
