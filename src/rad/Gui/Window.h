@@ -14,6 +14,7 @@ namespace rad
 {
 
 class Application;
+class Surface;
 
 class Window : public GuiEventHandler
 {
@@ -41,6 +42,7 @@ public:
     bool SetTitle(cstring_view title);
     const char* GetTitle();
     bool SetIcon(SDL_Surface* icon);
+    bool SetIcon(Surface* icon);
     bool SetPosition(int x, int y);
     bool GetPosition(int* x, int* y);
     bool SetSize(int w, int h);
@@ -73,7 +75,7 @@ public:
     bool SetSurfaceVSync(int vsync);
     bool GetSurfaceVSync(int* vsync);
     bool UpdateSurface();
-    bool UpdateSurfaceRects(rad::Span<SDL_Rect> rects);
+    bool UpdateSurfaceRects(Span<SDL_Rect> rects);
     bool DestroySurface();
 
     bool SetKeyboardGrab(bool grabbed);
@@ -91,6 +93,7 @@ public:
 
     bool ShowSystemMenu(int x, int y);
     bool SetShape(SDL_Surface* shape);
+    bool SetShape(Surface* shape);
     bool Flash(SDL_FlashOperation operation);
 
 protected:

@@ -3,6 +3,7 @@ set(RAD_GUI_HEADERS
     GuiApplication.h
     GuiEventHandler.h
     Window.h
+    Surface.h
 )
 
 set(RAD_GUI_SOURCES
@@ -10,6 +11,7 @@ set(RAD_GUI_SOURCES
     GuiApplication.cpp
     GuiEventHandler.cpp
     Window.cpp
+    Surface.cpp
 )
 
 set(RAD_GUI_TEST_SOURCES

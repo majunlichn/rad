@@ -1,5 +1,7 @@
 #include <rad/Gui/Window.h>
 
+#include <rad/Gui/Surface.h>
+
 #include <cstring>
 
 namespace rad
@@ -141,6 +143,11 @@ const char* Window::GetTitle()
 bool Window::SetIcon(SDL_Surface* icon)
 {
     return SDL_CHECK(SDL_SetWindowIcon(m_handle, icon));
+}
+
+bool Window::SetIcon(Surface* icon)
+{
+    return SetIcon(icon->GetHandle());
 }
 
 bool Window::SetPosition(int x, int y)
@@ -298,7 +305,7 @@ bool Window::UpdateSurface()
     return SDL_CHECK(SDL_UpdateWindowSurface(m_handle));
 }
 
-bool Window::UpdateSurfaceRects(rad::Span<SDL_Rect> rects)
+bool Window::UpdateSurfaceRects(Span<SDL_Rect> rects)
 {
     return SDL_CHECK(
         SDL_UpdateWindowSurfaceRects(m_handle, rects.data(), static_cast<int>(rects.size())));
@@ -377,6 +384,11 @@ bool Window::ShowSystemMenu(int x, int y)
 bool Window::SetShape(SDL_Surface* shape)
 {
     return SDL_CHECK(SDL_SetWindowShape(m_handle, shape));
+}
+
+bool Window::SetShape(Surface* shape)
+{
+    return SetShape(shape->GetHandle());
 }
 
 bool Window::Flash(SDL_FlashOperation operation)
