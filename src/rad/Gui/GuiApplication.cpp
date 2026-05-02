@@ -48,11 +48,11 @@ bool GuiApplication::Init(int argc, char** argv)
     }
     if (const char* pVideoDriver = SDL_GetCurrentVideoDriver())
     {
-        RAD_LOG_GUI(info, "Current Video Driver: {}", pVideoDriver);
+        RAD_LOG_GUI(info, "Current video driver: {}", pVideoDriver);
     }
     if (const char* pAudioDriver = SDL_GetCurrentAudioDriver())
     {
-        RAD_LOG_GUI(info, "Current Audio Driver: {}", pAudioDriver);
+        RAD_LOG_GUI(info, "Current audio driver: {}", pAudioDriver);
     }
     UpdateDisplayInfos();
     m_status = Status::Initialized;

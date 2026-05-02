@@ -21,7 +21,7 @@ struct DisplayInfo
     SDL_Rect usableBounds;
     SDL_DisplayOrientation naturalOrientation;
     SDL_DisplayOrientation currentOrientation;
-    // The content scale is the expected scale for content based on the DPI settings of the display.
+    // UI/content scale for this display (DPI / platform scaling).
     float scale;
 
     // https://wiki.libsdl.org/SDL3/SDL_GetDisplayProperties
@@ -78,7 +78,7 @@ public:
     SDL_InitFlags GetInitFlags() const;
     bool IsSubsystemInitialized(SDL_InitFlags flags);
 
-    // SDL requires NTBS strings for metadata properties.
+    // SDL requires null-terminated strings for metadata properties.
     bool SetMetadataProperty(cstring_view name, cstring_view value);
     const char* GetMetadataProperty(cstring_view name);
 
@@ -93,7 +93,7 @@ public:
     // Registered handlers will be included on the next dispatch.
     void RegisterEventHandler(GuiEventHandler* handler);
     void UnregisterEventHandler(GuiEventHandler* handler);
-    // Return true on success; false if the event is filtered or on failure (event queue being full).
+    // Return true on success; false if filtered or if pushing fails (for example, queue full).
     bool PushEvent(SDL_Event& event);
     void OnEvent(const SDL_Event& event);
     void OnIdle();

@@ -30,7 +30,7 @@ inline bool SdlCheck(bool result, const char* expr,
 {
     if (!result)
     {
-        RAD_LOG_GUI(err, "{} failed with {} (at {}:{} in {})", expr, SDL_GetError(),
+        RAD_LOG_GUI(err, "{} failed: {} (at {}:{} in {})", expr, SDL_GetError(),
                     sourceLoc.file_name(), sourceLoc.line(), sourceLoc.function_name());
     }
     return result;
@@ -41,9 +41,9 @@ inline bool SdlCheckThrow(bool result, const char* expr,
 {
     if (!result)
     {
-        RAD_LOG_GUI(err, "{} failed with {} (at {}:{} in {})", expr, SDL_GetError(),
+        RAD_LOG_GUI(err, "{} failed: {} (at {}:{} in {})", expr, SDL_GetError(),
                     sourceLoc.file_name(), sourceLoc.line(), sourceLoc.function_name());
-        throw std::runtime_error(std::format("{} failed with {}", expr, SDL_GetError()));
+        throw std::runtime_error(std::format("{} failed: {}", expr, SDL_GetError()));
     }
     return result;
 }
