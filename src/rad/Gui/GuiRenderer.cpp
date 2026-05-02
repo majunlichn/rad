@@ -539,10 +539,11 @@ SDL_GPUDevice* GuiRenderer::GetGPUDevice() const
     return SDL_GetGPURendererDevice(m_handle);
 }
 
-SDL_GPURenderState* GuiRenderer::CreateGPURenderState(
-    const SDL_GPURenderStateCreateInfo* createInfo)
+SDL_GPURenderState* GuiRenderer::CreateGPURenderState(const SDL_GPURenderStateCreateInfo* createInfo)
 {
-    if (SDL_GPURenderState* state = SDL_CreateGPURenderState(m_handle, createInfo))
+    // Workaround: before SDL 3.4.2 it's non-const, fixed in commit#3f0e097.
+    if (SDL_GPURenderState* state =
+            SDL_CreateGPURenderState(m_handle, const_cast<SDL_GPURenderStateCreateInfo*>(createInfo)))
     {
         return state;
     }
