@@ -7,6 +7,10 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_version.h>
 
+#include "imgui.h"
+#include "backends/imgui_impl_sdl3.h"
+#include "backends/imgui_impl_sdlrenderer3.h"
+
 #include <format>
 #include <string>
 
@@ -16,21 +20,16 @@ namespace rad
 class GuiTexture;
 
 // 2D rendering context for a window. The associated Window must outlive the GuiRenderer.
+// Construction runs SDL + ImGui initialization; throws std::runtime_error if that fails.
 // Should only be used on the main thread: https://github.com/libsdl-org/SDL/issues/986
 class GuiRenderer : public RefCounted<GuiRenderer>
 {
 public:
-    GuiRenderer(Ref<Window> window);
+    GuiRenderer(Window* window, SDL_PropertiesID props = 0);
     ~GuiRenderer();
 
     static int GetNumRenderDrivers();
     static const char* GetRenderDriver(int index);
-
-    bool Init();
-    // Sets SDL_PROP_RENDERER_CREATE_WINDOW_POINTER to this object's window, then calls SDL_CreateRendererWithProperties.
-    // https://wiki.libsdl.org/SDL3/SDL_CreateRendererWithProperties
-    bool InitWithProperties(SDL_PropertiesID props);
-    void Destroy();
 
     SDL_Renderer* GetHandle() const { return m_handle; }
     // https://wiki.libsdl.org/SDL3/SDL_GetRendererProperties
@@ -43,14 +42,14 @@ public:
     float GetRendererHDRHeadroom(float defaultValue) const;
     int GetMaxTextureSize() const;
     // SDL_PROP_RENDERER_TEXTURE_WRAPPING_BOOLEAN (WRAP address mode on non-power-of-two textures).
-    bool SupportsNPOTTextureWrap() const;
+    bool SupportsTextureWrappingNonPowerOfTwo() const;
     // Supported texture pixel formats, ending with SDL_PIXELFORMAT_UNKNOWN; pointer valid for the renderer lifetime.
     const SDL_PixelFormat* GetTextureFormats() const;
 
-    Window* GetWindow() { return m_window.get(); }
+    Window* GetWindow() { return m_window; }
     // https://wiki.libsdl.org/SDL3/SDL_GetRenderWindow
     SDL_Window* GetRenderWindowHandle() const;
-    // Cached at Init() from SDL_GetRendererName (stable for the lifetime of this renderer).
+    // Set from SDL_GetRendererName when the SDL renderer is created (stable for the renderer lifetime).
     const std::string& GetName() const { return m_name; }
 
     bool GetOutputSize(int* w, int* h);
@@ -178,8 +177,9 @@ public:
                                                   const void* data, Uint32 length);
 #endif
 #if SDL_VERSION_ATLEAST(3, 6, 0)
-    static bool SetGPURenderStateSamplerBindings(SDL_GPURenderState* state, int numSamplerBindings,
-                                                 const SDL_GPUTextureSamplerBinding* samplerBindings);
+    static bool SetGPURenderStateSamplerBindings(
+        SDL_GPURenderState* state, int numSamplerBindings,
+        const SDL_GPUTextureSamplerBinding* samplerBindings);
     static bool SetGPURenderStateStorageTextures(SDL_GPURenderState* state, int numStorageTextures,
                                                  SDL_GPUTexture* const* storageTextures);
     static bool SetGPURenderStateStorageBuffers(SDL_GPURenderState* state, int numStorageBuffers,
@@ -191,10 +191,23 @@ public:
     void GDKResumeRenderer();
 #endif
 
+    void BeginFrame();
+    void EndFrame();
+
+    bool ProcessEvent(const SDL_Event& event);
+
 private:
-    Ref<Window> m_window;
+    // props == 0: SDL_CreateRenderer with default driver selection; else SDL_CreateRendererWithProperties
+    // (sets SDL_PROP_RENDERER_CREATE_WINDOW_POINTER to this window). https://wiki.libsdl.org/SDL3/SDL_CreateRendererWithProperties
+    bool Init(SDL_PropertiesID props = 0);
+    bool InitImGui();
+    void Destroy();
+
+    Window* m_window;
     SDL_Renderer* m_handle = nullptr;
     std::string m_name;
+
+    ImGuiContext* m_imgui = nullptr;
 
 }; // class GuiRenderer
 

@@ -2,23 +2,44 @@
 
 #include <rad/Gui/Gui.test.h>
 
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
+
 TestEnvironment::TestEnvironment(int argc, char** argv) :
     m_argc(argc),
     m_argv(argv)
 {
+    constexpr std::size_t kMaxFramesArgPrefixLen = sizeof("--max-frames=") - 1;
+    for (int i = 1; i < argc; ++i)
+    {
+        const char* arg = argv[i];
+        if (std::strncmp(arg, "--max-frames=", kMaxFramesArgPrefixLen) == 0)
+        {
+            const char* value = arg + kMaxFramesArgPrefixLen;
+            char* end = nullptr;
+            const long parsed = std::strtol(value, &end, 10);
+            if (end != value)
+            {
+                m_maxFrames = static_cast<int>(parsed);
+            }
+        }
+    }
 }
 
 void TestEnvironment::SetUp()
 {
     rad::GuiApplication* app = rad::GuiApplication::GetInstance();
-    app->Init(m_argc, m_argv);
-    m_window = RAD_NEW rad::Window();
-    m_window->Create("GuiTest", 1920, 1080);
+    ASSERT_TRUE(app->Init(m_argc, m_argv));
+    m_window = RAD_NEW MainWindow();
+    ASSERT_TRUE(m_window->Init(1920, 1080, m_maxFrames));
     app->Run();
 }
 
 void TestEnvironment::TearDown()
 {
+    m_window.reset();
+    rad::GuiApplication::GetInstance()->Destroy();
 }
 
 TestEnvironment* g_env = nullptr;

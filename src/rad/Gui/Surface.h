@@ -13,8 +13,8 @@ class Surface : public RefCounted<Surface>
 {
 public:
     static Ref<Surface> Create(int width, int height, SDL_PixelFormat format);
-    static Ref<Surface> CreateFromPixels(int width, int height, SDL_PixelFormat format, void* pixels,
-                                         int pitch);
+    static Ref<Surface> CreateFromPixels(int width, int height, SDL_PixelFormat format,
+                                         void* pixels, int pitch);
     static Ref<Surface> CreateFromBMP(SDL_IOStream* src, bool closeio);
     static Ref<Surface> CreateFromBMP(cstring_view file);
 
@@ -69,7 +69,7 @@ public:
     static bool BlitScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect,
                            SDL_ScaleMode scaleMode);
     static bool BlitUncheckedScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst,
-                                  SDL_Rect* dstRect, SDL_ScaleMode scaleMode);
+                                    SDL_Rect* dstRect, SDL_ScaleMode scaleMode);
     static bool BlitTiled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect);
     static bool BlitTiledWithScale(Surface* src, const SDL_Rect* srcRect, float scale,
                                    SDL_ScaleMode scaleMode, Surface* dst, const SDL_Rect* dstRect);

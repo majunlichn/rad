@@ -51,6 +51,8 @@ set(RAD_GUI_TEST_SOURCES
     Gui.test.h
     Gui.test.cpp
     GuiApplication.test.cpp
+    Window.test.h
+    Window.test.cpp
 )
 
 add_library(rad_gui STATIC)
@@ -88,5 +90,6 @@ if(RAD_BUILD_TESTS)
     set_target_properties(rad_gui_tests PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>"
     )
-    gtest_discover_tests(rad_gui_tests)
+    # Pass a finite cap so discovered tests return under CTest (see TestEnvironment / MainWindow).
+    gtest_discover_tests(rad_gui_tests EXTRA_ARGS --max-frames=1000)
 endif()

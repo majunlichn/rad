@@ -483,7 +483,9 @@ bool Window::OnEvent(const SDL_Event& event)
         if ((event.user.windowID == 0) || (event.user.windowID == m_id))
         {
             OnUserEvent(event.user);
-            return (event.user.windowID == m_id);
+            // windowID==0: broadcast — return false so other GuiEventHandlers can still observe.
+            // Non-zero: return true only when this window was the target (consume from app queue).
+            return (event.user.windowID != 0) && (event.user.windowID == m_id);
         }
     }
 

@@ -6,12 +6,19 @@
 
 #include <SDL3/SDL_version.h>
 
+#include <stdexcept>
+
 namespace rad
 {
 
-GuiRenderer::GuiRenderer(Ref<Window> window) :
-    m_window(std::move(window))
+GuiRenderer::GuiRenderer(Window* window, SDL_PropertiesID props) :
+    m_window(window)
 {
+    if (!Init(props))
+    {
+        Destroy();
+        throw std::runtime_error("Failed to create GuiRenderer");
+    }
 }
 
 GuiRenderer::~GuiRenderer()
@@ -29,91 +36,127 @@ const char* GuiRenderer::GetRenderDriver(int index)
     return SDL_GetRenderDriver(index);
 }
 
-bool GuiRenderer::Init()
+bool GuiRenderer::Init(SDL_PropertiesID props)
 {
-    const char* driver = nullptr;
+    assert(m_handle == nullptr);
+    if (props == 0)
+    {
+        const char* driver = nullptr;
 
 #if defined(RAD_OS_WINDOWS)
-    for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
-    {
-        const char* name = SDL_GetRenderDriver(i);
-        if (name && StrEqual(name, "direct3d12"))
-        {
-            driver = name;
-            break;
-        }
-    }
-    if (!driver)
-    {
         for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
         {
             const char* name = SDL_GetRenderDriver(i);
-            if (name && StrEqual(name, "direct3d11"))
+            if (name && StrEqual(name, "direct3d12"))
             {
                 driver = name;
                 break;
             }
         }
-    }
+        if (!driver)
+        {
+            for (int i = 0; i < SDL_GetNumRenderDrivers(); ++i)
+            {
+                const char* name = SDL_GetRenderDriver(i);
+                if (name && StrEqual(name, "direct3d11"))
+                {
+                    driver = name;
+                    break;
+                }
+            }
+        }
 #endif
-    m_handle = SDL_CreateRenderer(m_window->GetHandle(), driver);
-    if (!m_handle)
-    {
-        RAD_LOG_GUI(err, "SDL_CreateRenderer failed: {}", SDL_GetError());
-        return false;
+        m_handle = SDL_CreateRenderer(m_window->GetHandle(), driver);
+        if (!m_handle)
+        {
+            RAD_LOG_GUI(err, "SDL_CreateRenderer failed: {}", SDL_GetError());
+            return false;
+        }
+        if (const char* name = SDL_GetRendererName(m_handle))
+        {
+            m_name = name;
+        }
+        RAD_LOG_GUI(info, "GuiRenderer created: {}", m_name);
+        if (SDL_GetRendererProperties(m_handle) == 0)
+        {
+            RAD_LOG_GUI(err, "SDL_GetRendererProperties failed: {}", SDL_GetError());
+        }
     }
-    if (const char* name = SDL_GetRendererName(m_handle))
+    else
     {
-        m_name = name;
+        if (!SDL_SetPointerProperty(props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER,
+                                    m_window->GetHandle()))
+        {
+            RAD_LOG_GUI(
+                err, "SDL_SetPointerProperty(SDL_PROP_RENDERER_CREATE_WINDOW_POINTER) failed: {}",
+                SDL_GetError());
+            return false;
+        }
+        m_handle = SDL_CreateRendererWithProperties(props);
+        if (!m_handle)
+        {
+            RAD_LOG_GUI(err, "SDL_CreateRendererWithProperties failed: {}", SDL_GetError());
+            return false;
+        }
+        if (const char* name = SDL_GetRendererName(m_handle))
+        {
+            m_name = name;
+        }
+        RAD_LOG_GUI(info, "GuiRenderer created: {}", m_name);
+        if (SDL_GetRendererProperties(m_handle) == 0)
+        {
+            RAD_LOG_GUI(err, "SDL_GetRendererProperties failed: {}", SDL_GetError());
+        }
     }
-    RAD_LOG_GUI(info, "GuiRenderer created: {}", m_name);
-    if (SDL_GetRendererProperties(m_handle) == 0)
-    {
-        RAD_LOG_GUI(err, "SDL_GetRendererProperties failed: {}", SDL_GetError());
-    }
-    return true;
+    return InitImGui();
 }
 
-bool GuiRenderer::InitWithProperties(SDL_PropertiesID props)
+bool GuiRenderer::InitImGui()
 {
-    if (m_handle)
+    assert(m_window && m_handle);
+    IMGUI_CHECKVERSION();
+    m_imgui = ImGui::CreateContext();
+    if (!m_imgui)
     {
-        RAD_LOG_GUI(err, "GuiRenderer::InitWithProperties called on an initialized renderer");
+        RAD_LOG_GUI(err, "ImGui::CreateContext failed!");
         return false;
     }
-    if (props == 0)
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+
+    ImGui::StyleColorsDark();
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    float windowScale = SDL_GetDisplayContentScale(m_window->GetDisplayScale());
+    if (windowScale > 0)
     {
-        RAD_LOG_GUI(err, "GuiRenderer::InitWithProperties: invalid properties ID");
+        style.ScaleAllSizes(windowScale);
+        style.FontScaleDpi = windowScale * 1.2f;
+    }
+
+    if (!ImGui_ImplSDL3_InitForSDLRenderer(m_window->GetHandle(), m_handle))
+    {
+        RAD_LOG_GUI(err, "ImGui_ImplSDL3_InitForSDLRenderer failed!");
         return false;
     }
-    if (!SDL_SetPointerProperty(props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER,
-                                m_window->GetHandle()))
+    if (!ImGui_ImplSDLRenderer3_Init(m_handle))
     {
-        RAD_LOG_GUI(err,
-                    "SDL_SetPointerProperty(SDL_PROP_RENDERER_CREATE_WINDOW_POINTER) failed: {}",
-                    SDL_GetError());
+        RAD_LOG_GUI(err, "ImGui_ImplSDLRenderer3_Init failed!");
         return false;
-    }
-    m_handle = SDL_CreateRendererWithProperties(props);
-    if (!m_handle)
-    {
-        RAD_LOG_GUI(err, "SDL_CreateRendererWithProperties failed: {}", SDL_GetError());
-        return false;
-    }
-    if (const char* name = SDL_GetRendererName(m_handle))
-    {
-        m_name = name;
-    }
-    RAD_LOG_GUI(info, "GuiRenderer created: {}", m_name);
-    if (SDL_GetRendererProperties(m_handle) == 0)
-    {
-        RAD_LOG_GUI(err, "SDL_GetRendererProperties failed: {}", SDL_GetError());
     }
     return true;
 }
 
 void GuiRenderer::Destroy()
 {
+    if (m_imgui)
+    {
+        ImGui_ImplSDLRenderer3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
+        ImGui::DestroyContext();
+        m_imgui = nullptr;
+    }
     if (m_handle)
     {
         SDL_CHECK(SDL_SetRenderTarget(m_handle, nullptr));
@@ -179,7 +222,7 @@ int GuiRenderer::GetMaxTextureSize() const
     return (int)SDL_GetNumberProperty(props, SDL_PROP_RENDERER_MAX_TEXTURE_SIZE_NUMBER, 0);
 }
 
-bool GuiRenderer::SupportsNPOTTextureWrap() const
+bool GuiRenderer::SupportsTextureWrappingNonPowerOfTwo() const
 {
     const SDL_PropertiesID props = GetRendererProperties();
     if (props == 0)
@@ -611,5 +654,28 @@ void GuiRenderer::GDKResumeRenderer()
     }
 }
 #endif
+
+void GuiRenderer::BeginFrame()
+{
+    ImGui_ImplSDL3_NewFrame();
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui::NewFrame();
+}
+
+void GuiRenderer::EndFrame()
+{
+    ImGui::Render();
+    ImGuiIO& io = ImGui::GetIO();
+    // Match ImGui HiDPI framebuffer scale; avoid mixing with other SDL_SetRenderScale callers.
+    SDL_SetRenderScale(m_handle, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+    Clear();
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_handle);
+    Present();
+}
+
+bool GuiRenderer::ProcessEvent(const SDL_Event& event)
+{
+    return ImGui_ImplSDL3_ProcessEvent(&event);
+}
 
 } // namespace rad

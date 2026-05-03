@@ -46,7 +46,9 @@ Ref<Surface> Surface::CreateFromBMP(cstring_view file)
     return nullptr;
 }
 
-Surface::Surface(SDL_Surface* handle, bool isManaged) : m_handle(handle), m_isManaged(isManaged)
+Surface::Surface(SDL_Surface* handle, bool isManaged) :
+    m_handle(handle),
+    m_isManaged(isManaged)
 {
     if (!m_handle)
     {
@@ -245,7 +247,8 @@ bool Surface::Blit(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect
 bool Surface::BlitUnchecked(Surface* src, const SDL_Rect* srcRect, Surface* dst,
                             const SDL_Rect* dstRect)
 {
-    return SDL_CHECK(SDL_BlitSurfaceUnchecked(src->GetHandle(), srcRect, dst->GetHandle(), dstRect));
+    return SDL_CHECK(
+        SDL_BlitSurfaceUnchecked(src->GetHandle(), srcRect, dst->GetHandle(), dstRect));
 }
 
 bool Surface::BlitScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect,
@@ -256,10 +259,10 @@ bool Surface::BlitScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SD
 }
 
 bool Surface::BlitUncheckedScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst,
-                                SDL_Rect* dstRect, SDL_ScaleMode scaleMode)
+                                  SDL_Rect* dstRect, SDL_ScaleMode scaleMode)
 {
     return SDL_CHECK(SDL_BlitSurfaceUncheckedScaled(src->GetHandle(), srcRect, dst->GetHandle(),
-                                                  dstRect, scaleMode));
+                                                    dstRect, scaleMode));
 }
 
 bool Surface::BlitTiled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect)

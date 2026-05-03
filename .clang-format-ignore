@@ -1,0 +1,5 @@
+# Third-party / vendored sources (see root .clang-format header comment).
+# Patterns are relative to the repo root; requires clang-format 18.1+.
+src/rad/Common/imported/**
+src/rad/Gui/imgui/**
+src/rad/Gui/implot/**

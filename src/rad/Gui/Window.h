@@ -144,7 +144,7 @@ protected:
     virtual void OnMouseButtonUp(const SDL_MouseButtonEvent& mouseButton) {}
     virtual void OnMouseWheel(const SDL_MouseWheelEvent& mouseWheel) {}
 
-    // User
+    // User events
     virtual void OnUserEvent(const SDL_UserEvent& user) {}
 
 }; // class Window

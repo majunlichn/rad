@@ -67,7 +67,16 @@ void GuiApplication::Destroy()
         return;
     }
 
+    if (!m_eventHandlers.empty())
+    {
+        RAD_LOG_GUI(warn,
+                    "GuiApplication::Destroy: {} GuiEventHandler(s) still registered; clearing.",
+                    m_eventHandlers.size());
+        m_eventHandlers.clear();
+    }
+
     SDL_Quit();
+    RAD_LOG_GUI(info, "SDL quit");
     m_initialized = false;
     m_status = Status::Unknown;
 }
@@ -89,7 +98,16 @@ int GuiApplication::Run()
     SDL_Event event;
     while (m_status != Status::Exited)
     {
-        // Process all pending events.
+        // Wait briefly for the next event, then drain the queue. Prefer SDL_WaitEventTimeout over
+        // a tight PollEvent loop with SDL_Delay for lower idle CPU (see SDL_WaitEventTimeout).
+        if (SDL_WaitEventTimeout(&event, 1))
+        {
+            OnEvent(event);
+            if (m_status == Status::Exited)
+            {
+                break;
+            }
+        }
         while (SDL_PollEvent(&event))
         {
             OnEvent(event);
@@ -99,16 +117,9 @@ int GuiApplication::Run()
             }
         }
 
-        // One idle tick per loop iteration (update/render, etc.).
         if (m_status != Status::Exited)
         {
             OnIdle();
-        }
-
-        // Avoid a tight spin-loop when idle with no events.
-        if (m_status != Status::Exited)
-        {
-            SDL_Delay(1);
         }
     }
 
@@ -565,33 +576,31 @@ void GuiApplication::UpdateDisplayInfos()
             SDL_free((void*)modes);
         }
 
-        if (const SDL_DisplayMode* desktopMode = SDL_GetDesktopDisplayMode(id))
+        if (const SDL_DisplayMode* dm = SDL_GetDesktopDisplayMode(id))
         {
-            info.hasDesktopMode = true;
-            info.desktopMode = *desktopMode;
+            info.desktopMode = *dm;
         }
         else
         {
-            info.hasDesktopMode = false;
+            info.desktopMode.reset();
             RAD_LOG_GUI(err, "SDL_GetDesktopDisplayMode failed: {}", SDL_GetError());
         }
 
-        if (const SDL_DisplayMode* currentMode = SDL_GetCurrentDisplayMode(id))
+        if (const SDL_DisplayMode* cm = SDL_GetCurrentDisplayMode(id))
         {
-            info.hasCurrentMode = true;
-            info.currentMode = *currentMode;
+            info.currentMode = *cm;
         }
         else
         {
-            info.hasCurrentMode = false;
+            info.currentMode.reset();
             RAD_LOG_GUI(err, "SDL_GetCurrentDisplayMode failed: {}", SDL_GetError());
         }
 
-        if (info.hasCurrentMode)
+        if (info.currentMode)
         {
-            RAD_LOG_GUI(info, "Display#{}: {} ({}x{}@{}Hz, {})", i, info.name, info.currentMode.w,
-                        info.currentMode.h, info.currentMode.refresh_rate,
-                        SDL_GetPixelFormatName(info.currentMode.format));
+            const SDL_DisplayMode& cur = *info.currentMode;
+            RAD_LOG_GUI(info, "Display#{}: {} ({}x{}@{}Hz, {})", i, info.name, cur.w, cur.h,
+                        cur.refresh_rate, SDL_GetPixelFormatName(cur.format));
         }
         else
         {

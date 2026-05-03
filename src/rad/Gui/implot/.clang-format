@@ -1,0 +1,2 @@
+# Third-party implot — do not apply repository clang-format.
+DisableFormat: true

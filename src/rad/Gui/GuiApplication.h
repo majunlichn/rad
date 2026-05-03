@@ -7,6 +7,7 @@
 #include <rad/System/Application.h>
 
 #include <atomic>
+#include <optional>
 #include <string>
 
 namespace rad
@@ -27,17 +28,12 @@ struct DisplayInfo
     // https://wiki.libsdl.org/SDL3/SDL_GetDisplayProperties
     SDL_PropertiesID propID;
     bool hdrEnabled;
-    float sdrWhitePoint;
-    float hdrHeadroom;
     Sint64 kmsdrmOrientation;
 
     std::vector<SDL_DisplayMode> modes;
 
-    bool hasDesktopMode = false;
-    SDL_DisplayMode desktopMode = {};
-
-    bool hasCurrentMode = false;
-    SDL_DisplayMode currentMode = {};
+    std::optional<SDL_DisplayMode> desktopMode;
+    std::optional<SDL_DisplayMode> currentMode;
 
 }; // struct DisplayInfo
 
@@ -103,7 +99,8 @@ public:
     bool PollEvent(SDL_Event* outEvent);
     bool WaitEventTimeout(SDL_Event* outEvent, Sint32 timeoutMs);
 
-    // Request the main loop to exit by pushing SDL_EVENT_QUIT.
+    // Application-wide quit: pushes SDL_EVENT_QUIT and stops Run(). To tear down one window,
+    // call that window's Destroy(); the default OnCloseRequested() does the same via Destroy().
     bool RequestQuit();
 
     void SetStatus(Status status) { m_status = status; }
