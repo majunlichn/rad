@@ -12,6 +12,7 @@
 
 #include <SDL3/SDL.h>
 
+#include <chrono>
 #include <format>
 #include <source_location>
 #include <stdexcept>
@@ -25,8 +26,11 @@ spdlog::logger* GetGuiLogger();
 #define RAD_LOG_GUI(LogLevel, ...)                                                                 \
     SPDLOG_LOGGER_CALL(::rad::GetGuiLogger(), spdlog::level::LogLevel, __VA_ARGS__)
 
-inline bool SdlCheck(bool result, const char* expr,
-                     std::source_location sourceLoc = std::source_location::current())
+namespace SDL
+{
+// Helpers for bool-returning SDL APIs (not part of the SDL library).
+inline bool Check(bool result, const char* expr,
+                  std::source_location sourceLoc = std::source_location::current())
 {
     if (!result)
     {
@@ -36,8 +40,8 @@ inline bool SdlCheck(bool result, const char* expr,
     return result;
 }
 
-inline bool SdlCheckThrow(bool result, const char* expr,
-                          std::source_location sourceLoc = std::source_location::current())
+inline bool CheckThrow(bool result, const char* expr,
+                       std::source_location sourceLoc = std::source_location::current())
 {
     if (!result)
     {
@@ -48,9 +52,32 @@ inline bool SdlCheckThrow(bool result, const char* expr,
     return result;
 }
 
+// SDL3 timer / high-resolution clock (see https://wiki.libsdl.org/SDL3/CategoryTimer).
+[[nodiscard]] Uint64 GetTicksInMilliseconds();
+[[nodiscard]] Uint64 GetTicksInNanoseconds();
+[[nodiscard]] Uint64 GetPerformanceCounter();
+[[nodiscard]] Uint64 GetPerformanceCounterFrequency();
+
+/// Waits at least `duration` (may sleep longer depending on the OS). Uses `SDL_DelayNS`.
+template<typename Rep, typename Period>
+void Delay(std::chrono::duration<Rep, Period> duration)
+{
+    const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
+    const auto count = ns.count();
+    if (count <= 0)
+    {
+        return;
+    }
+    SDL_DelayNS(static_cast<Uint64>(count));
+}
+
+/// May busy-wait (`SDL_DelayPrecise`).
+void DelayPrecise(std::chrono::nanoseconds duration);
+} // namespace SDL
+
 // Check an SDL function call that returns bool, log SDL_GetError() on failure.
-#define SDL_CHECK(expr) ::rad::SdlCheck((expr), #expr)
+#define SDL_CHECK(expr) ::rad::SDL::Check((expr), #expr)
 // Check an SDL function call that returns bool, log SDL_GetError() and throw on failure.
-#define SDL_CHECK_THROW(expr) ::rad::SdlCheckThrow((expr), #expr)
+#define SDL_CHECK_THROW(expr) ::rad::SDL::CheckThrow((expr), #expr)
 
 } // namespace rad

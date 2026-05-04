@@ -1,5 +1,6 @@
 set(RAD_GUI_HEADERS
     GuiCommon.h
+    GuiTimer.h
     GuiApplication.h
     GuiEventHandler.h
     Window.h
@@ -20,6 +21,7 @@ set(RAD_GUI_HEADERS
 
 set(RAD_GUI_SOURCES
     GuiCommon.cpp
+    GuiTimer.cpp
     GuiApplication.cpp
     GuiEventHandler.cpp
     Window.cpp

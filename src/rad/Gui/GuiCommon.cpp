@@ -9,4 +9,39 @@ spdlog::logger* GetGuiLogger()
     return logger.get();
 }
 
+namespace SDL
+{
+
+Uint64 GetTicksInMilliseconds()
+{
+    return SDL_GetTicks();
+}
+
+Uint64 GetTicksInNanoseconds()
+{
+    return SDL_GetTicksNS();
+}
+
+Uint64 GetPerformanceCounter()
+{
+    return SDL_GetPerformanceCounter();
+}
+
+Uint64 GetPerformanceCounterFrequency()
+{
+    return SDL_GetPerformanceFrequency();
+}
+
+void DelayPrecise(std::chrono::nanoseconds duration)
+{
+    const auto count = duration.count();
+    if (count <= 0)
+    {
+        return;
+    }
+    SDL_DelayPrecise(static_cast<Uint64>(count));
+}
+
+} // namespace SDL
+
 } // namespace rad
