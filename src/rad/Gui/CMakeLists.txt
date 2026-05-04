@@ -7,16 +7,6 @@ set(RAD_GUI_HEADERS
     Surface.h
     GuiTexture.h
     GuiRenderer.h
-    imgui/imconfig.h
-    imgui/imgui_internal.h
-    imgui/imgui.h
-    imgui/imstb_rectpack.h
-    imgui/imstb_textedit.h
-    imgui/imstb_truetype.h
-    imgui/backends/imgui_impl_sdl3.h
-    imgui/backends/imgui_impl_sdlrenderer3.h
-    implot/implot_internal.h
-    implot/implot.h
 )
 
 set(RAD_GUI_SOURCES
@@ -28,6 +18,20 @@ set(RAD_GUI_SOURCES
     Surface.cpp
     GuiTexture.cpp
     GuiRenderer.cpp
+)
+
+set(IMGUI_HEADERS
+    imgui/imconfig.h
+    imgui/imgui_internal.h
+    imgui/imgui.h
+    imgui/imstb_rectpack.h
+    imgui/imstb_textedit.h
+    imgui/imstb_truetype.h
+    imgui/backends/imgui_impl_sdl3.h
+    imgui/backends/imgui_impl_sdlrenderer3.h
+)
+
+set(IMGUI_SOURCES
     imgui/imgui_demo.cpp
     imgui/imgui_draw.cpp
     imgui/imgui_tables.cpp
@@ -35,18 +39,22 @@ set(RAD_GUI_SOURCES
     imgui/imgui.cpp
     imgui/backends/imgui_impl_sdl3.cpp
     imgui/backends/imgui_impl_sdlrenderer3.cpp
+)
+
+set(IMPLOT_HEADERS
+    implot/implot_internal.h
+    implot/implot.h
+)
+
+set(IMPLOT_SOURCES
     implot/implot_demo.cpp
     implot/implot_items.cpp
     implot/implot.cpp
 )
 
 if (DEFINED ENV{VULKAN_SDK})
-    set(VULKAN_SDK_INCLUDE_DIR "$ENV{VULKAN_SDK}/include")
-    if (WIN32)
-        set(VULKAN_SDK_INCLUDE_DIR "$ENV{VULKAN_SDK}/Include")
-    endif()
-    list(APPEND RAD_GUI_HEADERS imgui/backends/imgui_impl_vulkan.h)
-    list(APPEND RAD_GUI_SOURCES imgui/backends/imgui_impl_vulkan.cpp)
+    list(APPEND IMGUI_HEADERS imgui/backends/imgui_impl_vulkan.h)
+    list(APPEND IMGUI_SOURCES imgui/backends/imgui_impl_vulkan.cpp)
 endif()
 
 set(RAD_GUI_TEST_SOURCES
@@ -57,20 +65,54 @@ set(RAD_GUI_TEST_SOURCES
     Window.test.cpp
 )
 
+find_package(SDL3 CONFIG REQUIRED)
+find_package(Vulkan REQUIRED)
+
+add_library(imgui STATIC)
+target_sources(imgui PRIVATE ${IMGUI_HEADERS} ${IMGUI_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/imgui FILES ${IMGUI_HEADERS} ${IMGUI_SOURCES})
+set_target_properties(imgui PROPERTIES FOLDER "imported")
+
+target_include_directories(imgui
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imgui>
+)
+
+# Ensure the SDL3 headers from vcpkg win over SDL3 headers bundled in VulkanSDK.
+target_include_directories(imgui BEFORE
+    PUBLIC $<TARGET_PROPERTY:SDL3::SDL3,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
+target_link_libraries(imgui
+    PRIVATE SDL3::SDL3
+    PRIVATE Vulkan::Headers
+)
+
+add_library(implot STATIC)
+target_sources(implot PRIVATE ${IMPLOT_HEADERS} ${IMPLOT_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/implot FILES ${IMPLOT_HEADERS} ${IMPLOT_SOURCES})
+set_target_properties(implot PROPERTIES FOLDER "imported")
+
+target_include_directories(implot
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/implot>
+)
+
+target_link_libraries(implot
+    PUBLIC imgui
+)
+
+if(MSVC)
+    target_compile_options(imgui PRIVATE /W0 /WX-)
+    target_compile_options(implot PRIVATE /W0 /WX-)
+else()
+    target_compile_options(imgui PRIVATE -w)
+    target_compile_options(implot PRIVATE -w)
+endif()
+
 add_library(rad_gui STATIC)
 
 target_sources(rad_gui PRIVATE ${RAD_GUI_HEADERS} ${RAD_GUI_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_GUI_HEADERS} ${RAD_GUI_SOURCES})
 
-find_package(SDL3 CONFIG REQUIRED)
-
-target_include_directories(rad_gui
-    PUBLIC imgui
-)
-
-find_package(Vulkan REQUIRED)
-
-# Ensure the SDL3 headers from vcpkg win over SDL3 headers bundled in VulkanSDK.
 target_include_directories(rad_gui BEFORE
     PUBLIC $<TARGET_PROPERTY:SDL3::SDL3,INTERFACE_INCLUDE_DIRECTORIES>
 )
@@ -79,6 +121,8 @@ target_link_libraries(rad_gui
     PUBLIC rad_system
     PUBLIC SDL3::SDL3
     PUBLIC Vulkan::Headers
+    PUBLIC imgui
+    PUBLIC implot
 )
 
 if(RAD_BUILD_TESTS)

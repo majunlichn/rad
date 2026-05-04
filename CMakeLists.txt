@@ -51,3 +51,6 @@ endif()
 if (RAD_BUILD_GUI)
     add_subdirectory(src/rad/Gui)
 endif()
+
+# https://cmake.org/cmake/help/latest/prop_gbl/USE_FOLDERS.html
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
