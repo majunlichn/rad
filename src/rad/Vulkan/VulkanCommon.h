@@ -28,21 +28,35 @@ namespace rad
 
 spdlog::logger* GetVulkanLogger();
 
-#define VK_LOG(LogLevel, ...)                                                                      \
+#define RAD_LOG_VULKAN(LogLevel, ...)                                                              \
     SPDLOG_LOGGER_CALL(::rad::GetVulkanLogger(), spdlog::level::LogLevel, __VA_ARGS__)
 
-void ReportVulkanError(vk::Result result, const char* expr,
-                       std::source_location sourceLoc = std::source_location::current());
+// Logs and throws only for Vulkan failure codes (negative VkResult / vk::Result).
+// Non-negative values pass through: VK_SUCCESS (0), positive success codes (e.g. eIncomplete,
+// eSuboptimalKHR), and any other non-error outcome are left to the caller.
+inline vk::Result CheckVulkanResult(
+    vk::Result result, const char* expr,
+    std::source_location sourceLoc = std::source_location::current())
+{
+    if (UnderlyingCast(result) < 0)
+    {
+        RAD_LOG_VULKAN(err, "{} failed: {} (at {}:{} in {}).", expr, vk::to_string(result),
+                       sourceLoc.file_name(), sourceLoc.line(), sourceLoc.function_name());
+        throw vk::SystemError(vk::make_error_code(result), vk::to_string(result));
+    }
+    return result;
+}
 
-#define VK_CHECK(Expr)                                                                             \
-    do                                                                                             \
-    {                                                                                              \
-        const vk::Result result_ = static_cast<vk::Result>(Expr);                                  \
-        if (result_ != vk::Result::eSuccess)                                                       \
-        {                                                                                          \
-            ReportVulkanError(result_, #Expr);                                                     \
-        }                                                                                          \
-    } while (0)
+// Same as CheckVulkanResult(vk::Result, ...) for C APIs and VMA (VkResult).
+inline vk::Result CheckVulkanResult(
+    VkResult result, const char* expr,
+    std::source_location sourceLoc = std::source_location::current())
+{
+    return CheckVulkanResult(static_cast<vk::Result>(result), expr, sourceLoc);
+}
+
+// Evaluates expr, then CheckVulkanResult on its return value (see semantics above).
+#define VK_CHECK(expr) CheckVulkanResult(expr, #expr)
 
 #define VK_STRUCTURE_CHAIN_LINK(Iter, Next)                                                        \
     do                                                                                             \

@@ -42,7 +42,7 @@ shaderc_shader_kind ToShaderKind(vk::ShaderStageFlagBits stage)
     case vk::ShaderStageFlagBits::eMeshEXT:
         return shaderc_mesh_shader;
     }
-    VK_LOG(err, "shaderc: unsupported shader stage {}", vk::to_string(stage));
+    RAD_LOG_VULKAN(err, "shaderc: unsupported shader stage {}", vk::to_string(stage));
     RAD_UNREACHABLE();
 }
 

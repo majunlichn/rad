@@ -62,8 +62,8 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
                           uint32_t engineVersion, const VulkanInstanceConfig& config)
 {
     m_apiVersion = vk::enumerateInstanceVersion(m_dispatcher);
-    VK_LOG(info, "Instance Version: {}.{}.{}", m_apiVersion.GetMajor(), m_apiVersion.GetMinor(),
-           m_apiVersion.GetPatch());
+    RAD_LOG_VULKAN(info, "Instance Version: {}.{}.{}", m_apiVersion.GetMajor(),
+                   m_apiVersion.GetMinor(), m_apiVersion.GetPatch());
 
     m_config = config;
 
@@ -92,7 +92,7 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
         }
         else
         {
-            VK_LOG(warn, "Requested instance layer not supported: {}", requestedLayer);
+            RAD_LOG_VULKAN(warn, "Requested instance layer not supported: {}", requestedLayer);
         }
     }
 
@@ -104,7 +104,8 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
         }
         else
         {
-            VK_LOG(warn, "Requested instance extension not supported: {}", requestedExtension);
+            RAD_LOG_VULKAN(warn, "Requested instance extension not supported: {}",
+                           requestedExtension);
         }
     }
 
@@ -132,16 +133,16 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
 
     if (const char* envVulkanSDKPath = std::getenv("VULKAN_SDK"))
     {
-        VK_LOG(info, "VulkanSDK Path: {}", envVulkanSDKPath);
+        RAD_LOG_VULKAN(info, "VulkanSDK Path: {}", envVulkanSDKPath);
     }
     else
     {
-        VK_LOG(warn, "VulkanSDK is not available!");
+        RAD_LOG_VULKAN(warn, "VulkanSDK is not available!");
     }
 
     if (const char* envEnableValidation = std::getenv("VK_ENABLE_VALIDATION"))
     {
-        VK_LOG(info, "VK_ENABLE_VALIDATION={}.", envEnableValidation);
+        RAD_LOG_VULKAN(info, "VK_ENABLE_VALIDATION={}.", envEnableValidation);
         enableValidation = StrToBool(envEnableValidation);
     }
 
@@ -155,8 +156,8 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
         }
         else
         {
-            VK_LOG(warn, "Cannot enable validation due to missing layer "
-                         "VK_LAYER_KHRONOS_validation or extension VK_EXT_debug_utils!");
+            RAD_LOG_VULKAN(warn, "Cannot enable validation due to missing layer "
+                                 "VK_LAYER_KHRONOS_validation or extension VK_EXT_debug_utils!");
         }
     }
 
@@ -198,16 +199,16 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
     instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
     instanceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-    VK_LOG(info, "CreateInstance: {}", instanceCreateInfoChain.ToString());
+    RAD_LOG_VULKAN(info, "CreateInstance: {}", instanceCreateInfoChain.ToString());
     m_handle = vk::createInstance(instanceCreateInfoChain, nullptr, m_dispatcher);
     m_dispatcher.init(m_handle);
     for (const std::string& layer : m_enabledLayers)
     {
-        VK_LOG(info, "Instance layer enabled: {}", layer);
+        RAD_LOG_VULKAN(info, "Instance layer enabled: {}", layer);
     }
     for (const std::string& extension : m_enabledExtensions)
     {
-        VK_LOG(info, "Instance extension enabled: {}", extension);
+        RAD_LOG_VULKAN(info, "Instance extension enabled: {}", extension);
     }
 
     if (enableValidation)
@@ -221,18 +222,18 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
          physicalDeviceIndex++)
     {
         auto& physicalDevice = m_physicalDevices[physicalDeviceIndex];
-        VK_LOG(info, "GPU#{}: {}", physicalDeviceIndex,
-               physicalDevice.getProperties(m_dispatcher).deviceName.data());
+        RAD_LOG_VULKAN(info, "GPU#{}: {}", physicalDeviceIndex,
+                       physicalDevice.getProperties(m_dispatcher).deviceName.data());
         auto queueFamilies = physicalDevice.getQueueFamilyProperties(m_dispatcher);
         const uint32_t& apiVersion = physicalDevice.getProperties(m_dispatcher).apiVersion;
-        VK_LOG(info, "API Version: {}.{}.{}", VK_VERSION_MAJOR(apiVersion),
-               VK_VERSION_MINOR(apiVersion), VK_VERSION_PATCH(apiVersion));
+        RAD_LOG_VULKAN(info, "API Version: {}.{}.{}", VK_VERSION_MAJOR(apiVersion),
+                       VK_VERSION_MINOR(apiVersion), VK_VERSION_PATCH(apiVersion));
         for (size_t queueFamilyIndex = 0; queueFamilyIndex < queueFamilies.size();
              ++queueFamilyIndex)
         {
             const auto& queueFamily = queueFamilies[queueFamilyIndex];
-            VK_LOG(info, "QueueFamily#{}: {}", queueFamilyIndex,
-                   vk::to_string(queueFamily.queueFlags));
+            RAD_LOG_VULKAN(info, "QueueFamily#{}: {}", queueFamilyIndex,
+                           vk::to_string(queueFamily.queueFlags));
         }
     }
 

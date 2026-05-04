@@ -166,7 +166,7 @@ VulkanDevice::VulkanDevice(Ref<VulkanInstance> instance, vk::PhysicalDevice phys
         }
         else
         {
-            VK_LOG(err, "Required device extension not supported: {}", extension);
+            RAD_LOG_VULKAN(err, "Required device extension not supported: {}", extension);
             assert(false);
         }
     }
