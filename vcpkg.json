@@ -15,7 +15,19 @@
     {
       "name": "sdl3",
       "features": [
-        "vulkan"
+        {
+          "name": "ibus",
+          "platform": "linux"
+        },
+        "vulkan",
+        {
+          "name": "wayland",
+          "platform": "linux"
+        },
+        {
+          "name": "x11",
+          "platform": "linux"
+        }
       ]
     },
     "spdlog",
