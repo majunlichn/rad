@@ -65,7 +65,20 @@ set(RAD_GUI_TEST_SOURCES
     Window.test.cpp
 )
 
-find_package(SDL3 CONFIG REQUIRED)
+set(SDL3_INSTALL_DIR "" CACHE PATH
+    "Optional SDL3 install prefix (folder that contains lib/cmake/SDL3); empty uses default search")
+
+if(SDL3_INSTALL_DIR)
+    find_package(SDL3 CONFIG REQUIRED
+        PATHS "${SDL3_INSTALL_DIR}"
+        PATH_SUFFIXES lib/cmake/SDL3 cmake
+        NO_DEFAULT_PATH)
+else()
+    find_package(SDL3 CONFIG REQUIRED)
+endif()
+
+message(STATUS "SDL3_DIR=${SDL3_DIR}")
+
 find_package(Vulkan REQUIRED)
 
 add_library(imgui STATIC)

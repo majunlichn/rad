@@ -15,17 +15,9 @@
     {
       "name": "sdl3",
       "features": [
-        {
-          "name": "ibus",
-          "platform": "linux"
-        },
         "vulkan",
         {
           "name": "wayland",
-          "platform": "linux"
-        },
-        {
-          "name": "x11",
           "platform": "linux"
         }
       ]
