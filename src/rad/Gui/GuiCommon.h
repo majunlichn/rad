@@ -3,7 +3,6 @@
 #include <rad/Common/Platform.h>
 #include <rad/Common/Integer.h>
 #include <rad/Common/Float.h>
-#include <rad/Common/Flags.h>
 #include <rad/Common/Memory.h>
 #include <rad/Common/RefCounted.h>
 #include <rad/Container/SmallVector.h>
@@ -12,10 +11,9 @@
 
 #include <SDL3/SDL.h>
 
-#include <chrono>
-#include <format>
+#include <cassert>
 #include <source_location>
-#include <stdexcept>
+#include <string>
 
 namespace rad
 {
@@ -26,58 +24,70 @@ spdlog::logger* GetGuiLogger();
 #define RAD_LOG_GUI(LogLevel, ...)                                                                 \
     SPDLOG_LOGGER_CALL(::rad::GetGuiLogger(), spdlog::level::LogLevel, __VA_ARGS__)
 
-namespace SDL
+// Returns a stable string literal for common SDL event types (for logging/debugging).
+// If unknown, returns "SDL_EVENT_UNKNOWN".
+const char* SDL_GetEventName(Uint32 type);
+
+// Convenience wrapper that returns a description string (for logging/debugging).
+std::string SDL_GetEventDescription(const SDL_Event& event);
+
+inline bool SDL_CheckResult(bool result, const char* expr, spdlog::logger* logger,
+                            std::source_location sourceLoc = std::source_location::current())
 {
-// Helpers for bool-returning SDL APIs (not part of the SDL library).
-inline bool Check(bool result, const char* expr,
-                  std::source_location sourceLoc = std::source_location::current())
-{
+    assert(logger != nullptr);
     if (!result)
     {
-        RAD_LOG_GUI(err, "{} failed: {} (at {}:{} in {})", expr, SDL_GetError(),
-                    sourceLoc.file_name(), sourceLoc.line(), sourceLoc.function_name());
+        logger->error("{} failed: {} (at {}:{} in {})", expr, SDL_GetError(), sourceLoc.file_name(),
+                      sourceLoc.line(), sourceLoc.function_name());
     }
     return result;
 }
 
-inline bool CheckThrow(bool result, const char* expr,
-                       std::source_location sourceLoc = std::source_location::current())
+inline std::string SDL_InitFlagsToString(SDL_InitFlags flags)
 {
-    if (!result)
+    std::string subsystemNames;
+    if (HasBits(flags, SDL_INIT_AUDIO))
     {
-        RAD_LOG_GUI(err, "{} failed: {} (at {}:{} in {})", expr, SDL_GetError(),
-                    sourceLoc.file_name(), sourceLoc.line(), sourceLoc.function_name());
-        throw std::runtime_error(std::format("{} failed: {}", expr, SDL_GetError()));
+        subsystemNames += "Audio|";
     }
-    return result;
-}
-
-// SDL3 timer / high-resolution clock (see https://wiki.libsdl.org/SDL3/CategoryTimer).
-[[nodiscard]] Uint64 GetTicksInMilliseconds();
-[[nodiscard]] Uint64 GetTicksInNanoseconds();
-[[nodiscard]] Uint64 GetPerformanceCounter();
-[[nodiscard]] Uint64 GetPerformanceCounterFrequency();
-
-/// Waits at least `duration` (may sleep longer depending on the OS). Uses `SDL_DelayNS`.
-template<typename Rep, typename Period>
-void Delay(std::chrono::duration<Rep, Period> duration)
-{
-    const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
-    const auto count = ns.count();
-    if (count <= 0)
+    if (HasBits(flags, SDL_INIT_VIDEO))
     {
-        return;
+        subsystemNames += "Video|";
     }
-    SDL_DelayNS(static_cast<Uint64>(count));
+    if (HasBits(flags, SDL_INIT_JOYSTICK))
+    {
+        subsystemNames += "Joystick|";
+    }
+    if (HasBits(flags, SDL_INIT_HAPTIC))
+    {
+        subsystemNames += "Haptic|";
+    }
+    if (HasBits(flags, SDL_INIT_GAMEPAD))
+    {
+        subsystemNames += "Gamepad|";
+    }
+    if (HasBits(flags, SDL_INIT_EVENTS))
+    {
+        subsystemNames += "Events|";
+    }
+    if (HasBits(flags, SDL_INIT_SENSOR))
+    {
+        subsystemNames += "Sensor|";
+    }
+    if (HasBits(flags, SDL_INIT_CAMERA))
+    {
+        subsystemNames += "Camera|";
+    }
+    if (!subsystemNames.empty() && subsystemNames.back() == '|')
+    {
+        subsystemNames.pop_back();
+    }
+    return subsystemNames;
 }
-
-/// May busy-wait (`SDL_DelayPrecise`).
-void DelayPrecise(std::chrono::nanoseconds duration);
-} // namespace SDL
 
 // Check an SDL function call that returns bool, log SDL_GetError() on failure.
-#define SDL_CHECK(expr) ::rad::SDL::Check((expr), #expr)
-// Check an SDL function call that returns bool, log SDL_GetError() and throw on failure.
-#define SDL_CHECK_THROW(expr) ::rad::SDL::CheckThrow((expr), #expr)
+#define RAD_SDL_CHECK(expr, logger) ::rad::SDL_CheckResult((expr), #expr, logger)
+// GUI convenience wrapper for SDL bool-return APIs.
+#define RAD_SDL_CHECK_GUI(expr) RAD_SDL_CHECK((expr), ::rad::GetGuiLogger())
 
 } // namespace rad

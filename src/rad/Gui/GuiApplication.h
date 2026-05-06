@@ -7,6 +7,7 @@
 #include <rad/System/Application.h>
 
 #include <atomic>
+#include <chrono>
 #include <optional>
 #include <string>
 
@@ -15,20 +16,20 @@ namespace rad
 
 struct DisplayInfo
 {
-    SDL_DisplayID id;
+    SDL_DisplayID id = 0;
     std::string name;
-    SDL_Rect bounds;
+    SDL_Rect bounds = {};
     // This is the same area as bounds, but with portions reserved by the system removed.
-    SDL_Rect usableBounds;
-    SDL_DisplayOrientation naturalOrientation;
-    SDL_DisplayOrientation currentOrientation;
+    SDL_Rect usableBounds = {};
+    SDL_DisplayOrientation naturalOrientation = SDL_ORIENTATION_UNKNOWN;
+    SDL_DisplayOrientation currentOrientation = SDL_ORIENTATION_UNKNOWN;
     // UI/content scale for this display (DPI / platform scaling).
-    float scale;
+    float scale = 0.0f;
 
     // https://wiki.libsdl.org/SDL3/SDL_GetDisplayProperties
-    SDL_PropertiesID propID;
-    bool hdrEnabled;
-    Sint64 kmsdrmOrientation;
+    SDL_PropertiesID propID = 0;
+    bool hdrEnabled = false;
+    Sint64 kmsdrmOrientation = 0;
 
     std::vector<SDL_DisplayMode> modes;
 
@@ -74,6 +75,9 @@ public:
     SDL_InitFlags GetInitFlags() const;
     bool IsSubsystemInitialized(SDL_InitFlags flags);
 
+    // App metadata.
+    // Note: SDL recommends calling this as early as possible, ideally before SDL_Init().
+    bool SetAppMetadata(cstring_view appName, cstring_view appVersion, cstring_view appIdentifier);
     // SDL requires null-terminated strings for metadata properties.
     bool SetMetadataProperty(cstring_view name, cstring_view value);
     const char* GetMetadataProperty(cstring_view name);
@@ -97,18 +101,50 @@ public:
     // Event loop utilities.
     void PumpEvents();
     bool PollEvent(SDL_Event* outEvent);
+    bool PollEvent(SDL_Event& outEvent) { return PollEvent(&outEvent); }
+    bool WaitEvent(SDL_Event* outEvent);
+    bool WaitEvent(SDL_Event& outEvent) { return WaitEvent(&outEvent); }
     bool WaitEventTimeout(SDL_Event* outEvent, Sint32 timeoutMs);
+    bool WaitEventTimeout(SDL_Event& outEvent, Sint32 timeoutMs)
+    {
+        return WaitEventTimeout(&outEvent, timeoutMs);
+    }
+    bool HasEvent(Uint32 type);
+    void FlushEvent(Uint32 type);
+    void FlushEvents(Uint32 minType, Uint32 maxType);
 
     // Application-wide quit: pushes SDL_EVENT_QUIT and stops Run(). To tear down one window,
     // call that window's Destroy(); the default OnCloseRequested() does the same via Destroy().
     bool RequestQuit();
 
-    void SetStatus(Status status) { m_status = status; }
-    Status GetStatus() { return m_status; }
-    void SetErrorCode(int errCode) { m_errCode = errCode; }
-    int GetErrorCode() const { return m_errCode; }
+    void SetStatus(Status status) { m_status.store(status); }
+    Status GetStatus() const { return m_status.load(); }
+    void SetErrorCode(int errCode) { m_errCode.store(errCode); }
+    int GetErrorCode() const { return m_errCode.load(); }
 
     void Exit(int errCode);
+
+    // SDL3 timer / high-resolution clock (see https://wiki.libsdl.org/SDL3/CategoryTimer).
+    static [[nodiscard]] Uint64 GetTicksInMilliseconds();
+    static [[nodiscard]] Uint64 GetTicksInNanoseconds();
+    static [[nodiscard]] Uint64 GetPerformanceCounter();
+    static [[nodiscard]] Uint64 GetPerformanceFrequency();
+
+    /// Waits at least `duration` (may sleep longer depending on the OS). Uses `SDL_DelayNS`.
+    template <typename Rep, typename Period>
+    static void Delay(std::chrono::duration<Rep, Period> duration)
+    {
+        const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
+        const auto count = ns.count();
+        if (count <= 0)
+        {
+            return;
+        }
+        SDL_DelayNS(static_cast<Uint64>(count));
+    }
+
+    /// May busy-wait (`SDL_DelayPrecise`).
+    static void DelayPrecise(std::chrono::nanoseconds duration);
 
     bool IsScreenSaverEnabled();
     bool EnableScreenSaver();

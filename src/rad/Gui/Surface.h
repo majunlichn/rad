@@ -82,7 +82,7 @@ public:
 private:
     SDL_Surface* m_handle = nullptr;
     bool m_isManaged = false;
-    SDL_PropertiesID m_propID = 0;
+    SDL_PropertiesID m_propertiesId = 0;
 
 }; // class Surface
 

@@ -148,6 +148,13 @@ bool GuiApplication::SetMetadataProperty(cstring_view name, cstring_view value)
     return false;
 }
 
+bool GuiApplication::SetAppMetadata(cstring_view appName, cstring_view appVersion,
+                                    cstring_view appIdentifier)
+{
+    return RAD_SDL_CHECK_GUI(
+        SDL_SetAppMetadata(appName.c_str(), appVersion.c_str(), appIdentifier.c_str()));
+}
+
 const char* GuiApplication::GetMetadataProperty(cstring_view name)
 {
     return SDL_GetAppMetadataProperty(name.c_str());
@@ -158,7 +165,8 @@ bool GuiApplication::InitSubSystem(SDL_InitFlags flags)
     bool result = SDL_InitSubSystem(flags);
     if (!result)
     {
-        RAD_LOG_GUI(err, "SDL_InitSubSystem({}) failed: {}", (uint32_t)flags, SDL_GetError());
+        RAD_LOG_GUI(err, "SDL_InitSubSystem(flags={}) failed: {}", SDL_InitFlagsToString(flags),
+                    SDL_GetError());
     }
     return result;
 }
@@ -194,13 +202,24 @@ bool GuiApplication::PushEvent(SDL_Event& event)
     bool result = SDL_PushEvent(&event);
     if (result)
     {
-        return true;
+        RAD_LOG_GUI(debug, "PushEvent: {}", SDL_GetEventDescription(event));
     }
     else
     {
-        RAD_LOG_GUI(err, "SDL_PushEvent failed: {}", SDL_GetError());
-        return false;
+        // SDL_PushEvent() also returns false if the event was filtered.
+        // Only treat it as an error if SDL actually set an error string.
+        const char* err = SDL_GetError();
+        if (err && *err)
+        {
+            RAD_LOG_GUI(err, "SDL_PushEvent failed: {}", err);
+        }
+        else
+        {
+            RAD_LOG_GUI(debug, "SDL_PushEvent returned false (filtered?): {}",
+                        SDL_GetEventDescription(event));
+        }
     }
+    return result;
 }
 
 void GuiApplication::PumpEvents()
@@ -213,9 +232,29 @@ bool GuiApplication::PollEvent(SDL_Event* outEvent)
     return SDL_PollEvent(outEvent);
 }
 
+bool GuiApplication::WaitEvent(SDL_Event* outEvent)
+{
+    return RAD_SDL_CHECK_GUI(SDL_WaitEvent(outEvent));
+}
+
 bool GuiApplication::WaitEventTimeout(SDL_Event* outEvent, Sint32 timeoutMs)
 {
     return SDL_WaitEventTimeout(outEvent, timeoutMs);
+}
+
+bool GuiApplication::HasEvent(Uint32 type)
+{
+    return SDL_HasEvent(type);
+}
+
+void GuiApplication::FlushEvent(Uint32 type)
+{
+    SDL_FlushEvent(type);
+}
+
+void GuiApplication::FlushEvents(Uint32 minType, Uint32 maxType)
+{
+    SDL_FlushEvents(minType, maxType);
 }
 
 bool GuiApplication::RequestQuit()
@@ -307,6 +346,36 @@ void GuiApplication::Exit(int errCode)
     m_status = Status::Exited;
 }
 
+Uint64 GuiApplication::GetTicksInMilliseconds()
+{
+    return SDL_GetTicks();
+}
+
+Uint64 GuiApplication::GetTicksInNanoseconds()
+{
+    return SDL_GetTicksNS();
+}
+
+Uint64 GuiApplication::GetPerformanceCounter()
+{
+    return SDL_GetPerformanceCounter();
+}
+
+Uint64 GuiApplication::GetPerformanceFrequency()
+{
+    return SDL_GetPerformanceFrequency();
+}
+
+void GuiApplication::DelayPrecise(std::chrono::nanoseconds duration)
+{
+    const auto count = duration.count();
+    if (count <= 0)
+    {
+        return;
+    }
+    SDL_DelayPrecise(static_cast<Uint64>(count));
+}
+
 bool GuiApplication::IsScreenSaverEnabled()
 {
     return SDL_ScreenSaverEnabled();
@@ -315,43 +384,31 @@ bool GuiApplication::IsScreenSaverEnabled()
 bool GuiApplication::EnableScreenSaver()
 {
     bool result = SDL_EnableScreenSaver();
-    if (result)
-    {
-        return true;
-    }
-    else
+    if (!result)
     {
         RAD_LOG_GUI(err, "SDL_EnableScreenSaver failed: {}", SDL_GetError());
-        return false;
     }
+    return result;
 }
 
 bool GuiApplication::DisableScreenSaver()
 {
     bool result = SDL_DisableScreenSaver();
-    if (result)
-    {
-        return true;
-    }
-    else
+    if (!result)
     {
         RAD_LOG_GUI(err, "SDL_DisableScreenSaver failed: {}", SDL_GetError());
-        return false;
     }
+    return result;
 }
 
 bool GuiApplication::SetClipboardText(const char* text)
 {
     bool result = SDL_SetClipboardText(text);
-    if (result)
-    {
-        return true;
-    }
-    else
+    if (!result)
     {
         RAD_LOG_GUI(err, "SDL_SetClipboardText failed: {}", SDL_GetError());
-        return false;
     }
+    return result;
 }
 
 std::string GuiApplication::GetClipboardText()
@@ -377,15 +434,11 @@ bool GuiApplication::HasClipboardText()
 bool GuiApplication::SetPrimarySelectionText(const char* text)
 {
     bool result = SDL_SetPrimarySelectionText(text);
-    if (result)
-    {
-        return true;
-    }
-    else
+    if (!result)
     {
         RAD_LOG_GUI(err, "SDL_SetPrimarySelectionText failed: {}", SDL_GetError());
-        return false;
     }
+    return result;
 }
 
 std::string GuiApplication::GetPrimarySelectionText()
@@ -413,20 +466,16 @@ bool GuiApplication::SetClipboardData(SDL_ClipboardDataCallback callback,
                                       const char** mimeTypes, size_t mimeTypeCount)
 {
     bool result = SDL_SetClipboardData(callback, cleanup, userData, mimeTypes, mimeTypeCount);
-    if (result)
-    {
-        return true;
-    }
-    else
+    if (!result)
     {
         RAD_LOG_GUI(err, "SDL_SetClipboardData failed: {}", SDL_GetError());
-        return false;
     }
+    return result;
 }
 
 bool GuiApplication::ClearClipboardData()
 {
-    return SDL_ClearClipboardData();
+    return RAD_SDL_CHECK_GUI(SDL_ClearClipboardData());
 }
 
 const void* GuiApplication::GetClipboardData(const char* mimeType, size_t* size)
@@ -437,7 +486,13 @@ const void* GuiApplication::GetClipboardData(const char* mimeType, size_t* size)
     }
     else
     {
-        RAD_LOG_GUI(err, "SDL_GetClipboardData failed: {}", SDL_GetError());
+        // SDL_GetClipboardData() can return nullptr if no matching data exists.
+        // Only log when SDL reports an error.
+        const char* err = SDL_GetError();
+        if (err && *err)
+        {
+            RAD_LOG_GUI(err, "SDL_GetClipboardData failed: {}", err);
+        }
         return nullptr;
     }
 }
@@ -516,6 +571,8 @@ void GuiApplication::UpdateDisplayInfos()
         DisplayInfo info = {};
         SDL_DisplayID id = ids[i];
         info.id = id;
+        info.hdrEnabled = false;
+        info.kmsdrmOrientation = 0;
         if (const char* pName = SDL_GetDisplayName(id))
         {
             info.name = pName;

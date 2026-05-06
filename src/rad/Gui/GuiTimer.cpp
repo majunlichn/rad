@@ -26,7 +26,7 @@ bool GuiTimer::Stop()
 {
     if (m_id != 0)
     {
-        if (SDL_CHECK(SDL_RemoveTimer(m_id)))
+        if (RAD_SDL_CHECK_GUI(SDL_RemoveTimer(m_id)))
         {
             m_id = 0;
             return true;
@@ -56,7 +56,7 @@ bool GuiTimerPrecise::Stop()
 {
     if (m_id != 0)
     {
-        if (SDL_CHECK(SDL_RemoveTimer(m_id)))
+        if (RAD_SDL_CHECK_GUI(SDL_RemoveTimer(m_id)))
         {
             m_id = 0;
             return true;

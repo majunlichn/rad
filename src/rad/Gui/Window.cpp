@@ -76,7 +76,7 @@ float Window::GetDisplayScale()
 
 bool Window::SetFullscreenMode(const SDL_DisplayMode* mode)
 {
-    return SDL_CHECK(SDL_SetWindowFullscreenMode(m_handle, mode));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowFullscreenMode(m_handle, mode));
 }
 
 bool Window::SetFullscreenMode(const SDL_DisplayMode& mode)
@@ -132,7 +132,7 @@ SDL_WindowFlags Window::GetFlags()
 
 bool Window::SetTitle(cstring_view title)
 {
-    return SDL_CHECK(SDL_SetWindowTitle(m_handle, title.c_str()));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowTitle(m_handle, title.c_str()));
 }
 
 const char* Window::GetTitle()
@@ -142,7 +142,7 @@ const char* Window::GetTitle()
 
 bool Window::SetIcon(SDL_Surface* icon)
 {
-    return SDL_CHECK(SDL_SetWindowIcon(m_handle, icon));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowIcon(m_handle, icon));
 }
 
 bool Window::SetIcon(Surface* icon)
@@ -152,17 +152,17 @@ bool Window::SetIcon(Surface* icon)
 
 bool Window::SetPosition(int x, int y)
 {
-    return SDL_CHECK(SDL_SetWindowPosition(m_handle, x, y));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowPosition(m_handle, x, y));
 }
 
 bool Window::GetPosition(int* x, int* y)
 {
-    return SDL_CHECK(SDL_GetWindowPosition(m_handle, x, y));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowPosition(m_handle, x, y));
 }
 
 bool Window::SetSize(int w, int h)
 {
-    return SDL_CHECK(SDL_SetWindowSize(m_handle, w, h));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowSize(m_handle, w, h));
 }
 
 bool Window::Resize(int w, int h)
@@ -172,107 +172,107 @@ bool Window::Resize(int w, int h)
 
 bool Window::GetSize(int* w, int* h)
 {
-    return SDL_CHECK(SDL_GetWindowSize(m_handle, w, h));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowSize(m_handle, w, h));
 }
 
 bool Window::GetSafeArea(SDL_Rect* rect)
 {
-    return SDL_CHECK(SDL_GetWindowSafeArea(m_handle, rect));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowSafeArea(m_handle, rect));
 }
 
 bool Window::SetAspectRatio(float minAspect, float maxAspect)
 {
-    return SDL_CHECK(SDL_SetWindowAspectRatio(m_handle, minAspect, maxAspect));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowAspectRatio(m_handle, minAspect, maxAspect));
 }
 
 bool Window::GetAspectRatio(float* minAspect, float* maxAspect)
 {
-    return SDL_CHECK(SDL_GetWindowAspectRatio(m_handle, minAspect, maxAspect));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowAspectRatio(m_handle, minAspect, maxAspect));
 }
 
 bool Window::GetBordersSize(int* top, int* left, int* bottom, int* right)
 {
-    return SDL_CHECK(SDL_GetWindowBordersSize(m_handle, top, left, bottom, right));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowBordersSize(m_handle, top, left, bottom, right));
 }
 
 bool Window::GetSizeInPixels(int* w, int* h)
 {
-    return SDL_CHECK(SDL_GetWindowSizeInPixels(m_handle, w, h));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowSizeInPixels(m_handle, w, h));
 }
 
 bool Window::SetMinimumSize(int w, int h)
 {
-    return SDL_CHECK(SDL_SetWindowMinimumSize(m_handle, w, h));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowMinimumSize(m_handle, w, h));
 }
 
 bool Window::GetMinimumSize(int* w, int* h)
 {
-    return SDL_CHECK(SDL_GetWindowMinimumSize(m_handle, w, h));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowMinimumSize(m_handle, w, h));
 }
 
 bool Window::SetMaximumSize(int w, int h)
 {
-    return SDL_CHECK(SDL_SetWindowMaximumSize(m_handle, w, h));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowMaximumSize(m_handle, w, h));
 }
 
 bool Window::GetMaximumSize(int* w, int* h)
 {
-    return SDL_CHECK(SDL_GetWindowMaximumSize(m_handle, w, h));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowMaximumSize(m_handle, w, h));
 }
 
 bool Window::SetBordered(bool bordered)
 {
-    return SDL_CHECK(SDL_SetWindowBordered(m_handle, bordered));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowBordered(m_handle, bordered));
 }
 
 bool Window::SetResizable(bool resizable)
 {
-    return SDL_CHECK(SDL_SetWindowResizable(m_handle, resizable));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowResizable(m_handle, resizable));
 }
 
 bool Window::SetAlwaysOnTop(bool onTop)
 {
-    return SDL_CHECK(SDL_SetWindowAlwaysOnTop(m_handle, onTop));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowAlwaysOnTop(m_handle, onTop));
 }
 
 bool Window::Show()
 {
-    return SDL_CHECK(SDL_ShowWindow(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_ShowWindow(m_handle));
 }
 
 bool Window::Hide()
 {
-    return SDL_CHECK(SDL_HideWindow(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_HideWindow(m_handle));
 }
 
 bool Window::Raise()
 {
-    return SDL_CHECK(SDL_RaiseWindow(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_RaiseWindow(m_handle));
 }
 
 bool Window::Maximize()
 {
-    return SDL_CHECK(SDL_MaximizeWindow(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_MaximizeWindow(m_handle));
 }
 
 bool Window::Minimize()
 {
-    return SDL_CHECK(SDL_MinimizeWindow(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_MinimizeWindow(m_handle));
 }
 
 bool Window::Restore()
 {
-    return SDL_CHECK(SDL_RestoreWindow(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_RestoreWindow(m_handle));
 }
 
 bool Window::SetFullscreen(bool fullscreen)
 {
-    return SDL_CHECK(SDL_SetWindowFullscreen(m_handle, fullscreen));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowFullscreen(m_handle, fullscreen));
 }
 
 bool Window::Sync()
 {
-    return SDL_CHECK(SDL_SyncWindow(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_SyncWindow(m_handle));
 }
 
 bool Window::HasSurface()
@@ -292,38 +292,38 @@ SDL_Surface* Window::GetSurface()
 
 bool Window::SetSurfaceVSync(int vsync)
 {
-    return SDL_CHECK(SDL_SetWindowSurfaceVSync(m_handle, vsync));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowSurfaceVSync(m_handle, vsync));
 }
 
 bool Window::GetSurfaceVSync(int* vsync)
 {
-    return SDL_CHECK(SDL_GetWindowSurfaceVSync(m_handle, vsync));
+    return RAD_SDL_CHECK_GUI(SDL_GetWindowSurfaceVSync(m_handle, vsync));
 }
 
 bool Window::UpdateSurface()
 {
-    return SDL_CHECK(SDL_UpdateWindowSurface(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_UpdateWindowSurface(m_handle));
 }
 
 bool Window::UpdateSurfaceRects(Span<SDL_Rect> rects)
 {
-    return SDL_CHECK(
+    return RAD_SDL_CHECK_GUI(
         SDL_UpdateWindowSurfaceRects(m_handle, rects.data(), static_cast<int>(rects.size())));
 }
 
 bool Window::DestroySurface()
 {
-    return SDL_CHECK(SDL_DestroyWindowSurface(m_handle));
+    return RAD_SDL_CHECK_GUI(SDL_DestroyWindowSurface(m_handle));
 }
 
 bool Window::SetKeyboardGrab(bool grabbed)
 {
-    return SDL_CHECK(SDL_SetWindowKeyboardGrab(m_handle, grabbed));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowKeyboardGrab(m_handle, grabbed));
 }
 
 bool Window::SetMouseGrab(bool grabbed)
 {
-    return SDL_CHECK(SDL_SetWindowMouseGrab(m_handle, grabbed));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowMouseGrab(m_handle, grabbed));
 }
 
 bool Window::GetKeyboardGrab()
@@ -338,7 +338,7 @@ bool Window::GetMouseGrab()
 
 bool Window::SetMouseRect(const SDL_Rect* rect)
 {
-    return SDL_CHECK(SDL_SetWindowMouseRect(m_handle, rect));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowMouseRect(m_handle, rect));
 }
 
 bool Window::SetMouseRect(const SDL_Rect& rect)
@@ -353,7 +353,7 @@ const SDL_Rect* Window::GetMouseRect()
 
 bool Window::SetOpacity(float opacity)
 {
-    return SDL_CHECK(SDL_SetWindowOpacity(m_handle, opacity));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowOpacity(m_handle, opacity));
 }
 
 bool Window::GetOpacity(float* opacity)
@@ -373,17 +373,17 @@ bool Window::GetOpacity(float* opacity)
 
 bool Window::SetFocusable(bool focusable)
 {
-    return SDL_CHECK(SDL_SetWindowFocusable(m_handle, focusable));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowFocusable(m_handle, focusable));
 }
 
 bool Window::ShowSystemMenu(int x, int y)
 {
-    return SDL_CHECK(SDL_ShowWindowSystemMenu(m_handle, x, y));
+    return RAD_SDL_CHECK_GUI(SDL_ShowWindowSystemMenu(m_handle, x, y));
 }
 
 bool Window::SetShape(SDL_Surface* shape)
 {
-    return SDL_CHECK(SDL_SetWindowShape(m_handle, shape));
+    return RAD_SDL_CHECK_GUI(SDL_SetWindowShape(m_handle, shape));
 }
 
 bool Window::SetShape(Surface* shape)
@@ -393,7 +393,7 @@ bool Window::SetShape(Surface* shape)
 
 bool Window::Flash(SDL_FlashOperation operation)
 {
-    return SDL_CHECK(SDL_FlashWindow(m_handle, operation));
+    return RAD_SDL_CHECK_GUI(SDL_FlashWindow(m_handle, operation));
 }
 
 bool Window::OnEvent(const SDL_Event& event)
