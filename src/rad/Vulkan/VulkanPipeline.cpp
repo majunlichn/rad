@@ -218,7 +218,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(Ref<VulkanDevice> device,
     }
     auto [result, handle] =
         m_device->GetHandle().createGraphicsPipeline(nullptr, createInfo, nullptr, GetDispatcher());
-    VK_CHECK(result);
+    RAD_VK_CHECK(result);
     if (result == vk::Result::eSuccess)
     {
         m_handle = handle;
@@ -241,7 +241,7 @@ VulkanComputePipeline::VulkanComputePipeline(Ref<VulkanDevice> device,
     createInfo.layout = info.m_layout->GetHandle();
     auto [result, handle] =
         m_device->GetHandle().createComputePipeline(nullptr, createInfo, nullptr, GetDispatcher());
-    VK_CHECK(result);
+    RAD_VK_CHECK(result);
     if (result == vk::Result::eSuccess)
     {
         m_handle = handle;

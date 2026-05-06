@@ -63,7 +63,7 @@ Ref<VulkanCommandBuffer> VulkanCommandPool::AllocateCommandBuffer(vk::CommandBuf
     allocateInfo.commandBufferCount = 1;
     vk::Device deviceHandle = m_device->GetHandle();
     vk::CommandBuffer cmdBufferHandle = {};
-    VK_CHECK(GetDispatcher().vkAllocateCommandBuffers(
+    RAD_VK_CHECK(GetDispatcher().vkAllocateCommandBuffers(
         m_device->GetHandle(), reinterpret_cast<const VkCommandBufferAllocateInfo*>(&allocateInfo),
         reinterpret_cast<VkCommandBuffer*>(&cmdBufferHandle)));
     return RAD_NEW VulkanCommandBuffer(this, cmdBufferHandle);

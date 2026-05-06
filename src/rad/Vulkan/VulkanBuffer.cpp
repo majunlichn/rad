@@ -13,7 +13,7 @@ VulkanBuffer::VulkanBuffer(Ref<VulkanDevice> device, const vk::BufferCreateInfo&
 {
     static_assert(sizeof(vk::Buffer) == sizeof(VkBuffer));
     static_assert(sizeof(vk::BufferCreateInfo) == sizeof(VkBufferCreateInfo));
-    VK_CHECK(vmaCreateBuffer(
+    RAD_VK_CHECK(vmaCreateBuffer(
         m_device->GetAllocator(), reinterpret_cast<const VkBufferCreateInfo*>(&bufferInfo),
         &allocCreateInfo, reinterpret_cast<VkBuffer*>(&m_handle), &m_alloc, &m_allocInfo));
     if (m_handle && m_alloc)
@@ -56,7 +56,7 @@ const vk::detail::DispatchLoaderDynamic& VulkanBuffer::GetDispatcher() const
 void* VulkanBuffer::MapMemory()
 {
     void* pMappedAddr = nullptr;
-    VK_CHECK(vmaMapMemory(m_device->GetAllocator(), m_alloc, &pMappedAddr));
+    RAD_VK_CHECK(vmaMapMemory(m_device->GetAllocator(), m_alloc, &pMappedAddr));
     return pMappedAddr;
 }
 

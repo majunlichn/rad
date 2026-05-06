@@ -13,7 +13,7 @@ VulkanImage::VulkanImage(Ref<VulkanDevice> device, const vk::ImageCreateInfo& im
                          const VmaAllocationCreateInfo& allocCreateInfo) :
     m_device(std::move(device))
 {
-    VK_CHECK(vmaCreateImage(
+    RAD_VK_CHECK(vmaCreateImage(
         m_device->GetAllocator(), reinterpret_cast<const VkImageCreateInfo*>(&imageInfo),
         &allocCreateInfo, reinterpret_cast<VkImage*>(&m_handle), &m_alloc, &m_allocInfo));
     if (m_handle && m_alloc)

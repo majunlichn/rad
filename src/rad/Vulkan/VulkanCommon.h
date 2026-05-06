@@ -56,14 +56,7 @@ inline vk::Result CheckVulkanResult(
 }
 
 // Evaluates expr, then CheckVulkanResult on its return value (see semantics above).
-#define VK_CHECK(expr) CheckVulkanResult(expr, #expr)
-
-#define VK_STRUCTURE_CHAIN_LINK(Iter, Next)                                                        \
-    do                                                                                             \
-    {                                                                                              \
-        *Iter = &Next;                                                                             \
-        Iter = &Next.pNext;                                                                        \
-    } while (0)
+#define RAD_VK_CHECK(expr) CheckVulkanResult(expr, #expr)
 
 template <typename T>
 concept VulkanStructureConcept = requires(T t) {

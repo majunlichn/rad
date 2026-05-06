@@ -207,7 +207,7 @@ VulkanDevice::VulkanDevice(Ref<VulkanInstance> instance, vk::PhysicalDevice phys
     {
         allocatorCreateInfo.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     }
-    VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &m_allocator));
+    RAD_VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &m_allocator));
 }
 
 VulkanDevice::~VulkanDevice()

@@ -35,7 +35,7 @@ std::vector<Ref<VulkanDescriptorSet>> VulkanDescriptorPool::Allocate(
     allocateInfo.setSetLayouts(layouts);
     vk::Device deviceHandle = m_device->GetHandle();
     std::vector<vk::DescriptorSet> descSetsHandles(layouts.size());
-    VK_CHECK(GetDispatcher().vkAllocateDescriptorSets(
+    RAD_VK_CHECK(GetDispatcher().vkAllocateDescriptorSets(
         deviceHandle, reinterpret_cast<const VkDescriptorSetAllocateInfo*>(&allocateInfo),
         reinterpret_cast<VkDescriptorSet*>(descSetsHandles.data())));
     std::vector<Ref<VulkanDescriptorSet>> descSets(descSetsHandles.size());
@@ -79,7 +79,7 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
 {
     if (m_handle)
     {
-        VK_CHECK(GetDevice()->GetHandle().freeDescriptorSets(m_descPool->GetHandle(), 1, &m_handle,
+        RAD_VK_CHECK(GetDevice()->GetHandle().freeDescriptorSets(m_descPool->GetHandle(), 1, &m_handle,
                                                              GetDispatcher()));
         m_handle = nullptr;
     }

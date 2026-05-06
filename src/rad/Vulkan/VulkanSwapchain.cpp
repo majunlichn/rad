@@ -20,10 +20,10 @@ VulkanSwapchain::VulkanSwapchain(Ref<VulkanDevice> device, Ref<VulkanSurface> su
     if (m_handle)
     {
         std::vector<vk::Image> imageHandles;
-        VK_CHECK(m_device->GetHandle().getSwapchainImagesKHR(m_handle, &m_imageCount, nullptr,
+        RAD_VK_CHECK(m_device->GetHandle().getSwapchainImagesKHR(m_handle, &m_imageCount, nullptr,
                                                              GetDispatcher()));
         imageHandles.resize(m_imageCount);
-        VK_CHECK(m_device->GetHandle().getSwapchainImagesKHR(m_handle, &m_imageCount,
+        RAD_VK_CHECK(m_device->GetHandle().getSwapchainImagesKHR(m_handle, &m_imageCount,
                                                              imageHandles.data(), GetDispatcher()));
         m_imageCount = static_cast<uint32_t>(imageHandles.size());
         m_imageFormat = createInfo.imageFormat;
