@@ -16,6 +16,7 @@ project(rad VERSION 0.0.0 LANGUAGES CXX)
 # Build options
 option(RAD_BUILD_VULKAN "Build the Vulkan library" ON)
 option(RAD_BUILD_GUI "Build the GUI library" ON)
+option(RAD_BUILD_MULTIMEDIA "Build the Multimedia library" ON)
 option(RAD_BUILD_TESTS "Build tests" ON)
 option(RAD_ENABLE_INSTALL "Enable installation rules" ON)
 
@@ -48,8 +49,26 @@ add_subdirectory(src/rad/System)
 if (RAD_BUILD_VULKAN AND DEFINED ENV{VULKAN_SDK})
     add_subdirectory(src/rad/Vulkan)
 endif()
+
+if (RAD_BUILD_GUI OR RAD_BUILD_MULTIMEDIA)
+    set(SDL3_INSTALL_DIR "" CACHE PATH
+        "Optional SDL3 install prefix (folder that contains lib/cmake/SDL3); empty uses default search")
+    if(SDL3_INSTALL_DIR)
+        find_package(SDL3 CONFIG REQUIRED
+            PATHS "${SDL3_INSTALL_DIR}"
+            PATH_SUFFIXES lib/cmake/SDL3 cmake
+            NO_DEFAULT_PATH)
+    else()
+        find_package(SDL3 CONFIG REQUIRED)
+    endif()
+    message(STATUS "SDL3_DIR=${SDL3_DIR}")
+endif()
+
 if (RAD_BUILD_GUI)
     add_subdirectory(src/rad/Gui)
+endif()
+if (RAD_BUILD_MULTIMEDIA)
+    add_subdirectory(src/rad/Multimedia)
 endif()
 
 # https://cmake.org/cmake/help/latest/prop_gbl/USE_FOLDERS.html
