@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 using namespace rad;
+using namespace rad::literals;
 
 TEST(Integer, HighLowParts)
 {
@@ -212,4 +213,39 @@ TEST(Integer, Pow2Rounding)
     EXPECT_EQ(RoundUpToPow2Portable<uint64_t>(2u), 2u);
     EXPECT_EQ(RoundUpToPow2Portable<uint64_t>(3u), 4u);
     EXPECT_EQ(RoundUpToPow2Portable<uint64_t>(16u), 16u);
+}
+
+TEST(Integer, BinarySizeLiterals_SampleUsage)
+{
+    // Sample usage (compile-time constants).
+    constexpr Uint64 page = 4_KiB;
+    constexpr Uint64 smallBuffer = 64_KiB;
+    constexpr Uint64 bigBuffer = 2_MiB + 512_KiB;
+
+    static_assert(page == 4096ULL);
+    static_assert(smallBuffer == 65536ULL);
+    static_assert(bigBuffer == (2ULL * 1024ULL * 1024ULL + 512ULL * 1024ULL));
+
+    // Sample usage (runtime).
+    Uint64 total = 0;
+    total += 1_KiB;
+    total += 2_KiB;
+    EXPECT_EQ(total, 3ULL * 1024ULL);
+}
+
+TEST(Integer, BinarySizeLiterals_Values)
+{
+    EXPECT_EQ(0_KiB, 0ULL);
+    EXPECT_EQ(1_KiB, 1024ULL);
+    EXPECT_EQ(2_KiB, 2048ULL);
+
+    EXPECT_EQ(1_MiB, 1024ULL * 1024ULL);
+    EXPECT_EQ(3_MiB, 3ULL * 1024ULL * 1024ULL);
+
+    EXPECT_EQ(1_GiB, 1024ULL * 1024ULL * 1024ULL);
+    EXPECT_EQ(2_GiB, 2ULL * 1024ULL * 1024ULL * 1024ULL);
+
+    EXPECT_EQ(1_TiB, 1024ULL * 1024ULL * 1024ULL * 1024ULL);
+    EXPECT_EQ(1_PiB, 1024ULL * 1024ULL * 1024ULL * 1024ULL * 1024ULL);
+    EXPECT_EQ(1_EiB, 1024ULL * 1024ULL * 1024ULL * 1024ULL * 1024ULL * 1024ULL);
 }

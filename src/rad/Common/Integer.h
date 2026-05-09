@@ -412,4 +412,39 @@ template <typename T>
     }
 }
 
+namespace literals
+{
+// Binary (IEC) size literals.
+// Example: `64_KiB`, `2_MiB`, `1_GiB`.
+[[nodiscard]] consteval Uint64 operator"" _KiB(unsigned long long value) noexcept
+{
+    return static_cast<Uint64>(value) * 1024ULL;
+}
+
+[[nodiscard]] consteval Uint64 operator"" _MiB(unsigned long long value) noexcept
+{
+    return static_cast<Uint64>(value) * 1024ULL * 1024ULL;
+}
+
+[[nodiscard]] consteval Uint64 operator"" _GiB(unsigned long long value) noexcept
+{
+    return static_cast<Uint64>(value) * 1024ULL * 1024ULL * 1024ULL;
+}
+
+[[nodiscard]] consteval Uint64 operator"" _TiB(unsigned long long value) noexcept
+{
+    return static_cast<Uint64>(value) * 1024ULL * 1024ULL * 1024ULL * 1024ULL;
+}
+
+[[nodiscard]] consteval Uint64 operator"" _PiB(unsigned long long value) noexcept
+{
+    return static_cast<Uint64>(value) * 1024ULL * 1024ULL * 1024ULL * 1024ULL * 1024ULL;
+}
+
+[[nodiscard]] consteval Uint64 operator"" _EiB(unsigned long long value) noexcept
+{
+    return static_cast<Uint64>(value) * 1024ULL * 1024ULL * 1024ULL * 1024ULL * 1024ULL * 1024ULL;
+}
+} // namespace literals
+
 } // namespace rad
