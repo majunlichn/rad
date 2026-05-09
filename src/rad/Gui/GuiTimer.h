@@ -7,18 +7,23 @@
 namespace rad
 {
 
-/// Call a callback function at a future time, in milliseconds.
+// Millisecond-resolution repeating timer; the callback returns the next interval, or 0 to cancel.
+// https://wiki.libsdl.org/SDL3/CategoryTimer
 class GuiTimer
 {
 public:
     GuiTimer() = default;
+    // Calls Stop(), which invokes SDL_RemoveTimer when a timer is active.
+    // https://wiki.libsdl.org/SDL3/SDL_RemoveTimer
     ~GuiTimer();
 
     GuiTimer(const GuiTimer&) = delete;
     GuiTimer& operator=(const GuiTimer&) = delete;
 
-    /// Return the next interval in ms, or `0` to cancel (SDL semantics).
+    // SDL_AddTimer; the callback returns the next interval in ms, or 0 to cancel.
+    // https://wiki.libsdl.org/SDL3/SDL_AddTimer
     [[nodiscard]] bool Start(Uint32 interval, SDL_TimerCallback callback, void* userData);
+    // Converts duration to milliseconds, then Start(Uint32, ...).
     template <typename Rep, typename Period>
     [[nodiscard]] bool Start(std::chrono::duration<Rep, Period> interval,
                              SDL_TimerCallback callback, void* userData)
@@ -31,7 +36,9 @@ public:
         }
         return Start(static_cast<Uint32>(intervalMillisec), callback, userData);
     }
+    // Timer ID from the last successful Start(), or 0.
     [[nodiscard]] SDL_TimerID GetId() const { return m_id; }
+    // https://wiki.libsdl.org/SDL3/SDL_RemoveTimer
     bool Stop();
 
 private:
@@ -39,17 +46,22 @@ private:
 
 }; // class GuiTimer
 
-/// Call a callback function at a future time, in nanoseconds.
+// Nanosecond-resolution repeating timer; the callback returns the next interval, or 0 to cancel.
+// https://wiki.libsdl.org/SDL3/CategoryTimer
 class GuiTimerPrecise
 {
 public:
     GuiTimerPrecise() = default;
+    // Calls Stop(), which invokes SDL_RemoveTimer when a timer is active.
+    // https://wiki.libsdl.org/SDL3/SDL_RemoveTimer
     ~GuiTimerPrecise();
 
     GuiTimerPrecise(const GuiTimerPrecise&) = delete;
     GuiTimerPrecise& operator=(const GuiTimerPrecise&) = delete;
 
+    // https://wiki.libsdl.org/SDL3/SDL_AddTimerNS
     [[nodiscard]] bool Start(Uint64 interval, SDL_NSTimerCallback callback, void* userData);
+    // Converts duration to nanoseconds, then Start(Uint64, ...).
     template <typename Rep, typename Period>
     [[nodiscard]] bool Start(std::chrono::duration<Rep, Period> interval,
                              SDL_NSTimerCallback callback, void* userData)
@@ -62,7 +74,9 @@ public:
         }
         return Start(static_cast<Uint64>(intervalNanosec), callback, userData);
     }
+    // Timer ID from the last successful Start(), or 0.
     [[nodiscard]] SDL_TimerID GetId() const { return m_id; }
+    // https://wiki.libsdl.org/SDL3/SDL_RemoveTimer
     bool Stop();
 
 private:
