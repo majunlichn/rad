@@ -3,6 +3,10 @@
 #include <rad/Gui/Window.h>
 #include <rad/Gui/GuiRenderer.h>
 
+#include "GuiRenderer.test.h"
+
+#include <vector>
+
 class MainWindow : public rad::Window
 {
 public:
@@ -60,16 +64,25 @@ public:
     void OnUserEvent(const SDL_UserEvent& user) override;
 
 private:
-    void DrawDebugOverlay();
+    void ShowDebugOverlay();
+    void ShowRenderTestPanel();
+
+    int m_maxFrames = -1;
+    int m_frameCount = 0;
 
     rad::Ref<rad::GuiRenderer> m_renderer;
-    bool m_showDemoWindow = true;
+
+    bool m_showDemoWindow = false;
+    bool m_showRenderTestPanel = true;
     bool m_logMouseMotion = false;
     float m_mouseMotionX = 0.f;
     float m_mouseMotionY = 0.f;
     float m_mouseMotionXrel = 0.f;
     float m_mouseMotionYrel = 0.f;
 
-    int m_maxFrames = -1;
-    int m_frameCount = 0;
+    rad::Ref<RenderTest> CreateRenderTest(rad::cstring_view name);
+    std::vector<const char*> m_renderTestNames;
+    int m_renderTestIndex = 0;
+    rad::Ref<RenderTest> m_renderTest;
+
 }; // class MainWindow

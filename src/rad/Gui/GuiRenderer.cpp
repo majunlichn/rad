@@ -673,7 +673,6 @@ void GuiRenderer::EndFrame()
     ImGuiIO& io = ImGui::GetIO();
     // Match ImGui HiDPI framebuffer scale; avoid mixing with other SDL_SetRenderScale callers.
     SDL_SetRenderScale(m_handle, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-    Clear();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_handle);
     Present();
 }

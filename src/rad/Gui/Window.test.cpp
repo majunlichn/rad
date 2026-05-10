@@ -4,6 +4,7 @@
 
 #include "imgui.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 
@@ -26,6 +27,8 @@ bool MainWindow::Init(int width, int height, int maxFrames)
         return false;
     }
     m_renderer = RAD_NEW rad::GuiRenderer(this);
+    m_renderTestNames = {"None", "Clear"};
+    m_renderTestIndex = 0;
     return true;
 }
 
@@ -43,11 +46,24 @@ void MainWindow::OnIdle()
     if (m_renderer)
     {
         m_renderer->BeginFrame();
+        ShowDebugOverlay();
         if (m_showDemoWindow)
         {
             ImGui::ShowDemoWindow(&m_showDemoWindow);
         }
-        DrawDebugOverlay();
+        if (m_showRenderTestPanel)
+        {
+            ShowRenderTestPanel();
+        }
+        if (m_renderTest)
+        {
+            m_renderTest->OnRender();
+        }
+        else
+        {
+            m_renderer->SetRenderDrawColor(0, 0, 0, SDL_ALPHA_OPAQUE_FLOAT);
+            m_renderer->Clear();
+        }
         m_renderer->EndFrame();
     }
 
@@ -63,9 +79,53 @@ void MainWindow::OnIdle()
     }
 }
 
-void MainWindow::DrawDebugOverlay()
+void MainWindow::ShowRenderTestPanel()
 {
-    ImGui::SetNextWindowPos(ImVec2(12.f, 12.f), ImGuiCond_Always);
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowSizeConstraints(ImVec2(280.f, 140.f), viewport->WorkSize);
+    if (ImGui::Begin("RenderTest", &m_showRenderTestPanel, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        int comboIndex = m_renderTestIndex;
+        const int testCount = static_cast<int>(m_renderTestNames.size());
+        const int lastIndex = std::max(0, testCount - 1);
+        if (ImGui::Combo("##RenderTestCombo", &comboIndex, m_renderTestNames.data(), testCount))
+        {
+            comboIndex = std::clamp(comboIndex, 0, lastIndex);
+        }
+        if (m_renderTestIndex != comboIndex)
+        {
+            m_renderTestIndex = comboIndex;
+            m_renderTest = CreateRenderTest(m_renderTestNames[m_renderTestIndex]);
+        }
+
+        ImGui::Separator();
+
+        if (m_renderTest)
+        {
+            m_renderTest->ShowSettings();
+        }
+        else
+        {
+            ImGui::TextDisabled("No test selected.");
+        }
+        ImGui::End();
+    }
+}
+
+rad::Ref<RenderTest> MainWindow::CreateRenderTest(rad::cstring_view name)
+{
+    if (name == "Clear")
+    {
+        return RAD_NEW ClearTest(this, m_renderer.get());
+    }
+    return nullptr;
+}
+
+void MainWindow::ShowDebugOverlay()
+{
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    const float pad = 12.f;
+    ImGui::SetNextWindowPos(ImVec2(pad, pad), ImGuiCond_Always);
     ImGui::SetNextWindowBgAlpha(0.55f);
     constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
                                        ImGuiWindowFlags_AlwaysAutoResize |
@@ -251,6 +311,10 @@ void MainWindow::OnKeyDown(const SDL_KeyboardEvent& keyDown)
     if (keyDown.key == SDLK_F1 && !keyDown.repeat)
     {
         m_showDemoWindow = !m_showDemoWindow;
+    }
+    else if (keyDown.key == SDLK_F2 && !keyDown.repeat)
+    {
+        m_showRenderTestPanel = !m_showRenderTestPanel;
     }
     else if (keyDown.key == SDLK_ESCAPE && !keyDown.repeat)
     {

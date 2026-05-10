@@ -63,6 +63,8 @@ set(RAD_GUI_TEST_SOURCES
     GuiApplication.test.cpp
     Window.test.h
     Window.test.cpp
+    GuiRenderer.test.h
+    GuiRenderer.test.cpp
 )
 
 find_package(Vulkan REQUIRED)
