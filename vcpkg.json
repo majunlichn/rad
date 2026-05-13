@@ -12,28 +12,6 @@
     "gtest",
     "pystring",
     "range-v3",
-    {
-      "name": "sdl3",
-      "features": [
-        "vulkan",
-        {
-          "name": "wayland",
-          "platform": "linux"
-        }
-      ]
-    },
-    {
-      "name": "sdl3-mixer",
-      "features": [
-        "fluidsynth",
-        "libflac",
-        "libvorbis",
-        "libxmp",
-        "mpg123",
-        "opusfile",
-        "wavpack"
-      ]
-    },
     "spdlog",
     "stb",
     "xxhash"

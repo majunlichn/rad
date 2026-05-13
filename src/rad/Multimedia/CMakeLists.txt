@@ -21,19 +21,7 @@ set(RAD_MULTIMEDIA_TEST_SOURCES
     Camera.test.cpp
 )
 
-set(SDL3_MIXER_INSTALL_DIR "" CACHE PATH
-    "Optional SDL3_mixer install prefix (folder that contains lib/cmake/SDL3_mixer); empty uses default search")
-
-if(SDL3_MIXER_INSTALL_DIR)
-    find_package(SDL3_mixer CONFIG REQUIRED
-        PATHS "${SDL3_INSTALL_DIR}"
-        PATH_SUFFIXES lib/cmake/SDL3_mixer cmake
-        NO_DEFAULT_PATH)
-else()
-    find_package(SDL3_mixer CONFIG REQUIRED)
-endif()
-
-message(STATUS "SDL3_mixer_DIR=${SDL3_mixer_DIR}")
+# SDL3_mixer is resolved in top-level CMakeLists (cmake/FindSDL3.cmake) before this directory is added.
 
 add_library(rad_multimedia STATIC)
 
