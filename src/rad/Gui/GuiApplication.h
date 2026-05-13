@@ -164,13 +164,13 @@ public:
 
     // SDL3 timer / high-resolution clock.
     // https://wiki.libsdl.org/SDL3/SDL_GetTicks
-    static [[nodiscard]] Uint64 GetTicksInMilliseconds();
+    [[nodiscard]] static Uint64 GetTicksInMilliseconds();
     // https://wiki.libsdl.org/SDL3/SDL_GetTicksNS
-    static [[nodiscard]] Uint64 GetTicksInNanoseconds();
+    [[nodiscard]] static Uint64 GetTicksInNanoseconds();
     // https://wiki.libsdl.org/SDL3/SDL_GetPerformanceCounter
-    static [[nodiscard]] Uint64 GetPerformanceCounter();
+    [[nodiscard]] static Uint64 GetPerformanceCounter();
     // https://wiki.libsdl.org/SDL3/SDL_GetPerformanceFrequency
-    static [[nodiscard]] Uint64 GetPerformanceFrequency();
+    [[nodiscard]] static Uint64 GetPerformanceFrequency();
 
     /// Waits at least `duration` (may sleep longer depending on the OS). Uses `SDL_DelayNS`.
     // https://wiki.libsdl.org/SDL3/SDL_DelayNS
