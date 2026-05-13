@@ -7,6 +7,18 @@ set(RAD_GUI_HEADERS
     Surface.h
     GuiTexture.h
     GuiRenderer.h
+    RHI.h
+    RHI/GpuDevice.h
+    RHI/GpuFence.h
+    RHI/GpuShader.h
+    RHI/GpuBuffer.h
+    RHI/GpuTexture.h
+    RHI/GpuSampler.h
+    RHI/GpuGraphicsPipeline.h
+    RHI/GpuComputePipeline.h
+    RHI/GpuTransferBuffer.h
+    RHI/GpuCommandBuffer.h
+    RHI/GpuPass.h
 )
 
 set(RAD_GUI_SOURCES
@@ -18,6 +30,17 @@ set(RAD_GUI_SOURCES
     Surface.cpp
     GuiTexture.cpp
     GuiRenderer.cpp
+    RHI/GpuDevice.cpp
+    RHI/GpuFence.cpp
+    RHI/GpuShader.cpp
+    RHI/GpuBuffer.cpp
+    RHI/GpuTexture.cpp
+    RHI/GpuSampler.cpp
+    RHI/GpuGraphicsPipeline.cpp
+    RHI/GpuComputePipeline.cpp
+    RHI/GpuTransferBuffer.cpp
+    RHI/GpuCommandBuffer.cpp
+    RHI/GpuPass.cpp
 )
 
 set(IMGUI_HEADERS

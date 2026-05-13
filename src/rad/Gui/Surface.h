@@ -117,7 +117,7 @@ public:
                            SDL_ScaleMode scaleMode);
     // https://wiki.libsdl.org/SDL3/SDL_BlitSurfaceUncheckedScaled
     static bool BlitUncheckedScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst,
-                                     SDL_Rect* dstRect, SDL_ScaleMode scaleMode);
+                                    SDL_Rect* dstRect, SDL_ScaleMode scaleMode);
     // https://wiki.libsdl.org/SDL3/SDL_BlitSurfaceTiled
     static bool BlitTiled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect);
     // https://wiki.libsdl.org/SDL3/SDL_BlitSurfaceTiledWithScale

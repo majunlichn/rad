@@ -132,13 +132,13 @@ void MainWindow::ShowDebugOverlay()
                                        ImGuiWindowFlags_NoSavedSettings |
                                        ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     ImGui::Begin("DebugOverlay", nullptr, flags);
-    ImGui::Checkbox("Log Mouse Motion", &m_logMouseMotion);
     {
         float mouseX = 0.f;
         float mouseY = 0.f;
         SDL_GetMouseState(&mouseX, &mouseY);
         ImGui::Text("Mouse Position: %8.2f, %8.2f", mouseX, mouseY);
     }
+    ImGui::Checkbox("Log Mouse Motion", &m_logMouseMotion);
     ImGui::End();
 }
 

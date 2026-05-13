@@ -105,10 +105,10 @@ public:
     bool Update(const SDL_Rect* rect, const void* pixels, int pitch);
     // https://wiki.libsdl.org/SDL3/SDL_UpdateYUVTexture
     bool UpdateYUV(const SDL_Rect* rect, const Uint8* Yplane, int Ypitch, const Uint8* Uplane,
-                    int Upitch, const Uint8* Vplane, int Vpitch);
+                   int Upitch, const Uint8* Vplane, int Vpitch);
     // https://wiki.libsdl.org/SDL3/SDL_UpdateNVTexture
     bool UpdateNV(const SDL_Rect* rect, const Uint8* Yplane, int Ypitch, const Uint8* UVplane,
-                    int UVpitch);
+                  int UVpitch);
 
     // https://wiki.libsdl.org/SDL3/SDL_LockTexture
     bool Lock(const SDL_Rect* rect, void** pixels, int* pitch);
