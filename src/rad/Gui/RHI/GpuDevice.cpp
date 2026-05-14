@@ -145,7 +145,7 @@ void GpuDevice::GDKResumeGPU()
 
 bool GpuDevice::ClaimWindow(SDL_Window* window)
 {
-    return RAD_SDL_CHECK_GUI(SDL_ClaimWindowForGPUDevice(m_handle, window));
+    return RAD_GUI_CHECK_SDL(SDL_ClaimWindowForGPUDevice(m_handle, window));
 }
 
 bool GpuDevice::ClaimWindow(Window* window)
@@ -168,13 +168,13 @@ void GpuDevice::ReleaseWindow(Window* window)
 bool GpuDevice::SetSwapchainParameters(SDL_Window* window, SDL_GPUSwapchainComposition composition,
                                        SDL_GPUPresentMode presentMode)
 {
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_SetGPUSwapchainParameters(m_handle, window, composition, presentMode));
 }
 
 bool GpuDevice::SetAllowedFramesInFlight(Uint32 count)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetGPUAllowedFramesInFlight(m_handle, count));
+    return RAD_GUI_CHECK_SDL(SDL_SetGPUAllowedFramesInFlight(m_handle, count));
 }
 
 SDL_GPUTextureFormat GpuDevice::GetSwapchainTextureFormat(SDL_Window* window) const
@@ -195,17 +195,17 @@ bool GpuDevice::WindowSupportsSwapchainComposition(SDL_Window* window,
 
 bool GpuDevice::WaitForSwapchain(SDL_Window* window)
 {
-    return RAD_SDL_CHECK_GUI(SDL_WaitForGPUSwapchain(m_handle, window));
+    return RAD_GUI_CHECK_SDL(SDL_WaitForGPUSwapchain(m_handle, window));
 }
 
 bool GpuDevice::WaitIdle()
 {
-    return RAD_SDL_CHECK_GUI(SDL_WaitForGPUIdle(m_handle));
+    return RAD_GUI_CHECK_SDL(SDL_WaitForGPUIdle(m_handle));
 }
 
 bool GpuDevice::WaitForFences(bool waitAll, SDL_GPUFence* const* fences, Uint32 numFences)
 {
-    return RAD_SDL_CHECK_GUI(SDL_WaitForGPUFences(m_handle, waitAll, fences, numFences));
+    return RAD_GUI_CHECK_SDL(SDL_WaitForGPUFences(m_handle, waitAll, fences, numFences));
 }
 
 GpuCommandBuffer GpuDevice::AcquireCommandBuffer()

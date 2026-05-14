@@ -151,7 +151,7 @@ bool GuiApplication::SetMetadataProperty(cstring_view name, cstring_view value)
 bool GuiApplication::SetAppMetadata(cstring_view appName, cstring_view appVersion,
                                     cstring_view appIdentifier)
 {
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_SetAppMetadata(appName.c_str(), appVersion.c_str(), appIdentifier.c_str()));
 }
 
@@ -234,7 +234,7 @@ bool GuiApplication::PollEvent(SDL_Event* outEvent)
 
 bool GuiApplication::WaitEvent(SDL_Event* outEvent)
 {
-    return RAD_SDL_CHECK_GUI(SDL_WaitEvent(outEvent));
+    return RAD_GUI_CHECK_SDL(SDL_WaitEvent(outEvent));
 }
 
 bool GuiApplication::WaitEventTimeout(SDL_Event* outEvent, Sint32 timeoutMs)
@@ -475,7 +475,7 @@ bool GuiApplication::SetClipboardData(SDL_ClipboardDataCallback callback,
 
 bool GuiApplication::ClearClipboardData()
 {
-    return RAD_SDL_CHECK_GUI(SDL_ClearClipboardData());
+    return RAD_GUI_CHECK_SDL(SDL_ClearClipboardData());
 }
 
 const void* GuiApplication::GetClipboardData(const char* mimeType, size_t* size)

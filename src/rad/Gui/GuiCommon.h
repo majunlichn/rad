@@ -4,6 +4,7 @@
 #include <rad/Common/Integer.h>
 #include <rad/Common/Float.h>
 #include <rad/Common/Memory.h>
+#include <rad/Common/Result.h>
 #include <rad/Common/RefCounted.h>
 #include <rad/Container/SmallVector.h>
 #include <rad/Container/Span.h>
@@ -18,6 +19,21 @@
 namespace rad
 {
 
+class GuiError
+{
+public:
+    GuiError(std::string message);
+    ~GuiError() = default;
+
+    const std::string& GetMessage() const { return m_message; }
+
+private:
+    std::string m_message;
+}; // class GuiError
+
+template <typename T>
+using GuiResult = Result<T, GuiError>;
+
 spdlog::logger* GetGuiLogger();
 
 // LogLevel: trace, debug, info, warn, err, critical
@@ -31,17 +47,46 @@ const char* SDL_GetEventName(Uint32 type);
 // Convenience wrapper that returns a description string (for logging/debugging).
 std::string SDL_GetEventDescription(const SDL_Event& event);
 
-inline bool SDL_CheckResult(bool result, const char* expr, spdlog::logger* logger,
-                            std::source_location sourceLoc = std::source_location::current())
+// Copy of SDL_GetError() for this thread, or "Unknown error" if unset. Call right after a failed SDL API.
+inline std::string GetLastSdlErrorString()
 {
-    assert(logger != nullptr);
-    if (!result)
-    {
-        logger->error("{} failed: {} (at {}:{} in {})", expr, SDL_GetError(), sourceLoc.file_name(),
-                      sourceLoc.line(), sourceLoc.function_name());
-    }
-    return result;
+    const char* sdlErrRaw = SDL_GetError();
+    const std::string sdlErr =
+        (sdlErrRaw && (sdlErrRaw[0] != '\0')) ? std::string(sdlErrRaw) : "Unknown error";
+    return sdlErr;
 }
+
+[[nodiscard]] inline bool CheckGuiSdlCall(
+    bool ok, const char* expr, std::source_location sourceLoc = std::source_location::current())
+{
+    if (ok) [[likely]]
+    {
+        return true;
+    }
+    const std::string sdlErr = GetLastSdlErrorString();
+    GetGuiLogger()->error("{} failed: {} (at {}:{} in {})", expr, sdlErr, sourceLoc.file_name(),
+                          sourceLoc.line(), sourceLoc.function_name());
+    return false;
+}
+
+#define RAD_GUI_CHECK_SDL(expr) ::rad::CheckGuiSdlCall((expr), #expr)
+
+// Wraps an SDL call that returns bool. On success, returns true.
+// On failure, copies this thread's SDL error string, logs, and returns GuiError.
+[[nodiscard]] inline GuiResult<bool> WrapGuiSdlCall(
+    bool ok, const char* expr, std::source_location sourceLoc = std::source_location::current())
+{
+    if (ok) [[likely]]
+    {
+        return true;
+    }
+    const std::string sdlErr = GetLastSdlErrorString();
+    GetGuiLogger()->error("{} failed: {} (at {}:{} in {})", expr, sdlErr, sourceLoc.file_name(),
+                          sourceLoc.line(), sourceLoc.function_name());
+    return GuiError(sdlErr);
+}
+
+#define RAD_GUI_WRAP_SDL(expr) ::rad::WrapGuiSdlCall((expr), #expr)
 
 inline std::string SDL_InitFlagsToString(SDL_InitFlags flags)
 {
@@ -84,10 +129,5 @@ inline std::string SDL_InitFlagsToString(SDL_InitFlags flags)
     }
     return subsystemNames;
 }
-
-// Check an SDL function call that returns bool, log SDL_GetError() on failure.
-#define RAD_SDL_CHECK(expr, logger) ::rad::SDL_CheckResult((expr), #expr, logger)
-// GUI convenience wrapper for SDL bool-return APIs.
-#define RAD_SDL_CHECK_GUI(expr) RAD_SDL_CHECK((expr), ::rad::GetGuiLogger())
 
 } // namespace rad

@@ -3,6 +3,11 @@
 namespace rad
 {
 
+GuiError::GuiError(std::string message) :
+    m_message(std::move(message))
+{
+}
+
 spdlog::logger* GetGuiLogger()
 {
     static std::shared_ptr<spdlog::logger> logger = CreateLogger("Gui");

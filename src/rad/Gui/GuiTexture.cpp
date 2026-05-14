@@ -80,7 +80,7 @@ SDL_Renderer* GuiTexture::GetRendererHandle() const
 
 bool GuiTexture::GetSize(float* w, float* h)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetTextureSize(m_handle, w, h));
+    return RAD_GUI_CHECK_SDL(SDL_GetTextureSize(m_handle, w, h));
 }
 
 bool GuiTexture::GetDimensions(int* w, int* h)
@@ -134,62 +134,62 @@ SDL_Colorspace GuiTexture::GetColorspace() const
 
 bool GuiTexture::SetColorMod(Uint8 r, Uint8 g, Uint8 b)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetTextureColorMod(m_handle, r, g, b));
+    return RAD_GUI_CHECK_SDL(SDL_SetTextureColorMod(m_handle, r, g, b));
 }
 
 bool GuiTexture::SetColorMod(float r, float g, float b)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetTextureColorModFloat(m_handle, r, g, b));
+    return RAD_GUI_CHECK_SDL(SDL_SetTextureColorModFloat(m_handle, r, g, b));
 }
 
 bool GuiTexture::GetColorMod(Uint8* r, Uint8* g, Uint8* b)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetTextureColorMod(m_handle, r, g, b));
+    return RAD_GUI_CHECK_SDL(SDL_GetTextureColorMod(m_handle, r, g, b));
 }
 
 bool GuiTexture::GetColorMod(float* r, float* g, float* b)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetTextureColorModFloat(m_handle, r, g, b));
+    return RAD_GUI_CHECK_SDL(SDL_GetTextureColorModFloat(m_handle, r, g, b));
 }
 
 bool GuiTexture::SetAlphaMod(Uint8 alpha)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetTextureAlphaMod(m_handle, alpha));
+    return RAD_GUI_CHECK_SDL(SDL_SetTextureAlphaMod(m_handle, alpha));
 }
 
 bool GuiTexture::SetAlphaMod(float alpha)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetTextureAlphaModFloat(m_handle, alpha));
+    return RAD_GUI_CHECK_SDL(SDL_SetTextureAlphaModFloat(m_handle, alpha));
 }
 
 bool GuiTexture::GetAlphaMod(Uint8* alpha)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetTextureAlphaMod(m_handle, alpha));
+    return RAD_GUI_CHECK_SDL(SDL_GetTextureAlphaMod(m_handle, alpha));
 }
 
 bool GuiTexture::GetAlphaMod(float* alpha)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetTextureAlphaModFloat(m_handle, alpha));
+    return RAD_GUI_CHECK_SDL(SDL_GetTextureAlphaModFloat(m_handle, alpha));
 }
 
 bool GuiTexture::SetBlendMode(SDL_BlendMode blendMode)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetTextureBlendMode(m_handle, blendMode));
+    return RAD_GUI_CHECK_SDL(SDL_SetTextureBlendMode(m_handle, blendMode));
 }
 
 bool GuiTexture::GetBlendMode(SDL_BlendMode* blendMode)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetTextureBlendMode(m_handle, blendMode));
+    return RAD_GUI_CHECK_SDL(SDL_GetTextureBlendMode(m_handle, blendMode));
 }
 
 bool GuiTexture::SetScaleMode(SDL_ScaleMode scaleMode)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetTextureScaleMode(m_handle, scaleMode));
+    return RAD_GUI_CHECK_SDL(SDL_SetTextureScaleMode(m_handle, scaleMode));
 }
 
 bool GuiTexture::GetScaleMode(SDL_ScaleMode* scaleMode)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetTextureScaleMode(m_handle, scaleMode));
+    return RAD_GUI_CHECK_SDL(SDL_GetTextureScaleMode(m_handle, scaleMode));
 }
 
 bool GuiTexture::SetSDRWhitePoint(float whitePoint)
@@ -199,7 +199,7 @@ bool GuiTexture::SetSDRWhitePoint(float whitePoint)
     {
         return false;
     }
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_SDR_WHITE_POINT_FLOAT, whitePoint));
 }
 
@@ -210,7 +210,7 @@ bool GuiTexture::SetHDRHeadroom(float headroom)
     {
         return false;
     }
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_HDR_HEADROOM_FLOAT, headroom));
 }
 
@@ -236,7 +236,7 @@ float GuiTexture::GetHDRHeadroom(float defaultValue) const
 
 bool GuiTexture::SetPalette(SDL_Palette* palette)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetTexturePalette(m_handle, palette));
+    return RAD_GUI_CHECK_SDL(SDL_SetTexturePalette(m_handle, palette));
 }
 
 SDL_Palette* GuiTexture::GetPalette() const
@@ -246,30 +246,30 @@ SDL_Palette* GuiTexture::GetPalette() const
 
 bool GuiTexture::Update(const SDL_Rect* rect, const void* pixels, int pitch)
 {
-    return RAD_SDL_CHECK_GUI(SDL_UpdateTexture(m_handle, rect, pixels, pitch));
+    return RAD_GUI_CHECK_SDL(SDL_UpdateTexture(m_handle, rect, pixels, pitch));
 }
 
 bool GuiTexture::UpdateYUV(const SDL_Rect* rect, const Uint8* Yplane, int Ypitch,
                            const Uint8* Uplane, int Upitch, const Uint8* Vplane, int Vpitch)
 {
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_UpdateYUVTexture(m_handle, rect, Yplane, Ypitch, Uplane, Upitch, Vplane, Vpitch));
 }
 
 bool GuiTexture::UpdateNV(const SDL_Rect* rect, const Uint8* Yplane, int Ypitch,
                           const Uint8* UVplane, int UVpitch)
 {
-    return RAD_SDL_CHECK_GUI(SDL_UpdateNVTexture(m_handle, rect, Yplane, Ypitch, UVplane, UVpitch));
+    return RAD_GUI_CHECK_SDL(SDL_UpdateNVTexture(m_handle, rect, Yplane, Ypitch, UVplane, UVpitch));
 }
 
 bool GuiTexture::Lock(const SDL_Rect* rect, void** pixels, int* pitch)
 {
-    return RAD_SDL_CHECK_GUI(SDL_LockTexture(m_handle, rect, pixels, pitch));
+    return RAD_GUI_CHECK_SDL(SDL_LockTexture(m_handle, rect, pixels, pitch));
 }
 
 bool GuiTexture::LockToSurface(const SDL_Rect* rect, SDL_Surface** surface)
 {
-    return RAD_SDL_CHECK_GUI(SDL_LockTextureToSurface(m_handle, rect, surface));
+    return RAD_GUI_CHECK_SDL(SDL_LockTextureToSurface(m_handle, rect, surface));
 }
 
 void GuiTexture::Unlock()

@@ -56,7 +56,7 @@ bool GpuCommandBuffer::Submit()
     }
     // SDL_SubmitGPUCommandBuffer: "It is invalid to use the command buffer after this is called"
     // (wiki), including on failure - always drop the handle after the call.
-    const bool ok = RAD_SDL_CHECK_GUI(SDL_SubmitGPUCommandBuffer(m_handle));
+    const bool ok = RAD_GUI_CHECK_SDL(SDL_SubmitGPUCommandBuffer(m_handle));
     m_handle = nullptr;
     m_device = nullptr;
     return ok;
@@ -86,7 +86,7 @@ bool GpuCommandBuffer::Cancel()
     {
         return false;
     }
-    const bool ok = RAD_SDL_CHECK_GUI(SDL_CancelGPUCommandBuffer(m_handle));
+    const bool ok = RAD_GUI_CHECK_SDL(SDL_CancelGPUCommandBuffer(m_handle));
     m_handle = nullptr;
     m_device = nullptr;
     return ok;
@@ -102,7 +102,7 @@ bool GpuCommandBuffer::AcquireSwapchainTexture(SDL_Window* window,
     }
     assert(window != nullptr);
     assert(swapchainTexture != nullptr);
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_AcquireGPUSwapchainTexture(m_handle, window, swapchainTexture, width, height));
 }
 
@@ -116,7 +116,7 @@ bool GpuCommandBuffer::WaitAndAcquireSwapchainTexture(SDL_Window* window,
     }
     assert(window != nullptr);
     assert(swapchainTexture != nullptr);
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_WaitAndAcquireGPUSwapchainTexture(m_handle, window, swapchainTexture, width, height));
 }
 

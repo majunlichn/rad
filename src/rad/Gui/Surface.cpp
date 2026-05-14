@@ -79,17 +79,17 @@ void Surface::Destroy()
 
 bool Surface::SaveBMP(SDL_IOStream* dst, bool closeio)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SaveBMP_IO(m_handle, dst, closeio));
+    return RAD_GUI_CHECK_SDL(SDL_SaveBMP_IO(m_handle, dst, closeio));
 }
 
 bool Surface::SaveBMP(cstring_view file)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SaveBMP(m_handle, file.c_str()));
+    return RAD_GUI_CHECK_SDL(SDL_SaveBMP(m_handle, file.c_str()));
 }
 
 bool Surface::SetColorSpace(SDL_Colorspace colorspace)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfaceColorspace(m_handle, colorspace));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfaceColorspace(m_handle, colorspace));
 }
 
 SDL_Colorspace Surface::GetColorSpace() const
@@ -99,12 +99,12 @@ SDL_Colorspace Surface::GetColorSpace() const
 
 bool Surface::SetPalette(SDL_Palette* palette)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfacePalette(m_handle, palette));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfacePalette(m_handle, palette));
 }
 
 bool Surface::Lock()
 {
-    return RAD_SDL_CHECK_GUI(SDL_LockSurface(m_handle));
+    return RAD_GUI_CHECK_SDL(SDL_LockSurface(m_handle));
 }
 
 void Surface::Unlock()
@@ -114,7 +114,7 @@ void Surface::Unlock()
 
 bool Surface::SetRLE(int flag)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfaceRLE(m_handle, flag));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfaceRLE(m_handle, flag));
 }
 
 bool Surface::HasRLE()
@@ -124,7 +124,7 @@ bool Surface::HasRLE()
 
 bool Surface::SetColorKey(int flag, Uint32 key)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfaceColorKey(m_handle, flag, key));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfaceColorKey(m_handle, flag, key));
 }
 
 bool Surface::HasColorKey()
@@ -134,42 +134,42 @@ bool Surface::HasColorKey()
 
 bool Surface::GetColorKey(Uint32* key)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetSurfaceColorKey(m_handle, key));
+    return RAD_GUI_CHECK_SDL(SDL_GetSurfaceColorKey(m_handle, key));
 }
 
 bool Surface::SetColorMod(Uint8 r, Uint8 g, Uint8 b)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfaceColorMod(m_handle, r, g, b));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfaceColorMod(m_handle, r, g, b));
 }
 
 bool Surface::GetColorMod(Uint8* r, Uint8* g, Uint8* b)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetSurfaceColorMod(m_handle, r, g, b));
+    return RAD_GUI_CHECK_SDL(SDL_GetSurfaceColorMod(m_handle, r, g, b));
 }
 
 bool Surface::SetAlphaMod(Uint8 alpha)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfaceAlphaMod(m_handle, alpha));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfaceAlphaMod(m_handle, alpha));
 }
 
 bool Surface::GetAlphaMod(Uint8* alpha)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetSurfaceAlphaMod(m_handle, alpha));
+    return RAD_GUI_CHECK_SDL(SDL_GetSurfaceAlphaMod(m_handle, alpha));
 }
 
 bool Surface::SetBlendMode(SDL_BlendMode blendMode)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfaceBlendMode(m_handle, blendMode));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfaceBlendMode(m_handle, blendMode));
 }
 
 bool Surface::GetBlendMode(SDL_BlendMode* blendMode)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetSurfaceBlendMode(m_handle, blendMode));
+    return RAD_GUI_CHECK_SDL(SDL_GetSurfaceBlendMode(m_handle, blendMode));
 }
 
 bool Surface::SetClipRect(const SDL_Rect* rect)
 {
-    return RAD_SDL_CHECK_GUI(SDL_SetSurfaceClipRect(m_handle, rect));
+    return RAD_GUI_CHECK_SDL(SDL_SetSurfaceClipRect(m_handle, rect));
 }
 
 bool Surface::DisableClipping()
@@ -179,12 +179,12 @@ bool Surface::DisableClipping()
 
 bool Surface::GetClipRect(SDL_Rect* rect)
 {
-    return RAD_SDL_CHECK_GUI(SDL_GetSurfaceClipRect(m_handle, rect));
+    return RAD_GUI_CHECK_SDL(SDL_GetSurfaceClipRect(m_handle, rect));
 }
 
 bool Surface::Flip(SDL_FlipMode flip)
 {
-    return RAD_SDL_CHECK_GUI(SDL_FlipSurface(m_handle, flip));
+    return RAD_GUI_CHECK_SDL(SDL_FlipSurface(m_handle, flip));
 }
 
 Ref<Surface> Surface::Duplicate()
@@ -221,60 +221,60 @@ Ref<Surface> Surface::Convert(SDL_PixelFormat format, SDL_Palette* palette,
 
 bool Surface::PremultiplyAlpha(bool linear)
 {
-    return RAD_SDL_CHECK_GUI(SDL_PremultiplySurfaceAlpha(m_handle, linear));
+    return RAD_GUI_CHECK_SDL(SDL_PremultiplySurfaceAlpha(m_handle, linear));
 }
 
 bool Surface::Clear(float r, float g, float b, float a)
 {
-    return RAD_SDL_CHECK_GUI(SDL_ClearSurface(m_handle, r, g, b, a));
+    return RAD_GUI_CHECK_SDL(SDL_ClearSurface(m_handle, r, g, b, a));
 }
 
 bool Surface::FillRect(const SDL_Rect* rect, Uint32 color)
 {
-    return RAD_SDL_CHECK_GUI(SDL_FillSurfaceRect(m_handle, rect, color));
+    return RAD_GUI_CHECK_SDL(SDL_FillSurfaceRect(m_handle, rect, color));
 }
 
 bool Surface::FillRects(const SDL_Rect* rects, int count, Uint32 color)
 {
-    return RAD_SDL_CHECK_GUI(SDL_FillSurfaceRects(m_handle, rects, count, color));
+    return RAD_GUI_CHECK_SDL(SDL_FillSurfaceRects(m_handle, rects, count, color));
 }
 
 bool Surface::Blit(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect)
 {
-    return RAD_SDL_CHECK_GUI(SDL_BlitSurface(src->GetHandle(), srcRect, dst->GetHandle(), dstRect));
+    return RAD_GUI_CHECK_SDL(SDL_BlitSurface(src->GetHandle(), srcRect, dst->GetHandle(), dstRect));
 }
 
 bool Surface::BlitUnchecked(Surface* src, const SDL_Rect* srcRect, Surface* dst,
                             const SDL_Rect* dstRect)
 {
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_BlitSurfaceUnchecked(src->GetHandle(), srcRect, dst->GetHandle(), dstRect));
 }
 
 bool Surface::BlitScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect,
                          SDL_ScaleMode scaleMode)
 {
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_BlitSurfaceScaled(src->GetHandle(), srcRect, dst->GetHandle(), dstRect, scaleMode));
 }
 
 bool Surface::BlitUncheckedScaled(Surface* src, const SDL_Rect* srcRect, Surface* dst,
                                   SDL_Rect* dstRect, SDL_ScaleMode scaleMode)
 {
-    return RAD_SDL_CHECK_GUI(SDL_BlitSurfaceUncheckedScaled(src->GetHandle(), srcRect,
+    return RAD_GUI_CHECK_SDL(SDL_BlitSurfaceUncheckedScaled(src->GetHandle(), srcRect,
                                                             dst->GetHandle(), dstRect, scaleMode));
 }
 
 bool Surface::BlitTiled(Surface* src, const SDL_Rect* srcRect, Surface* dst, SDL_Rect* dstRect)
 {
-    return RAD_SDL_CHECK_GUI(
+    return RAD_GUI_CHECK_SDL(
         SDL_BlitSurfaceTiled(src->GetHandle(), srcRect, dst->GetHandle(), dstRect));
 }
 
 bool Surface::BlitTiledWithScale(Surface* src, const SDL_Rect* srcRect, float scale,
                                  SDL_ScaleMode scaleMode, Surface* dst, const SDL_Rect* dstRect)
 {
-    return RAD_SDL_CHECK_GUI(SDL_BlitSurfaceTiledWithScale(src->GetHandle(), srcRect, scale,
+    return RAD_GUI_CHECK_SDL(SDL_BlitSurfaceTiledWithScale(src->GetHandle(), srcRect, scale,
                                                            scaleMode, dst->GetHandle(), dstRect));
 }
 
@@ -282,14 +282,14 @@ bool Surface::Blit9Grid(Surface* src, const SDL_Rect* srcRect, int leftWidth, in
                         int topHeight, int bottomHeight, float scale, SDL_ScaleMode scaleMode,
                         Surface* dst, const SDL_Rect* dstRect)
 {
-    return RAD_SDL_CHECK_GUI(SDL_BlitSurface9Grid(src->GetHandle(), srcRect, leftWidth, rightWidth,
+    return RAD_GUI_CHECK_SDL(SDL_BlitSurface9Grid(src->GetHandle(), srcRect, leftWidth, rightWidth,
                                                   topHeight, bottomHeight, scale, scaleMode,
                                                   dst->GetHandle(), dstRect));
 }
 
 bool Surface::ReadPixel(int x, int y, Uint8* r, Uint8* g, Uint8* b, Uint8* a)
 {
-    return RAD_SDL_CHECK_GUI(SDL_ReadSurfacePixel(m_handle, x, y, r, g, b, a));
+    return RAD_GUI_CHECK_SDL(SDL_ReadSurfacePixel(m_handle, x, y, r, g, b, a));
 }
 
 } // namespace rad
