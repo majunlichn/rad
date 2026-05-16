@@ -4,6 +4,7 @@ set(RAD_COMMON_HEADERS
     Float.h
     Float16.h
     Float8.h
+    Geometry.h
     Hash.h
     Integer.h
     Math.h
@@ -22,6 +23,7 @@ set(RAD_COMMON_HEADERS
 
 set(RAD_COMMON_SOURCES
     Float.cpp
+    Geometry.cpp
     Hash.cpp
     Integer.cpp
     Math.cpp
@@ -38,6 +40,7 @@ set(RAD_COMMON_TEST_SOURCES
     Common.test.h
     Common.test.cpp
     Float.test.cpp
+    Geometry.test.cpp
     Integer.test.cpp
     Math.test.cpp
     UTFConv.test.cpp
@@ -60,6 +63,7 @@ target_include_directories(rad_common
 
 find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_outcome CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
 find_package(range-v3 CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
@@ -67,6 +71,7 @@ find_package(xxHash CONFIG REQUIRED)
 target_link_libraries(rad_common
     PUBLIC Boost::locale
     PUBLIC Boost::outcome
+    PUBLIC glm::glm
     PUBLIC pystring::pystring
     PUBLIC range-v3::range-v3
     PUBLIC xxHash::xxhash

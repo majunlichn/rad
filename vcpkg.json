@@ -9,6 +9,7 @@
     "boost-outcome",
     "boost-process",
     "cpu-features",
+    "glm",
     "gtest",
     "pystring",
     "range-v3",

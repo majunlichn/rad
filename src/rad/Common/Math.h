@@ -115,4 +115,10 @@ bool SolveQuadratic(Float a, Float b, Float c, Float& t0, Float& t1)
     return true;
 }
 
+template <std::floating_point T>
+[[nodiscard]] constexpr T Square(T v) noexcept
+{
+    return v * v;
+}
+
 } // namespace rad
