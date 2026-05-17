@@ -29,7 +29,11 @@ target_sources(rad_multimedia PRIVATE ${RAD_MULTIMEDIA_HEADERS} ${RAD_MULTIMEDIA
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_MULTIMEDIA_HEADERS} ${RAD_MULTIMEDIA_SOURCES})
 
 target_link_libraries(rad_multimedia
-    PUBLIC rad_gui
+    PUBLIC rad_common
+    PUBLIC rad_container
+    PUBLIC rad_io
+    PUBLIC rad_system
+    PUBLIC SDL3::SDL3
     PUBLIC SDL3_mixer::SDL3_mixer
 )
 

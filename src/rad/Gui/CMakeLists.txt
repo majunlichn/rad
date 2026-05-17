@@ -75,9 +75,11 @@ set(IMPLOT_SOURCES
     implot/implot.cpp
 )
 
-if (DEFINED ENV{VULKAN_SDK})
+if(Vulkan_FOUND)
     list(APPEND IMGUI_HEADERS imgui/backends/imgui_impl_vulkan.h)
     list(APPEND IMGUI_SOURCES imgui/backends/imgui_impl_vulkan.cpp)
+else()
+    message(STATUS "rad_gui: Vulkan not found; imgui Vulkan backend disabled")
 endif()
 
 set(RAD_GUI_TEST_SOURCES
@@ -89,8 +91,6 @@ set(RAD_GUI_TEST_SOURCES
     GuiRenderer.test.h
     GuiRenderer.test.cpp
 )
-
-find_package(Vulkan REQUIRED)
 
 add_library(imgui STATIC)
 target_sources(imgui PRIVATE ${IMGUI_HEADERS} ${IMGUI_SOURCES})
@@ -108,8 +108,11 @@ target_include_directories(imgui BEFORE
 
 target_link_libraries(imgui
     PRIVATE SDL3::SDL3
-    PRIVATE Vulkan::Headers
 )
+
+if(Vulkan_FOUND)
+    target_link_libraries(imgui PRIVATE Vulkan::Headers)
+endif()
 
 add_library(implot STATIC)
 target_sources(implot PRIVATE ${IMPLOT_HEADERS} ${IMPLOT_SOURCES})
@@ -144,10 +147,13 @@ target_include_directories(rad_gui BEFORE
 target_link_libraries(rad_gui
     PUBLIC rad_system
     PUBLIC SDL3::SDL3
-    PUBLIC Vulkan::Headers
     PUBLIC imgui
     PUBLIC implot
 )
+
+if(Vulkan_FOUND)
+    target_link_libraries(rad_gui PUBLIC Vulkan::Headers)
+endif()
 
 if(RAD_BUILD_TESTS)
     add_executable(rad_gui_tests)

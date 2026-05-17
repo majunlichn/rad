@@ -2,6 +2,10 @@
 
 #include <rad/Multimedia/Multimedia.test.h>
 
+#include <rad/IO/Logging.h>
+
+using namespace rad;
+
 TestEnvironment::TestEnvironment(int argc, char** argv) :
     m_argc(argc),
     m_argv(argv)
@@ -10,21 +14,17 @@ TestEnvironment::TestEnvironment(int argc, char** argv) :
 
 void TestEnvironment::SetUp()
 {
-    rad::GuiApplication* app = rad::GuiApplication::GetInstance();
-    ASSERT_TRUE(app->Init(m_argc, m_argv));
+    std::string logFileName = pystring::os::path::basename(m_argv[0]) + ".log";
+    InitLogging(logFileName, true);
 }
 
 void TestEnvironment::TearDown()
 {
-    rad::GuiApplication::GetInstance()->Destroy();
 }
-
-TestEnvironment* g_env = nullptr;
 
 int main(int argc, char** argv)
 {
     testing::InitGoogleTest(&argc, argv);
-    g_env = RAD_NEW TestEnvironment(argc, argv);
-    testing::AddGlobalTestEnvironment(g_env);
+    testing::AddGlobalTestEnvironment(RAD_NEW TestEnvironment(argc, argv));
     return RUN_ALL_TESTS();
 }

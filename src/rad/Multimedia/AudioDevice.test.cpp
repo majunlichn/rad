@@ -1,6 +1,6 @@
 #include <rad/Multimedia/AudioDevice.h>
 
-#include "Multimedia.test.h"
+#include <gtest/gtest.h>
 
 TEST(Audio, EnumerateDrivers)
 {

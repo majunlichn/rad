@@ -7,11 +7,12 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
 endif()
 if(DEFINED CMAKE_TOOLCHAIN_FILE)
     cmake_path(NORMAL_PATH CMAKE_TOOLCHAIN_FILE)
-    list(REMOVE_DUPLICATES CMAKE_TOOLCHAIN_FILE)
 endif()
 message(STATUS "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
 
 project(rad VERSION 0.0.0 LANGUAGES CXX)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Build options
 option(RAD_BUILD_VULKAN "Build the Vulkan library" ON)
@@ -25,10 +26,18 @@ include(cmake/radSanitizers.cmake)
 
 set(RAD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+get_property(IS_MULTICONFIG_GENERATOR GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 # Set output directories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+if(IS_MULTICONFIG_GENERATOR)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/$<CONFIG>")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/$<CONFIG>")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+else()
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
 
 # Set default install prefix (if not specified by user)
 if(WIN32 AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -46,7 +55,16 @@ add_subdirectory(src/rad/Common)
 add_subdirectory(src/rad/Container)
 add_subdirectory(src/rad/IO)
 add_subdirectory(src/rad/System)
-if (RAD_BUILD_VULKAN AND DEFINED ENV{VULKAN_SDK})
+
+find_package(Vulkan QUIET)
+message(STATUS "Vulkan_FOUND=${Vulkan_FOUND}")
+
+if(RAD_BUILD_VULKAN)
+    if(NOT Vulkan_FOUND)
+        message(FATAL_ERROR
+            "RAD_BUILD_VULKAN is ON but Vulkan SDK was not found.\n"
+            "Install the Vulkan SDK and set the VULKAN_SDK environment variable.")
+    endif()
     add_subdirectory(src/rad/Vulkan)
 endif()
 
@@ -58,6 +76,7 @@ endif()
 if(RAD_BUILD_GUI)
     add_subdirectory(src/rad/Gui)
 endif()
+
 if(RAD_BUILD_MULTIMEDIA)
     sdl3_mixer_resolve()
     add_subdirectory(src/rad/Multimedia)

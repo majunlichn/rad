@@ -1,6 +1,6 @@
 #include <rad/Multimedia/Camera.h>
 
-#include "Multimedia.test.h"
+#include <gtest/gtest.h>
 
 TEST(Camerma, EnumerateDrivers)
 {
