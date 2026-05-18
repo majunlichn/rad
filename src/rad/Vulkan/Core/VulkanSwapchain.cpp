@@ -1,12 +1,12 @@
 #include <rad/Common/MemoryDebug.h>
 
-#include <rad/Vulkan/VulkanSwapchain.h>
+#include <rad/Vulkan/Core/VulkanSwapchain.h>
 
-#include <rad/Vulkan/VulkanDevice.h>
-#include <rad/Vulkan/VulkanSurface.h>
-#include <rad/Vulkan/VulkanImage.h>
-#include <rad/Vulkan/VulkanSemaphore.h>
-#include <rad/Vulkan/VulkanFence.h>
+#include <rad/Vulkan/Core/VulkanDevice.h>
+#include <rad/Vulkan/Core/VulkanSurface.h>
+#include <rad/Vulkan/Core/VulkanImage.h>
+#include <rad/Vulkan/Core/VulkanSemaphore.h>
+#include <rad/Vulkan/Core/VulkanFence.h>
 
 namespace rad
 {

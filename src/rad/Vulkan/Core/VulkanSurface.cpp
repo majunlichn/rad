@@ -1,6 +1,6 @@
-#include <rad/Vulkan/VulkanSurface.h>
+#include <rad/Vulkan/Core/VulkanSurface.h>
 
-#include <rad/Vulkan/VulkanInstance.h>
+#include <rad/Vulkan/Core/VulkanInstance.h>
 
 namespace rad
 {

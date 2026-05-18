@@ -1,8 +1,8 @@
 #include <rad/Common/MemoryDebug.h>
 
-#include <rad/Vulkan/VulkanImage.h>
+#include <rad/Vulkan/Core/VulkanImage.h>
 
-#include <rad/Vulkan/VulkanDevice.h>
+#include <rad/Vulkan/Core/VulkanDevice.h>
 
 #include <vulkan/utility/vk_format_utils.h>
 

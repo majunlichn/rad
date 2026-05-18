@@ -1,47 +1,48 @@
 set(RAD_VULKAN_HEADERS
-    internal/shaderc_util.h
-    GLSLCompiler.h
-    SpvContext.h
-    VulkanBuffer.h
-    VulkanCommand.h
     VulkanCommon.h
-    VulkanDescriptor.h
-    VulkanDevice.h
-    VulkanEvent.h
-    VulkanFence.h
-    VulkanFramebuffer.h
-    VulkanImage.h
-    VulkanInstance.h
-    VulkanPipeline.h
-    VulkanQuery.h
-    VulkanRenderPass.h
-    VulkanSampler.h
-    VulkanSemaphore.h
-    VulkanSurface.h
-    VulkanSwapchain.h
+    VulkanCore.h
+    Core/VulkanBuffer.h
+    Core/VulkanCommand.h
+    Core/VulkanDescriptor.h
+    Core/VulkanDevice.h
+    Core/VulkanEvent.h
+    Core/VulkanFence.h
+    Core/VulkanFramebuffer.h
+    Core/VulkanImage.h
+    Core/VulkanInstance.h
+    Core/VulkanPipeline.h
+    Core/VulkanQuery.h
+    Core/VulkanRenderPass.h
+    Core/VulkanSampler.h
+    Core/VulkanSemaphore.h
+    Core/VulkanSurface.h
+    Core/VulkanSwapchain.h
+    Compiler/internal/shaderc_util.h
+    Compiler/GLSLCompiler.h
+    Compiler/SpvContext.h
 )
 
 set(RAD_VULKAN_SOURCES
-    internal/shaderc_util.cpp
-    GLSLCompiler.cpp
-    SpvContext.cpp
-    VulkanBuffer.cpp
-    VulkanCommand.cpp
     VulkanCommon.cpp
-    VulkanDescriptor.cpp
-    VulkanDevice.cpp
-    VulkanEvent.cpp
-    VulkanFence.cpp
-    VulkanFramebuffer.cpp
-    VulkanImage.cpp
-    VulkanInstance.cpp
-    VulkanPipeline.cpp
-    VulkanQuery.cpp
-    VulkanRenderPass.cpp
-    VulkanSampler.cpp
-    VulkanSemaphore.cpp
-    VulkanSurface.cpp
-    VulkanSwapchain.cpp
+    Core/VulkanBuffer.cpp
+    Core/VulkanCommand.cpp
+    Core/VulkanDescriptor.cpp
+    Core/VulkanDevice.cpp
+    Core/VulkanEvent.cpp
+    Core/VulkanFence.cpp
+    Core/VulkanFramebuffer.cpp
+    Core/VulkanImage.cpp
+    Core/VulkanInstance.cpp
+    Core/VulkanPipeline.cpp
+    Core/VulkanQuery.cpp
+    Core/VulkanRenderPass.cpp
+    Core/VulkanSampler.cpp
+    Core/VulkanSemaphore.cpp
+    Core/VulkanSurface.cpp
+    Core/VulkanSwapchain.cpp
+    Compiler/internal/shaderc_util.cpp
+    Compiler/GLSLCompiler.cpp
+    Compiler/SpvContext.cpp
 )
 
 set(RAD_VULKAN_TEST_SOURCES

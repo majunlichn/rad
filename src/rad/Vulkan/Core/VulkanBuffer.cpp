@@ -1,8 +1,8 @@
 #include <rad/Common/MemoryDebug.h>
 
-#include <rad/Vulkan/VulkanBuffer.h>
+#include <rad/Vulkan/Core/VulkanBuffer.h>
 
-#include <rad/Vulkan/VulkanDevice.h>
+#include <rad/Vulkan/Core/VulkanDevice.h>
 
 namespace rad
 {

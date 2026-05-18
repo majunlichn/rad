@@ -1,7 +1,8 @@
 #pragma once
 
 #include <rad/Vulkan/VulkanCommon.h>
-#include <rad/Vulkan/VulkanPipeline.h>
+
+#include <rad/Vulkan/Core/VulkanPipeline.h>
 
 namespace rad
 {

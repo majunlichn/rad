@@ -1,7 +1,7 @@
 #include <rad/Common/MemoryDebug.h>
 
-#include <rad/Vulkan/VulkanDescriptor.h>
-#include <rad/Vulkan/VulkanDevice.h>
+#include <rad/Vulkan/Core/VulkanDescriptor.h>
+#include <rad/Vulkan/Core/VulkanDevice.h>
 
 namespace rad
 {
@@ -79,8 +79,8 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
 {
     if (m_handle)
     {
-        RAD_VK_CHECK(GetDevice()->GetHandle().freeDescriptorSets(m_descPool->GetHandle(), 1, &m_handle,
-                                                             GetDispatcher()));
+        RAD_VK_CHECK(GetDevice()->GetHandle().freeDescriptorSets(m_descPool->GetHandle(), 1,
+                                                                 &m_handle, GetDispatcher()));
         m_handle = nullptr;
     }
 }

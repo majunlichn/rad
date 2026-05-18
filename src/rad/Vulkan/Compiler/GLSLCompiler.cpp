@@ -1,6 +1,6 @@
 #include <rad/Common/MemoryDebug.h>
 
-#include <rad/Vulkan/GLSLCompiler.h>
+#include <rad/Vulkan/Compiler/GLSLCompiler.h>
 
 #include <shaderc/shaderc.hpp>
 

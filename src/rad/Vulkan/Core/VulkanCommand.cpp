@@ -1,17 +1,17 @@
 #include <rad/Common/MemoryDebug.h>
 
-#include <rad/Vulkan/VulkanCommand.h>
+#include <rad/Vulkan/Core/VulkanCommand.h>
 
-#include <rad/Vulkan/VulkanDevice.h>
-#include <rad/Vulkan/VulkanFence.h>
-#include <rad/Vulkan/VulkanEvent.h>
-#include <rad/Vulkan/VulkanFramebuffer.h>
-#include <rad/Vulkan/VulkanRenderPass.h>
-#include <rad/Vulkan/VulkanPipeline.h>
-#include <rad/Vulkan/VulkanDescriptor.h>
-#include <rad/Vulkan/VulkanBuffer.h>
-#include <rad/Vulkan/VulkanImage.h>
-#include <rad/Vulkan/VulkanQuery.h>
+#include <rad/Vulkan/Core/VulkanDevice.h>
+#include <rad/Vulkan/Core/VulkanFence.h>
+#include <rad/Vulkan/Core/VulkanEvent.h>
+#include <rad/Vulkan/Core/VulkanFramebuffer.h>
+#include <rad/Vulkan/Core/VulkanRenderPass.h>
+#include <rad/Vulkan/Core/VulkanPipeline.h>
+#include <rad/Vulkan/Core/VulkanDescriptor.h>
+#include <rad/Vulkan/Core/VulkanBuffer.h>
+#include <rad/Vulkan/Core/VulkanImage.h>
+#include <rad/Vulkan/Core/VulkanQuery.h>
 
 namespace rad
 {

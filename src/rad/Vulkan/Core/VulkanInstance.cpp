@@ -1,8 +1,8 @@
 #include <rad/Common/MemoryDebug.h>
 
-#include <rad/Vulkan/VulkanInstance.h>
+#include <rad/Vulkan/Core/VulkanInstance.h>
 
-#include <rad/Vulkan/VulkanSurface.h>
+#include <rad/Vulkan/Core/VulkanSurface.h>
 
 #if defined(_WIN32)
 #include <Windows.h>

@@ -1,6 +1,6 @@
-#include <rad/Vulkan/VulkanFence.h>
+#include <rad/Vulkan/Core/VulkanFence.h>
 
-#include <rad/Vulkan/VulkanDevice.h>
+#include <rad/Vulkan/Core/VulkanDevice.h>
 
 namespace rad
 {

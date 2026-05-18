@@ -3,8 +3,7 @@
 #include <rad/System/Application.h>
 #include <rad/IO/Logging.h>
 
-#include <rad/Vulkan/VulkanInstance.h>
-#include <rad/Vulkan/VulkanDevice.h>
+#include <rad/Vulkan/VulkanCore.h>
 
 #include <gtest/gtest.h>
 
