@@ -101,18 +101,18 @@ target_include_directories(imgui
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imgui>
 )
 
-# Ensure the SDL3 headers from vcpkg win over SDL3 headers bundled in VulkanSDK.
-target_include_directories(imgui BEFORE
-    PUBLIC $<TARGET_PROPERTY:SDL3::SDL3,INTERFACE_INCLUDE_DIRECTORIES>
-)
-
 target_link_libraries(imgui
-    PRIVATE SDL3::SDL3
+    PUBLIC SDL3::SDL3
 )
 
 if(Vulkan_FOUND)
-    target_link_libraries(imgui PRIVATE Vulkan::Headers)
+    target_link_libraries(imgui PUBLIC Vulkan::Headers)
 endif()
+
+# Ensure the SDL3 headers from SDL3::SDL3 target win over the SDL3 headers bundled in VulkanSDK.
+target_include_directories(imgui BEFORE
+    PUBLIC "$<TARGET_PROPERTY:SDL3::SDL3,INTERFACE_INCLUDE_DIRECTORIES>"
+)
 
 add_library(implot STATIC)
 target_sources(implot PRIVATE ${IMPLOT_HEADERS} ${IMPLOT_SOURCES})
@@ -122,6 +122,8 @@ set_target_properties(implot PROPERTIES FOLDER "imported")
 target_include_directories(implot
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/implot>
 )
+
+target_link_libraries(implot PUBLIC imgui)
 
 target_link_libraries(implot
     PUBLIC imgui
