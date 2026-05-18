@@ -14,6 +14,7 @@ set(RAD_COMMON_HEADERS
     Random.h
     Range.h
     RefCounted.h
+    Span.h
     Result.h
     String.h
     TypeTraits.h
@@ -43,6 +44,7 @@ set(RAD_COMMON_TEST_SOURCES
     Geometry.test.cpp
     Integer.test.cpp
     Math.test.cpp
+    Span.test.cpp
     UTFConv.test.cpp
 )
 

@@ -1,6 +1,5 @@
 set(RAD_CONTAINER_HEADERS
     SmallVector.h
-    Span.h
 )
 
 set(RAD_CONTAINER_SOURCES
@@ -10,7 +9,6 @@ set(RAD_CONTAINER_SOURCES
 set(RAD_CONTAINER_TEST_SOURCES
     Container.test.h
     Container.test.cpp
-    Span.test.cpp
 )
 
 add_library(rad_container STATIC)

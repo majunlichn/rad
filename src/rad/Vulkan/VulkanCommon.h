@@ -7,7 +7,7 @@
 #include <rad/Common/TypeTraits.h>
 #include <rad/IO/Logging.h>
 #include <rad/Container/SmallVector.h>
-#include <rad/Container/Span.h>
+#include <rad/Common/Span.h>
 
 #include <map>
 #include <set>

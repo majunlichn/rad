@@ -7,7 +7,7 @@
 #include <rad/Common/Result.h>
 #include <rad/Common/RefCounted.h>
 #include <rad/Container/SmallVector.h>
-#include <rad/Container/Span.h>
+#include <rad/Common/Span.h>
 #include <rad/IO/Logging.h>
 
 #include <SDL3/SDL.h>

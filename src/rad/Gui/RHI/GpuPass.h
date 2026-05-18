@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rad/Container/Span.h>
+#include <rad/Common/Span.h>
 
 #include <SDL3/SDL_gpu.h>
 

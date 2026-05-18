@@ -1,4 +1,4 @@
-#include <rad/Container/Span.h>
+#include <rad/Common/Span.h>
 
 #include <algorithm>
 #include <array>
@@ -14,7 +14,7 @@
     return std::accumulate(span.begin(), span.end(), 0);
 }
 
-TEST(Container, Span)
+TEST(Common, Span)
 {
     int result = 0;
     {

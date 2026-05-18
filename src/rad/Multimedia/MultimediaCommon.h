@@ -7,7 +7,7 @@
 #include <rad/Common/Memory.h>
 #include <rad/Common/RefCounted.h>
 #include <rad/Container/SmallVector.h>
-#include <rad/Container/Span.h>
+#include <rad/Common/Span.h>
 #include <rad/IO/Logging.h>
 #include <rad/System/Time.h>
 
