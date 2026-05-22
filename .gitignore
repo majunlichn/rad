@@ -64,6 +64,9 @@ compile_commands.json
 # vcpkg
 vcpkg_installed/
 
+# Third-party source builds (setup.py)
+external/
+
 # debug information files
 *.dwo
 

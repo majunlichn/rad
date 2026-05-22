@@ -55,7 +55,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_COMMON_HEADERS} ${RAD_
 
 target_include_directories(rad_common
     PUBLIC
-        $<BUILD_INTERFACE:${RAD_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${RAD_ROOT}/src>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imported/half/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imported/pcg-cpp/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imported/smhasher/src>

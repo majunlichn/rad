@@ -168,6 +168,13 @@ if(RAD_BUILD_TESTS)
     set_target_properties(rad_gui_tests PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>"
     )
+    if (WIN32)
+        add_custom_command(TARGET rad_gui_tests POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:rad_gui_tests> $<TARGET_FILE_DIR:rad_gui_tests>
+            COMMAND_EXPAND_LISTS
+        )
+    endif()
     # Pass a finite cap so discovered tests return under CTest (see TestEnvironment / MainWindow).
     gtest_discover_tests(rad_gui_tests EXTRA_ARGS --max-frames=1000)
 endif()

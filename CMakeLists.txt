@@ -24,7 +24,16 @@ option(RAD_ENABLE_INSTALL "Enable installation rules" ON)
 include(cmake/radCompileOptions.cmake)
 include(cmake/radSanitizers.cmake)
 
-set(RAD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(RAD_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(IS_DIRECTORY "${RAD_ROOT}/external/SDL/installed")
+    set(RAD_SDL3_INSTALL_DIR "${RAD_ROOT}/external/SDL/installed" CACHE PATH
+        "SDL3 install prefix (external/SDL/installed)" FORCE)
+endif()
+if(IS_DIRECTORY "${RAD_ROOT}/external/SDL_mixer/installed")
+    set(RAD_SDL3_MIXER_INSTALL_DIR "${RAD_ROOT}/external/SDL_mixer/installed" CACHE PATH
+        "SDL3_mixer install prefix (external/SDL_mixer/installed)" FORCE)
+endif()
 
 get_property(IS_MULTICONFIG_GENERATOR GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 

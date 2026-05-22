@@ -21,7 +21,7 @@ set(RAD_MULTIMEDIA_TEST_SOURCES
     Camera.test.cpp
 )
 
-# SDL3_mixer is resolved in top-level CMakeLists (cmake/FindSDL3.cmake) before this directory is added.
+# SDL3_mixer is resolved in top-level CMakeLists.txt (cmake/FindSDL3.cmake) before this directory is added.
 
 add_library(rad_multimedia STATIC)
 
@@ -48,5 +48,12 @@ if(RAD_BUILD_TESTS)
     set_target_properties(rad_multimedia_tests PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>"
     )
+    if (WIN32)
+        add_custom_command(TARGET rad_multimedia_tests POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:rad_multimedia_tests> $<TARGET_FILE_DIR:rad_multimedia_tests>
+            COMMAND_EXPAND_LISTS
+        )
+    endif()
     gtest_discover_tests(rad_multimedia_tests)
 endif()
