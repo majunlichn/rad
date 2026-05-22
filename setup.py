@@ -158,9 +158,19 @@ def format_cmd(cmd: list[str]) -> str:
     return shlex.join(cmd)
 
 
-def run(cmd: list[str], *, cwd: Path | None = None) -> None:
+def run(cmd: list[str], *, cwd: Path | None = None) -> int:
     print(f"+ {format_cmd(cmd)}", flush=True)
-    subprocess.run(cmd, cwd=cwd, check=True)
+    return subprocess.run(cmd, cwd=cwd).returncode
+
+
+def run_quiet(cmd: list[str], *, cwd: Path | None = None) -> int:
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True).returncode
+
+
+def run_checked(cmd: list[str], *, cwd: Path | None = None) -> None:
+    code = run(cmd, cwd=cwd)
+    if code:
+        raise subprocess.CalledProcessError(code, cmd)
 
 
 def log(msg: str) -> None:
@@ -178,23 +188,48 @@ def git_rev_parse(repo: Path, ref: str) -> str | None:
     return result.stdout.strip()
 
 
-def resolve_tag_commit(repo: Path, tag: str) -> str:
-    refs = (
+def resolve_tag_commit_local(repo: Path, tag: str) -> str | None:
+    for ref in (
         f"refs/tags/{tag}^{{commit}}",
+        f"refs/tags/{tag}",
         tag,
         f"origin/{tag}",
         f"refs/remotes/origin/{tag}",
-    )
-    for ref in refs:
+    ):
         commit = git_rev_parse(repo, ref)
         if commit:
             return commit
+    return None
+
+
+def git_fetch_tag(repo: Path, tag: str) -> bool:
     log(f"  source: fetching {tag} from origin")
-    run(["git", "-C", str(repo), "fetch", "--depth", "1", "origin", tag])
-    for ref in refs:
-        commit = git_rev_parse(repo, ref)
-        if commit:
-            return commit
+    fetch_specs = (
+        f"+refs/tags/{tag}:refs/tags/{tag}",
+        f"refs/tags/{tag}:refs/tags/{tag}",
+    )
+    for spec in fetch_specs:
+        if run_quiet(["git", "-C", str(repo), "fetch", "--depth", "1", "--force", "origin", spec]) == 0:
+            return True
+    for extra in (("tag", tag), (tag,)):
+        if run_quiet(["git", "-C", str(repo), "fetch", "--depth", "1", "origin", *extra]) == 0:
+            return True
+    return False
+
+
+def resolve_tag_commit(repo: Path, tag: str) -> str:
+    commit = resolve_tag_commit_local(repo, tag)
+    if commit:
+        return commit
+    if not git_fetch_tag(repo, tag):
+        raise RuntimeError(f"Could not fetch tag '{tag}' from origin in {repo}")
+    commit = resolve_tag_commit_local(repo, tag)
+    if commit:
+        return commit
+    # Only trust FETCH_HEAD right after we fetched this tag (not a stale prior fetch).
+    commit = git_rev_parse(repo, "FETCH_HEAD")
+    if commit:
+        return commit
     raise RuntimeError(f"Could not resolve git ref '{tag}' in {repo}")
 
 
@@ -206,13 +241,25 @@ def ensure_source_tag(repo: Path, tag: str, *, recursive: bool = False) -> None:
     head = git_rev_parse(repo, "HEAD")
     if head != target:
         log(f"  source: checking out {tag}")
-        run(["git", "-C", str(repo), "checkout", "--force", tag])
+        if run(["git", "-C", str(repo), "checkout", "--force", target]) != 0:
+            run_checked(["git", "-C", str(repo), "fetch", "--depth", "1", "origin", target])
+            run_checked(["git", "-C", str(repo), "checkout", "--force", target])
     else:
         log(f"  source: already at {tag}")
 
     if recursive:
-        run(
-            ["git", "-C", str(repo), "submodule", "update", "--init", "--recursive", "--depth", "1"]
+        run_checked(
+            [
+                "git",
+                "-C",
+                str(repo),
+                "submodule",
+                "update",
+                "--init",
+                "--recursive",
+                "--depth",
+                "1",
+            ]
         )
 
 
@@ -228,7 +275,7 @@ def git_clone(url: str, dest: Path, tag: str, *, recursive: bool = False) -> Non
     cmd = ["git", "clone", "--depth", "1", "--branch", tag, url, dest.name]
     if recursive:
         cmd.insert(-1, "--recurse-submodules")
-    run(cmd, cwd=dest.parent)
+    run_checked(cmd, cwd=dest.parent)
 
 
 def cmake_configure(
@@ -251,7 +298,7 @@ def cmake_configure(
     if ctx.architecture:
         args.extend(["-A", ctx.architecture])
     args.extend(extra_args)
-    run(args)
+    run_checked(args)
 
 
 def cmake_build(lib: ThirdPartyLib, ctx: BuildContext) -> None:
@@ -263,7 +310,7 @@ def cmake_build(lib: ThirdPartyLib, ctx: BuildContext) -> None:
         ctx.build_type,
     ]
     args.extend(["--parallel", str(ctx.jobs)])
-    run(args, cwd=ROOT)
+    run_checked(args, cwd=ROOT)
 
 
 def cmake_install(lib: ThirdPartyLib, ctx: BuildContext) -> None:
@@ -277,7 +324,7 @@ def cmake_install(lib: ThirdPartyLib, ctx: BuildContext) -> None:
         ctx.build_type,
     ]
     args.extend(["--parallel", str(ctx.jobs)])
-    run(args, cwd=ROOT)
+    run_checked(args, cwd=ROOT)
 
 
 def setup_library(ctx: BuildContext, key: str, *, force: bool | None = None) -> None:
