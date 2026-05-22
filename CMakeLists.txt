@@ -18,6 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(RAD_BUILD_VULKAN "Build the Vulkan library" ON)
 option(RAD_BUILD_GUI "Build the GUI library" ON)
 option(RAD_BUILD_MULTIMEDIA "Build the Multimedia library" ON)
+option(RAD_BUILD_SCENE "Build the Scene library" ON)
 option(RAD_BUILD_TESTS "Build tests" ON)
 option(RAD_ENABLE_INSTALL "Enable installation rules" ON)
 
@@ -64,6 +65,10 @@ add_subdirectory(src/rad/Common)
 add_subdirectory(src/rad/Container)
 add_subdirectory(src/rad/IO)
 add_subdirectory(src/rad/System)
+
+if(RAD_BUILD_SCENE)
+    add_subdirectory(src/rad/Scene)
+endif()
 
 find_package(Vulkan QUIET)
 message(STATUS "Vulkan_FOUND=${Vulkan_FOUND}")

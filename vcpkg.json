@@ -9,6 +9,7 @@
     "boost-outcome",
     "boost-process",
     "cpu-features",
+    "entt",
     "glm",
     "gtest",
     "pystring",
