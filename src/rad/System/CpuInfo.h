@@ -24,8 +24,12 @@
 #include "cpuinfo_loongarch.h"
 #endif
 
+#include <string_view>
+
 namespace rad
 {
+
+[[nodiscard]] std::string_view GetCpuBrandString() noexcept;
 
 #if defined(CPU_FEATURES_ARCH_X86)
 const cpu_features::X86Info& GetX86Info();
