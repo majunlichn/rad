@@ -63,6 +63,7 @@ target_include_directories(rad_common
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+find_package(boost_align CONFIG REQUIRED)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_outcome CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
@@ -71,6 +72,7 @@ find_package(range-v3 CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_link_libraries(rad_common
+    PUBLIC Boost::align
     PUBLIC Boost::locale
     PUBLIC Boost::outcome
     PUBLIC glm::glm
