@@ -1,5 +1,8 @@
 set(RAD_CONTAINER_HEADERS
+    Queue.h
+    RingBuffer.h
     SmallVector.h
+    StaticVector.h
 )
 
 set(RAD_CONTAINER_SOURCES
@@ -16,8 +19,15 @@ add_library(rad_container STATIC)
 target_sources(rad_container PRIVATE ${RAD_CONTAINER_HEADERS} ${RAD_CONTAINER_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_CONTAINER_HEADERS} ${RAD_CONTAINER_SOURCES})
 
+find_package(boost_circular_buffer CONFIG REQUIRED)
+find_package(boost_container CONFIG REQUIRED)
+find_package(boost_lockfree CONFIG REQUIRED)
+
 target_link_libraries(rad_container
     PUBLIC rad_common
+    PUBLIC Boost::circular_buffer
+    PUBLIC Boost::container
+    PUBLIC Boost::lockfree
 )
 
 if(RAD_BUILD_TESTS)

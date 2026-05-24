@@ -2,9 +2,13 @@
   "builtin-baseline": "d46283cf33cf5de7bd88e12156ce03882be1f179",
   "dependencies": [
     "backward-cpp",
+    "boost-align",
     "boost-asio",
+    "boost-circular-buffer",
+    "boost-container",
     "boost-filesystem",
     "boost-locale",
+    "boost-lockfree",
     "boost-nowide",
     "boost-outcome",
     "boost-process",
