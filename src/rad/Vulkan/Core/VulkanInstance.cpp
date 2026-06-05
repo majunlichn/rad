@@ -122,6 +122,12 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
     {
         m_enabledExtensions.insert(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
     }
+    // Lets the surface advertise HDR / wide-gamut color spaces (HDR10 PQ, scRGB linear) so the
+    // swapchain can present in them. Depends on VK_KHR_get_surface_capabilities2 (enabled above).
+    if (HasExtension(supportedExtensions, VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME))
+    {
+        m_enabledExtensions.insert(VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME);
+    }
 #if defined(_WIN32)
     if (HasExtension(supportedExtensions, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
     {
@@ -243,6 +249,11 @@ bool VulkanInstance::Init(cstring_view appName, uint32_t appVersion, cstring_vie
 Ref<VulkanSurface> VulkanInstance::CreateSurface(const vk::DisplaySurfaceCreateInfoKHR& createInfo)
 {
     return RAD_NEW VulkanSurface(this, createInfo);
+}
+
+Ref<VulkanSurface> VulkanInstance::CreateSurface(vk::SurfaceKHR surface)
+{
+    return VulkanSurface::Create(this, surface);
 }
 
 } // namespace rad

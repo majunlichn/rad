@@ -5,6 +5,8 @@
 namespace rad
 {
 
+GuiApplication* g_app = nullptr;
+
 GuiApplication::GuiApplication()
 {
 }
@@ -16,8 +18,7 @@ GuiApplication::~GuiApplication()
 
 GuiApplication* GuiApplication::GetInstance()
 {
-    static Ref<GuiApplication> g_app = RAD_NEW GuiApplication();
-    return g_app.get();
+    return g_app;
 }
 
 bool GuiApplication::Init(int argc, char** argv)
@@ -25,6 +26,12 @@ bool GuiApplication::Init(int argc, char** argv)
     if (m_initialized)
     {
         return true;
+    }
+
+    if (g_app != nullptr && g_app != this)
+    {
+        RAD_LOG_GUI(err, "GuiApplication::Init: another instance is already registered.");
+        return false;
     }
 
     Application::Init(argc, argv);
@@ -56,11 +63,17 @@ bool GuiApplication::Init(int argc, char** argv)
     }
     UpdateDisplayInfos();
     m_status = Status::Initialized;
+    g_app = this;
     return true;
 }
 
 void GuiApplication::Destroy()
 {
+    if (g_app == this)
+    {
+        g_app = nullptr;
+    }
+
     if (!m_initialized)
     {
         m_status = Status::Unknown;
@@ -69,8 +82,7 @@ void GuiApplication::Destroy()
 
     if (!m_eventHandlers.empty())
     {
-        RAD_LOG_GUI(warn,
-                    "GuiApplication::Destroy: {} GuiEventHandler(s) still registered; clearing.",
+        RAD_LOG_GUI(warn, "GuiApplication::Destroy: clearing {} remaining event handler(s).",
                     m_eventHandlers.size());
         m_eventHandlers.clear();
     }

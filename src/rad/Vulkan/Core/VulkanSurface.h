@@ -8,7 +8,10 @@ namespace rad
 class VulkanSurface : public RefCounted<VulkanSurface>
 {
 public:
+    static Ref<VulkanSurface> Create(Ref<VulkanInstance> instance, vk::SurfaceKHR surface);
+
     VulkanSurface(Ref<VulkanInstance> instance, const vk::DisplaySurfaceCreateInfoKHR& createInfo);
+    VulkanSurface(Ref<VulkanInstance> instance, vk::SurfaceKHR surface);
     ~VulkanSurface();
 
     VulkanInstance* GetInstance() const { return m_instance.get(); }

@@ -66,6 +66,8 @@ VulkanDevice::VulkanDevice(Ref<VulkanInstance> instance, vk::PhysicalDevice phys
         }
         if (m_config.enableVulkan13Features && apiVersion.IsGreaterEqualThan(1, 3, 0))
         {
+            m_Vulkan13Features.dynamicRendering = VK_TRUE;
+            m_Vulkan13Features.synchronization2 = VK_TRUE;
             features2Chain.Link(m_Vulkan13Features);
         }
         if (m_config.enableVulkan14Features && apiVersion.IsGreaterEqualThan(1, 4, 0))

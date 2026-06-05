@@ -13,6 +13,8 @@
 #include <rad/Vulkan/Core/VulkanImage.h>
 #include <rad/Vulkan/Core/VulkanQuery.h>
 
+#include <vulkan/utility/vk_format_utils.h>
+
 namespace rad
 {
 
@@ -239,6 +241,39 @@ void VulkanCommandBuffer::SetPipelineBarrier2(
     dependencyInfo.setBufferMemoryBarriers(bufferMemoryBarriers);
     dependencyInfo.setImageMemoryBarriers(imageMemoryBarriers);
     m_handle.pipelineBarrier2(dependencyInfo, GetDispatcher());
+}
+
+void VulkanCommandBuffer::TransitionImageLayout(VulkanImage* image, vk::ImageLayout oldLayout,
+                                          vk::ImageLayout newLayout,
+                                          vk::PipelineStageFlags2 srcStageMask,
+                                          vk::PipelineStageFlags2 dstStageMask,
+                                          vk::AccessFlags2 srcAccessMask,
+                                          vk::AccessFlags2 dstAccessMask)
+{
+    vk::ImageMemoryBarrier2 barrier = {};
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcStageMask = srcStageMask;
+    barrier.srcAccessMask = srcAccessMask;
+    barrier.dstStageMask = dstStageMask;
+    barrier.dstAccessMask = dstAccessMask;
+    barrier.image = image->GetHandle();
+    barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+    barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+    barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+    SetPipelineBarrier2(vk::DependencyFlags{}, {}, {}, barrier);
+    image->SetCurrentLayout(newLayout);
+    image->SetCurrentPipelineStage(dstStageMask);
+    image->SetCurrentAccessFlags(dstAccessMask);
+}
+
+void VulkanCommandBuffer::TransitionImageLayout(VulkanImage* image, vk::ImageLayout newLayout,
+                                          vk::PipelineStageFlags2 dstStageMask,
+                                          vk::AccessFlags2 dstAccessMask)
+{
+    TransitionImageLayout(image, image->GetCurrentLayout(), newLayout, image->GetCurrentPipelineStage(),
+                    dstStageMask, image->GetCurrentAccessMask(), dstAccessMask);
 }
 
 void VulkanCommandBuffer::SetPipelineBarrier_ComputeToComputeRAW()
@@ -592,6 +627,116 @@ void VulkanCommandBuffer::NextSubpass(vk::SubpassContents contents)
 void VulkanCommandBuffer::EndRenderPass()
 {
     m_handle.endRenderPass(GetDispatcher());
+}
+
+void VulkanCommandBuffer::BeginRendering(const vk::RenderingInfo& renderingInfo)
+{
+    m_handle.beginRendering(renderingInfo, GetDispatcher());
+}
+
+void VulkanCommandBuffer::BeginRendering(
+    Span<const VulkanImageView*> colorViews,
+    Span<const vk::AttachmentLoadOp> colorLoadOps,
+    Span<const vk::AttachmentStoreOp> colorStoreOps,
+    Span<const vk::ClearValue> colorClearValues,
+    VulkanImageView* depthStencilView,
+    vk::AttachmentLoadOp depthLoadOp,
+    vk::AttachmentStoreOp depthStoreOp,
+    vk::AttachmentLoadOp stencilLoadOp,
+    vk::AttachmentStoreOp stencilStoreOp,
+    vk::ClearDepthStencilValue depthStencilClearValue,
+    const vk::Rect2D* renderArea,
+    uint32_t layerCount,
+    uint32_t viewMask)
+{
+    assert(colorLoadOps.empty() || colorLoadOps.size() == colorViews.size());
+    assert(colorStoreOps.empty() || colorStoreOps.size() == colorViews.size());
+    assert(colorClearValues.empty() || colorClearValues.size() == colorViews.size());
+
+    SmallVector<vk::RenderingAttachmentInfo, 8> colorAttachments(colorViews.size());
+    for (size_t i = 0; i < colorViews.size(); ++i)
+    {
+        assert(colorViews[i]);
+        vk::RenderingAttachmentInfo& attachment = colorAttachments[i];
+        attachment.imageView = colorViews[i]->GetHandle();
+        attachment.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+        attachment.loadOp = colorLoadOps.empty() ? vk::AttachmentLoadOp::eClear : colorLoadOps[i];
+        attachment.storeOp =
+            colorStoreOps.empty() ? vk::AttachmentStoreOp::eStore : colorStoreOps[i];
+        if (!colorClearValues.empty())
+        {
+            attachment.clearValue = colorClearValues[i];
+        }
+    }
+
+    vk::RenderingAttachmentInfo depthAttachment = {};
+    vk::RenderingAttachmentInfo stencilAttachment = {};
+    const vk::RenderingAttachmentInfo* depthAttachmentPtr = nullptr;
+    const vk::RenderingAttachmentInfo* stencilAttachmentPtr = nullptr;
+
+    if (depthStencilView)
+    {
+        const vk::ImageView viewHandle = depthStencilView->GetHandle();
+        const VkFormat format = static_cast<VkFormat>(depthStencilView->GetFormat());
+
+        if (vkuFormatIsDepthOnly(format) || vkuFormatIsDepthAndStencil(format))
+        {
+            depthAttachment.imageView = viewHandle;
+            depthAttachment.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+            depthAttachment.loadOp = depthLoadOp;
+            depthAttachment.storeOp = depthStoreOp;
+            depthAttachment.clearValue.depthStencil = depthStencilClearValue;
+            depthAttachmentPtr = &depthAttachment;
+        }
+
+        if (vkuFormatIsStencilOnly(format) || vkuFormatIsDepthAndStencil(format))
+        {
+            stencilAttachment.imageView = viewHandle;
+            stencilAttachment.imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+            stencilAttachment.loadOp = stencilLoadOp;
+            stencilAttachment.storeOp = stencilStoreOp;
+            stencilAttachment.clearValue.depthStencil = depthStencilClearValue;
+            stencilAttachmentPtr = &stencilAttachment;
+        }
+    }
+
+    const VulkanImageView* renderAreaView = nullptr;
+    for (const VulkanImageView* colorView : colorViews)
+    {
+        if (colorView)
+        {
+            renderAreaView = colorView;
+            break;
+        }
+    }
+    if (!renderAreaView)
+    {
+        renderAreaView = depthStencilView;
+    }
+
+    vk::Rect2D inferredRenderArea = {};
+    if (renderAreaView && renderAreaView->GetImage())
+    {
+        inferredRenderArea.extent =
+            vk::Extent2D{renderAreaView->GetImage()->GetWidth(),
+                         renderAreaView->GetImage()->GetHeight()};
+    }
+
+    vk::RenderingInfo renderingInfo = {};
+    renderingInfo.renderArea = renderArea ? *renderArea : inferredRenderArea;
+    renderingInfo.layerCount = layerCount;
+    renderingInfo.viewMask = viewMask;
+    renderingInfo.colorAttachmentCount = static_cast<uint32_t>(colorAttachments.size());
+    renderingInfo.pColorAttachments = colorAttachments.empty() ? nullptr : colorAttachments.data();
+    renderingInfo.pDepthAttachment = depthAttachmentPtr;
+    renderingInfo.pStencilAttachment = stencilAttachmentPtr;
+
+    m_handle.beginRendering(renderingInfo, GetDispatcher());
+}
+
+void VulkanCommandBuffer::EndRendering()
+{
+    m_handle.endRendering(GetDispatcher());
 }
 
 void VulkanCommandBuffer::SetDeviceMask(uint32_t deviceMask)

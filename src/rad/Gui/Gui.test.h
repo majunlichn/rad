@@ -22,7 +22,8 @@ private:
     int m_argc = 0;
     char** m_argv = nullptr;
     int m_maxFrames = -1;
-    rad::Ref<MainWindow> m_window;
+    rad::GuiApplication m_app;
+    rad::Ref<WindowTest> m_window;
 }; // class TestEnvironment
 
 extern TestEnvironment* g_env;

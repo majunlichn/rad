@@ -201,6 +201,24 @@ Result<std::string, GLSLCompileError> GLSLCompiler::Preprocess(vk::ShaderStageFl
     }
 }
 
+Result<std::vector<uint32_t>, GLSLCompileError> GLSLCompiler::CompileFileToSpv(
+    vk::ShaderStageFlagBits stage, const FilePath& path, const std::string& entryPoint,
+    Span<GLSLMacro> macros, GLSLCompileOptLevel opt)
+{
+    if (!File::Exists(path.string()))
+    {
+        return GLSLCompileError{"Cannot open shader file: " + path.string()};
+    }
+
+    const std::string source = File::ReadAllText(path.string());
+    if (source.empty())
+    {
+        return GLSLCompileError{"Shader file is empty: " + path.string()};
+    }
+
+    return CompileToSpv(stage, path.filename().string(), source, entryPoint, macros, opt);
+}
+
 Result<std::vector<uint32_t>, GLSLCompileError> GLSLCompiler::CompileToSpv(
     vk::ShaderStageFlagBits stage, const std::string& fileName, const std::string& source,
     const std::string& entryPoint, Span<GLSLMacro> macros, GLSLCompileOptLevel opt)

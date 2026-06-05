@@ -8,22 +8,22 @@
 #include <stdexcept>
 #include <string>
 
-MainWindow::MainWindow()
+WindowTest::WindowTest()
 {
 }
 
-MainWindow::~MainWindow()
+WindowTest::~WindowTest()
 {
     Destroy();
 }
 
-bool MainWindow::Init(int width, int height, int maxFrames)
+bool WindowTest::Init(int width, int height, int maxFrames)
 {
     m_maxFrames = maxFrames;
     m_frameCount = 0;
-    if (!Create("MainWindow", width, height))
+    if (!Create("WindowTest", width, height))
     {
-        RAD_LOG_GUI(err, "Failed to create MainWindow");
+        RAD_LOG_GUI(err, "Failed to create WindowTest");
         return false;
     }
     m_renderer = RAD_NEW rad::GuiRenderer(this);
@@ -32,7 +32,7 @@ bool MainWindow::Init(int width, int height, int maxFrames)
     return true;
 }
 
-bool MainWindow::OnEvent(const SDL_Event& event)
+bool WindowTest::OnEvent(const SDL_Event& event)
 {
     if (m_renderer)
     {
@@ -41,7 +41,7 @@ bool MainWindow::OnEvent(const SDL_Event& event)
     return rad::Window::OnEvent(event);
 }
 
-void MainWindow::OnIdle()
+void WindowTest::OnIdle()
 {
     if (m_renderer)
     {
@@ -79,7 +79,7 @@ void MainWindow::OnIdle()
     }
 }
 
-void MainWindow::ShowRenderTestPanel()
+void WindowTest::ShowRenderTestPanel()
 {
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowSizeConstraints(ImVec2(280.f, 140.f), viewport->WorkSize);
@@ -112,7 +112,7 @@ void MainWindow::ShowRenderTestPanel()
     }
 }
 
-rad::Ref<RenderTest> MainWindow::CreateRenderTest(rad::cstring_view name)
+rad::Ref<RenderTest> WindowTest::CreateRenderTest(rad::cstring_view name)
 {
     if (name == "Clear")
     {
@@ -121,7 +121,7 @@ rad::Ref<RenderTest> MainWindow::CreateRenderTest(rad::cstring_view name)
     return nullptr;
 }
 
-void MainWindow::ShowDebugOverlay()
+void WindowTest::ShowDebugOverlay()
 {
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     const float pad = 12.f;
@@ -142,127 +142,127 @@ void MainWindow::ShowDebugOverlay()
     ImGui::End();
 }
 
-void MainWindow::OnWindowEvent(const SDL_WindowEvent& event)
+void WindowTest::OnWindowEvent(const SDL_WindowEvent& event)
 {
     rad::Window::OnWindowEvent(event);
 }
 
-void MainWindow::OnShown()
+void WindowTest::OnShown()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnShown");
+    RAD_LOG_GUI(info, "WindowTest::OnShown");
 }
 
-void MainWindow::OnHidden()
+void WindowTest::OnHidden()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnHidden");
+    RAD_LOG_GUI(info, "WindowTest::OnHidden");
 }
 
-void MainWindow::OnExposed()
+void WindowTest::OnExposed()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnExposed");
+    RAD_LOG_GUI(info, "WindowTest::OnExposed");
 }
 
-void MainWindow::OnMoved(int x, int y)
+void WindowTest::OnMoved(int x, int y)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMoved: {:4}, {:4}", x, y);
+    RAD_LOG_GUI(info, "WindowTest::OnMoved: {:4}, {:4}", x, y);
 }
 
-void MainWindow::OnResized(int width, int height)
+void WindowTest::OnResized(int width, int height)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnResized: {:4}, {:4}", width, height);
+    RAD_LOG_GUI(info, "WindowTest::OnResized: {:4}, {:4}", width, height);
 }
 
-void MainWindow::OnPixelSizeChanged(int width, int height)
+void WindowTest::OnPixelSizeChanged(int width, int height)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnPixelSizeChanged: {:4}, {:4}", width, height);
+    RAD_LOG_GUI(info, "WindowTest::OnPixelSizeChanged: {:4}, {:4}", width, height);
 }
 
-void MainWindow::OnMinimized()
+void WindowTest::OnMinimized()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMinimized");
+    RAD_LOG_GUI(info, "WindowTest::OnMinimized");
 }
 
-void MainWindow::OnMaximized()
+void WindowTest::OnMaximized()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMaximized");
+    RAD_LOG_GUI(info, "WindowTest::OnMaximized");
 }
 
-void MainWindow::OnRestored()
+void WindowTest::OnRestored()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnRestored");
+    RAD_LOG_GUI(info, "WindowTest::OnRestored");
 }
 
-void MainWindow::OnMouseEnter()
+void WindowTest::OnMouseEnter()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMouseEnter");
+    RAD_LOG_GUI(info, "WindowTest::OnMouseEnter");
 }
 
-void MainWindow::OnMouseLeave()
+void WindowTest::OnMouseLeave()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMouseLeave");
+    RAD_LOG_GUI(info, "WindowTest::OnMouseLeave");
 }
 
-void MainWindow::OnFocusGained()
+void WindowTest::OnFocusGained()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnFocusGained");
+    RAD_LOG_GUI(info, "WindowTest::OnFocusGained");
 }
 
-void MainWindow::OnFocusLost()
+void WindowTest::OnFocusLost()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnFocusLost");
+    RAD_LOG_GUI(info, "WindowTest::OnFocusLost");
 }
 
-void MainWindow::OnCloseRequested()
+void WindowTest::OnCloseRequested()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnCloseRequested");
+    RAD_LOG_GUI(info, "WindowTest::OnCloseRequested");
     Destroy();
 }
 
-void MainWindow::Destroy()
+void WindowTest::Destroy()
 {
-    RAD_LOG_GUI(info, "MainWindow::Destroy");
+    RAD_LOG_GUI(info, "WindowTest::Destroy");
     m_renderer.reset();
     rad::Window::Destroy();
 }
 
-void MainWindow::OnHitTest()
+void WindowTest::OnHitTest()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnHitTest");
+    RAD_LOG_GUI(info, "WindowTest::OnHitTest");
 }
 
-void MainWindow::OnIccProfileChanged()
+void WindowTest::OnIccProfileChanged()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnIccProfileChanged");
+    RAD_LOG_GUI(info, "WindowTest::OnIccProfileChanged");
 }
 
-void MainWindow::OnDisplayChanged()
+void WindowTest::OnDisplayChanged()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnDisplayChanged");
+    RAD_LOG_GUI(info, "WindowTest::OnDisplayChanged");
 }
 
-void MainWindow::OnDisplayScaleChanged()
+void WindowTest::OnDisplayScaleChanged()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnDisplayScaleChanged");
+    RAD_LOG_GUI(info, "WindowTest::OnDisplayScaleChanged");
 }
 
-void MainWindow::OnOccluded()
+void WindowTest::OnOccluded()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnOccluded");
+    RAD_LOG_GUI(info, "WindowTest::OnOccluded");
 }
 
-void MainWindow::OnEnterFullscreen()
+void WindowTest::OnEnterFullscreen()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnEnterFullscreen");
+    RAD_LOG_GUI(info, "WindowTest::OnEnterFullscreen");
 }
 
-void MainWindow::OnLeaveFullscreen()
+void WindowTest::OnLeaveFullscreen()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnLeaveFullscreen");
+    RAD_LOG_GUI(info, "WindowTest::OnLeaveFullscreen");
 }
 
-void MainWindow::OnDestroyed()
+void WindowTest::OnDestroyed()
 {
-    RAD_LOG_GUI(info, "MainWindow::OnDestroyed");
+    RAD_LOG_GUI(info, "WindowTest::OnDestroyed");
 }
 
 static std::string GetKeyModString(Uint16 modBits)
@@ -304,9 +304,9 @@ static std::string GetKeyModString(Uint16 modBits)
     return s;
 }
 
-void MainWindow::OnKeyDown(const SDL_KeyboardEvent& keyDown)
+void WindowTest::OnKeyDown(const SDL_KeyboardEvent& keyDown)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnKeyDown: {} (mods={}; repeat={})", SDL_GetKeyName(keyDown.key),
+    RAD_LOG_GUI(info, "WindowTest::OnKeyDown: {} (mods={}; repeat={})", SDL_GetKeyName(keyDown.key),
                 GetKeyModString(keyDown.mod), keyDown.repeat);
     if (keyDown.key == SDLK_F1 && !keyDown.repeat)
     {
@@ -322,23 +322,23 @@ void MainWindow::OnKeyDown(const SDL_KeyboardEvent& keyDown)
     }
 }
 
-void MainWindow::OnKeyUp(const SDL_KeyboardEvent& keyUp)
+void WindowTest::OnKeyUp(const SDL_KeyboardEvent& keyUp)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnKeyUp: {} (mods={}; repeat={})", SDL_GetKeyName(keyUp.key),
+    RAD_LOG_GUI(info, "WindowTest::OnKeyUp: {} (mods={}; repeat={})", SDL_GetKeyName(keyUp.key),
                 GetKeyModString(keyUp.mod), keyUp.repeat);
 }
 
-void MainWindow::OnTextEditing(const SDL_TextEditingEvent& textEditing)
+void WindowTest::OnTextEditing(const SDL_TextEditingEvent& textEditing)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnTextEditing: {}", textEditing.text);
+    RAD_LOG_GUI(info, "WindowTest::OnTextEditing: {}", textEditing.text);
 }
 
-void MainWindow::OnTextInput(const SDL_TextInputEvent& textInput)
+void WindowTest::OnTextInput(const SDL_TextInputEvent& textInput)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnTextInput: {}", textInput.text);
+    RAD_LOG_GUI(info, "WindowTest::OnTextInput: {}", textInput.text);
 }
 
-void MainWindow::OnMouseMove(const SDL_MouseMotionEvent& mouseMotion)
+void WindowTest::OnMouseMove(const SDL_MouseMotionEvent& mouseMotion)
 {
     m_mouseMotionX = mouseMotion.x;
     m_mouseMotionY = mouseMotion.y;
@@ -346,7 +346,7 @@ void MainWindow::OnMouseMove(const SDL_MouseMotionEvent& mouseMotion)
     m_mouseMotionYrel = mouseMotion.yrel;
     if (m_logMouseMotion)
     {
-        RAD_LOG_GUI(info, "MainWindow::OnMouseMove: {:8.2f}, {:8.2f} ({:+8.2f}, {:+8.2f})",
+        RAD_LOG_GUI(info, "WindowTest::OnMouseMove: {:8.2f}, {:8.2f} ({:+8.2f}, {:+8.2f})",
                     m_mouseMotionX, m_mouseMotionY, m_mouseMotionXrel, m_mouseMotionYrel);
     }
 }
@@ -369,24 +369,24 @@ static const char* GetMouseButtonName(Uint8 button)
     return "Unknown";
 }
 
-void MainWindow::OnMouseButtonDown(const SDL_MouseButtonEvent& mouseButton)
+void WindowTest::OnMouseButtonDown(const SDL_MouseButtonEvent& mouseButton)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMouseButtonDown: {} (clicks={})",
+    RAD_LOG_GUI(info, "WindowTest::OnMouseButtonDown: {} (clicks={})",
                 GetMouseButtonName(mouseButton.button), mouseButton.clicks);
 }
 
-void MainWindow::OnMouseButtonUp(const SDL_MouseButtonEvent& mouseButton)
+void WindowTest::OnMouseButtonUp(const SDL_MouseButtonEvent& mouseButton)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMouseButtonUp: {} (clicks={})",
+    RAD_LOG_GUI(info, "WindowTest::OnMouseButtonUp: {} (clicks={})",
                 GetMouseButtonName(mouseButton.button), mouseButton.clicks);
 }
 
-void MainWindow::OnMouseWheel(const SDL_MouseWheelEvent& mouseWheel)
+void WindowTest::OnMouseWheel(const SDL_MouseWheelEvent& mouseWheel)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnMouseWheel: {:+4.2f}, {:+4.2f}", mouseWheel.x, mouseWheel.y);
+    RAD_LOG_GUI(info, "WindowTest::OnMouseWheel: {:+4.2f}, {:+4.2f}", mouseWheel.x, mouseWheel.y);
 }
 
-void MainWindow::OnUserEvent(const SDL_UserEvent& user)
+void WindowTest::OnUserEvent(const SDL_UserEvent& user)
 {
-    RAD_LOG_GUI(info, "MainWindow::OnUserEvent");
+    RAD_LOG_GUI(info, "WindowTest::OnUserEvent");
 }

@@ -89,6 +89,14 @@ public:
                              vk::ArrayProxy<vk::BufferMemoryBarrier2> bufferMemoryBarriers,
                              vk::ArrayProxy<vk::ImageMemoryBarrier2> imageMemoryBarriers);
 
+    void TransitionImageLayout(VulkanImage* image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout,
+                         vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask,
+                         vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask);
+    // Uses the image's tracked layout, stage, and access as the source side.
+    void TransitionImageLayout(VulkanImage* image, vk::ImageLayout newLayout,
+                         vk::PipelineStageFlags2 dstStageMask,
+                         vk::AccessFlags2 dstAccessMask = {});
+
     // https://github.com/KhronosGroup/Vulkan-Docs/wiki/Synchronization-Examples
     // Compute to compute Read-After-Write (storage buffer and storage image).
     void SetPipelineBarrier_ComputeToComputeRAW();
@@ -190,6 +198,23 @@ public:
                          vk::SubpassContents contents = vk::SubpassContents::eInline);
     void NextSubpass(vk::SubpassContents contents);
     void EndRenderPass();
+
+    void BeginRendering(const vk::RenderingInfo& renderingInfo);
+    void BeginRendering(
+        Span<const VulkanImageView*> colorViews,
+        Span<const vk::AttachmentLoadOp> colorLoadOps,
+        Span<const vk::AttachmentStoreOp> colorStoreOps,
+        Span<const vk::ClearValue> colorClearValues,
+        VulkanImageView* depthStencilView = nullptr,
+        vk::AttachmentLoadOp depthLoadOp = vk::AttachmentLoadOp::eClear,
+        vk::AttachmentStoreOp depthStoreOp = vk::AttachmentStoreOp::eStore,
+        vk::AttachmentLoadOp stencilLoadOp = vk::AttachmentLoadOp::eClear,
+        vk::AttachmentStoreOp stencilStoreOp = vk::AttachmentStoreOp::eStore,
+        vk::ClearDepthStencilValue depthStencilClearValue = vk::ClearDepthStencilValue{1.f, 0},
+        const vk::Rect2D* renderArea = nullptr,
+        uint32_t layerCount = 1,
+        uint32_t viewMask = 0);
+    void EndRendering();
 
     void SetDeviceMask(uint32_t deviceMask);
 

@@ -1,9 +1,22 @@
+#include <rad/Common/MemoryDebug.h>
+
 #include <rad/Vulkan/Core/VulkanSurface.h>
 
 #include <rad/Vulkan/Core/VulkanInstance.h>
 
 namespace rad
 {
+
+Ref<VulkanSurface> VulkanSurface::Create(Ref<VulkanInstance> instance, vk::SurfaceKHR surface)
+{
+    return RAD_NEW VulkanSurface(std::move(instance), surface);
+}
+
+VulkanSurface::VulkanSurface(Ref<VulkanInstance> instance, vk::SurfaceKHR surface) :
+    m_instance(std::move(instance)),
+    m_handle(surface)
+{
+}
 
 VulkanSurface::VulkanSurface(Ref<VulkanInstance> instance,
                              const vk::DisplaySurfaceCreateInfoKHR& createInfo) :

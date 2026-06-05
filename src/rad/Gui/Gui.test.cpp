@@ -29,17 +29,17 @@ TestEnvironment::TestEnvironment(int argc, char** argv) :
 
 void TestEnvironment::SetUp()
 {
-    rad::GuiApplication* app = rad::GuiApplication::GetInstance();
-    ASSERT_TRUE(app->Init(m_argc, m_argv));
-    m_window = RAD_NEW MainWindow();
+    ASSERT_TRUE(m_app.Init(m_argc, m_argv));
+    ASSERT_EQ(rad::GuiApplication::GetInstance(), &m_app);
+    m_window = RAD_NEW WindowTest();
     ASSERT_TRUE(m_window->Init(1920, 1080, m_maxFrames));
-    app->Run();
+    m_app.Run();
 }
 
 void TestEnvironment::TearDown()
 {
     m_window.reset();
-    rad::GuiApplication::GetInstance()->Destroy();
+    m_app.Destroy();
 }
 
 TestEnvironment* g_env = nullptr;

@@ -53,6 +53,7 @@ public:
     std::vector<vk::PhysicalDevice>& GetPhysicalDevices() { return m_physicalDevices; }
 
     Ref<VulkanSurface> CreateSurface(const vk::DisplaySurfaceCreateInfoKHR& createInfo);
+    Ref<VulkanSurface> CreateSurface(vk::SurfaceKHR surface);
 
 private:
     vk::detail::DynamicLoader m_loader;

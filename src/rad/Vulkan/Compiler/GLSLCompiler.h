@@ -3,6 +3,7 @@
 #include <rad/Vulkan/VulkanCommon.h>
 
 #include <rad/Common/Result.h>
+#include <rad/IO/File.h>
 
 #include <shaderc/shaderc.h>
 
@@ -63,6 +64,9 @@ public:
         vk::ShaderStageFlagBits stage, const std::string& fileName, const std::string& source,
         const std::string& entryPoint = "main", Span<GLSLMacro> macros = {},
         GLSLCompileOptLevel opt = GLSLCompileOptLevel::Zero);
+    Result<std::vector<uint32_t>, GLSLCompileError> CompileFileToSpv(
+        vk::ShaderStageFlagBits stage, const FilePath& path, const std::string& entryPoint = "main",
+        Span<GLSLMacro> macros = {}, GLSLCompileOptLevel opt = GLSLCompileOptLevel::Zero);
 
 private:
     std::unique_ptr<shaderc::Compiler> m_compiler;

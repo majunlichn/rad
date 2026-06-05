@@ -24,7 +24,19 @@ bool Window::Create(cstring_view title, int w, int h, SDL_WindowFlags flags)
         m_id = SDL_GetWindowID(m_handle);
         if (m_id != 0)
         {
-            GuiApplication::GetInstance()->RegisterEventHandler(this);
+            GuiApplication* app = GuiApplication::GetInstance();
+            if (!app)
+            {
+                RAD_LOG_GUI(err,
+                            "Window::Create('{}'): no active GuiApplication; call Init() before "
+                            "creating windows.",
+                            title);
+                SDL_DestroyWindow(m_handle);
+                m_handle = nullptr;
+                m_id = 0;
+                return false;
+            }
+            app->RegisterEventHandler(this);
             return true;
         }
         else
@@ -47,7 +59,10 @@ void Window::Destroy()
 {
     if (m_handle)
     {
-        GuiApplication::GetInstance()->UnregisterEventHandler(this);
+        if (GuiApplication* app = GuiApplication::GetInstance())
+        {
+            app->UnregisterEventHandler(this);
+        }
         SDL_DestroyWindow(m_handle);
         m_handle = nullptr;
         m_id = 0;

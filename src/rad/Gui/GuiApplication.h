@@ -49,7 +49,7 @@ struct PowerInfo
     int percent = -1;
 };
 
-// Singleton: only one instance of GuiApplication exists.
+// GuiApplication instance registered via Init(); accessed through GetInstance() while active.
 class GuiApplication : public Application
 {
 public:
@@ -66,20 +66,19 @@ public:
     // https://wiki.libsdl.org/SDL3/SDL_Quit
     ~GuiApplication();
 
-    // Singleton accessor.
+    // Process-wide accessor (Qt-style). Null before Init() and after Destroy().
     static GuiApplication* GetInstance();
 
-    // Initializes the Application base class, then SDL (audio, video, and events). On success,
-    // logs runtime version, platform, revision, base path, and current audio/video drivers, then
-    // calls UpdateDisplayInfos().
+    // Initializes the Application base class, then SDL (audio, video, and events). Registers this
+    // object for GetInstance(). On success, logs runtime version, platform, revision, base path, and
+    // current audio/video drivers, then calls UpdateDisplayInfos().
     // https://wiki.libsdl.org/SDL3/CategoryInit
     bool Init(int argc, char** argv);
+    // Tears down SDL and unregisters this object from GetInstance(). Safe to call multiple times.
     // https://wiki.libsdl.org/SDL3/SDL_Quit
     void Destroy();
     // True after a successful Init().
     bool IsInitialized() const { return m_initialized; }
-    // Explicit shutdown for tests/tools; safe to call multiple times.
-    void Shutdown() { Destroy(); }
     // Runs until Exit() or no handlers: waits briefly for the next event (SDL_WaitEventTimeout),
     // then drains the queue with SDL_PollEvent, dispatches via OnEvent, and calls OnIdle().
     // https://wiki.libsdl.org/SDL3/CategoryEvents

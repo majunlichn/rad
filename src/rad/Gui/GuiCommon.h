@@ -9,8 +9,11 @@
 #include <rad/Container/SmallVector.h>
 #include <rad/Common/Span.h>
 #include <rad/IO/Logging.h>
+#include <rad/Vulkan/VulkanCommon.h>
 
 #include <SDL3/SDL.h>
+
+#include <cstdint>
 
 #include <cassert>
 #include <source_location>
@@ -18,6 +21,17 @@
 
 namespace rad
 {
+
+// Hint for preferred swapchain and scene color formats. Not guaranteed: the surface or device may
+// only support other pairs or formats.
+enum class ColorPrecision
+{
+    Low,    // Scene and swapchain (SDR): prefer 10-bit, else RGBA8 UNORM.
+    Medium, // Same as Low (default).
+    High,   // Scene (SDR): RGBA16F if supported, else as Medium. Swapchain: 10-bit or higher, else RGBA8.
+};
+
+const char* ColorPrecisionName(ColorPrecision precision);
 
 class GuiError
 {
@@ -36,18 +50,12 @@ using GuiResult = Result<T, GuiError>;
 
 spdlog::logger* GetGuiLogger();
 
-// LogLevel: trace, debug, info, warn, err, critical
 #define RAD_LOG_GUI(LogLevel, ...)                                                                 \
     SPDLOG_LOGGER_CALL(::rad::GetGuiLogger(), spdlog::level::LogLevel, __VA_ARGS__)
 
-// Returns a stable string literal for common SDL event types (for logging/debugging).
-// If unknown, returns "SDL_EVENT_UNKNOWN".
 const char* SDL_GetEventName(Uint32 type);
-
-// Convenience wrapper that returns a description string (for logging/debugging).
 std::string SDL_GetEventDescription(const SDL_Event& event);
 
-// Copy of SDL_GetError() for this thread, or "Unknown error" if unset. Call right after a failed SDL API.
 inline std::string GetLastSdlErrorString()
 {
     const char* sdlErrRaw = SDL_GetError();
@@ -71,8 +79,6 @@ inline std::string GetLastSdlErrorString()
 
 #define RAD_GUI_CHECK_SDL(expr) ::rad::CheckGuiSdlCall((expr), #expr)
 
-// Wraps an SDL call that returns bool. On success, returns true.
-// On failure, copies this thread's SDL error string, logs, and returns GuiError.
 [[nodiscard]] inline GuiResult<bool> WrapGuiSdlCall(
     bool ok, const char* expr, std::source_location sourceLoc = std::source_location::current())
 {

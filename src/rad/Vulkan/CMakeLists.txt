@@ -1,6 +1,7 @@
 set(RAD_VULKAN_HEADERS
     VulkanCommon.h
     VulkanCore.h
+    VulkanShader.h
     Core/VulkanBuffer.h
     Core/VulkanCommand.h
     Core/VulkanDescriptor.h
@@ -24,6 +25,7 @@ set(RAD_VULKAN_HEADERS
 
 set(RAD_VULKAN_SOURCES
     VulkanCommon.cpp
+    VulkanShader.cpp
     Core/VulkanBuffer.cpp
     Core/VulkanCommand.cpp
     Core/VulkanDescriptor.cpp

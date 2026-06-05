@@ -7,11 +7,11 @@
 
 #include <vector>
 
-class MainWindow : public rad::Window
+class WindowTest : public rad::Window
 {
 public:
-    MainWindow();
-    ~MainWindow();
+    WindowTest();
+    ~WindowTest();
 
     void Destroy() override;
 
@@ -85,4 +85,4 @@ private:
     int m_renderTestIndex = 0;
     rad::Ref<RenderTest> m_renderTest;
 
-}; // class MainWindow
+}; // class WindowTest

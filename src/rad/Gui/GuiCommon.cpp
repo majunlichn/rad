@@ -3,6 +3,20 @@
 namespace rad
 {
 
+const char* ColorPrecisionName(ColorPrecision precision)
+{
+    switch (precision)
+    {
+    case ColorPrecision::Low:
+        return "Low";
+    case ColorPrecision::Medium:
+        return "Medium";
+    case ColorPrecision::High:
+        return "High";
+    }
+    return "?";
+}
+
 GuiError::GuiError(std::string message) :
     m_message(std::move(message))
 {
@@ -16,9 +30,6 @@ spdlog::logger* GetGuiLogger()
 
 std::string SDL_GetEventDescription(const SDL_Event& event)
 {
-    // SDL3 docs: returns number of bytes needed for the full string, not counting the NUL byte.
-    // `buf` may be NULL; the return value follows snprintf-style rules (never -1).
-    // See: https://wiki.libsdl.org/SDL3/SDL_GetEventDescription
     const int byteCount = ::SDL_GetEventDescription(&event, nullptr, 0);
     if (byteCount <= 0)
     {
@@ -26,9 +37,9 @@ std::string SDL_GetEventDescription(const SDL_Event& event)
     }
 
     std::string s;
-    s.resize(static_cast<size_t>(byteCount) + 1); // +1 for NUL
+    s.resize(static_cast<size_t>(byteCount) + 1);
     (void)::SDL_GetEventDescription(&event, s.data(), static_cast<int>(s.size()));
-    s.resize(static_cast<size_t>(byteCount)); // trim NUL
+    s.resize(static_cast<size_t>(byteCount));
     return s;
 }
 
