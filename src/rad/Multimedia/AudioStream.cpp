@@ -272,7 +272,7 @@ std::vector<int> AudioStream::GetOutputChannelMap() const
     return buffer;
 }
 
-bool AudioStream::SetInputChannelMap(Span<int> map)
+bool AudioStream::SetInputChannelMap(Span<const int> map)
 {
     assert(m_handle != nullptr);
     const int count = static_cast<int>(map.size());
@@ -297,7 +297,7 @@ bool AudioStream::SetInputChannelMap(Span<int> map)
     return result;
 }
 
-bool AudioStream::SetOutputChannelMap(Span<int> map)
+bool AudioStream::SetOutputChannelMap(Span<const int> map)
 {
     assert(m_handle != nullptr);
     const int count = static_cast<int>(map.size());

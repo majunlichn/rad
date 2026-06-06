@@ -79,9 +79,9 @@ public:
     const std::string& GetName() const { return m_name; }
     // Cached in constructor from SDL_GetCameraSupportedFormats (copied SDL_CameraSpec values).
     // https://wiki.libsdl.org/SDL3/SDL_GetCameraSupportedFormats
-    Span<const SDL_CameraSpec> GetSupportedFormats() const
+    std::span<const SDL_CameraSpec> GetSupportedFormats() const
     {
-        return Span<const SDL_CameraSpec>(m_supportedFormats.data(), m_supportedFormats.size());
+        return MakeSpan(m_supportedFormats);
     }
     // Cached in constructor from SDL_GetCameraPosition.
     // https://wiki.libsdl.org/SDL3/SDL_GetCameraPosition

@@ -23,7 +23,7 @@ public:
     void SetTargetEnv(spv_target_env env);
 
     Result<void, SpvError> Validate(const uint32_t* binary, size_t wordCount);
-    Result<void, SpvError> Validate(Span<uint32_t> binary);
+    Result<void, SpvError> Validate(Span<const uint32_t> binary);
 
     enum class DisassembleOptions : uint32_t
     {
@@ -38,12 +38,12 @@ public:
     Result<std::string, SpvError> Disassemble(
         const uint32_t* binary, size_t wordCount,
         DisassembleOptions options = DisassembleOptions::Default);
-    Result<std::string, SpvError> Disassemble(Span<uint32_t> binary);
+    Result<std::string, SpvError> Disassemble(Span<const uint32_t> binary);
 
     Result<std::vector<uint32_t>, SpvError> Assemble(std::string_view assembly);
 
     Result<std::string, SpvError> ValidateAndDisassemble(
-        Span<uint32_t> binary, DisassembleOptions options = DisassembleOptions::Default);
+        Span<const uint32_t> binary, DisassembleOptions options = DisassembleOptions::Default);
 
 private:
     void CreateContext();

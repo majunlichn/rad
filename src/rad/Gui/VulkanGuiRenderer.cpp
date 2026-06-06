@@ -261,8 +261,8 @@ void VulkanGuiRenderer::Render()
     vk::ClearValue colorClearValues[1] = {};
     colorClearValues[0].color = vk::ClearColorValue(std::array<float, 4>{0.f, 0.f, 0.f, 0.f});
     const vk::Rect2D renderArea = {{0, 0}, extent};
-    cmd->BeginRendering(MakeSpan(colorViews), MakeSpan(colorLoadOps), MakeSpan(colorStoreOps),
-                        MakeSpan(colorClearValues), nullptr, vk::AttachmentLoadOp::eClear,
+    cmd->BeginRendering(colorViews, colorLoadOps, colorStoreOps,
+                        colorClearValues, nullptr, vk::AttachmentLoadOp::eClear,
                         vk::AttachmentStoreOp::eStore, vk::AttachmentLoadOp::eClear,
                         vk::AttachmentStoreOp::eStore, vk::ClearDepthStencilValue{1.f, 0},
                         &renderArea);

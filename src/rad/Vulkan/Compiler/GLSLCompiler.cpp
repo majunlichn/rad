@@ -172,7 +172,7 @@ Result<std::string, GLSLCompileError> GLSLCompiler::Preprocess(vk::ShaderStageFl
                                                                const std::string& fileName,
                                                                const std::string& source,
                                                                const std::string& entryPoint,
-                                                               Span<GLSLMacro> macros)
+                                                               Span<const GLSLMacro> macros)
 {
     shaderc::CompileOptions options;
 
@@ -203,7 +203,7 @@ Result<std::string, GLSLCompileError> GLSLCompiler::Preprocess(vk::ShaderStageFl
 
 Result<std::vector<uint32_t>, GLSLCompileError> GLSLCompiler::CompileFileToSpv(
     vk::ShaderStageFlagBits stage, const FilePath& path, const std::string& entryPoint,
-    Span<GLSLMacro> macros, GLSLCompileOptLevel opt)
+    Span<const GLSLMacro> macros, GLSLCompileOptLevel opt)
 {
     if (!File::Exists(path.string()))
     {
@@ -221,7 +221,7 @@ Result<std::vector<uint32_t>, GLSLCompileError> GLSLCompiler::CompileFileToSpv(
 
 Result<std::vector<uint32_t>, GLSLCompileError> GLSLCompiler::CompileToSpv(
     vk::ShaderStageFlagBits stage, const std::string& fileName, const std::string& source,
-    const std::string& entryPoint, Span<GLSLMacro> macros, GLSLCompileOptLevel opt)
+    const std::string& entryPoint, Span<const GLSLMacro> macros, GLSLCompileOptLevel opt)
 {
     shaderc::CompileOptions options;
     options.SetSourceLanguage(shaderc_source_language_glsl);

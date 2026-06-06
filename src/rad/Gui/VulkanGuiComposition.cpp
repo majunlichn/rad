@@ -392,8 +392,8 @@ void VulkanGuiComposition::Record()
     const vk::AttachmentStoreOp colorStoreOps[] = {vk::AttachmentStoreOp::eStore};
     const vk::ClearValue colorClearValues[1] = {};
     const vk::Rect2D renderArea = {{0, 0}, extent};
-    cmd->BeginRendering(MakeSpan(colorViews), MakeSpan(colorLoadOps), MakeSpan(colorStoreOps),
-                        MakeSpan(colorClearValues), nullptr, vk::AttachmentLoadOp::eClear,
+    cmd->BeginRendering(colorViews, colorLoadOps, colorStoreOps,
+                        colorClearValues, nullptr, vk::AttachmentLoadOp::eClear,
                         vk::AttachmentStoreOp::eStore, vk::AttachmentLoadOp::eClear,
                         vk::AttachmentStoreOp::eStore, vk::ClearDepthStencilValue{1.f, 0},
                         &renderArea);

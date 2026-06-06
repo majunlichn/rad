@@ -66,7 +66,7 @@ Result<void, SpvError> SpvContext::Validate(const uint32_t* binary, size_t wordC
     return err;
 }
 
-Result<void, SpvError> SpvContext::Validate(Span<uint32_t> binary)
+Result<void, SpvError> SpvContext::Validate(Span<const uint32_t> binary)
 {
     return Validate(binary.data(), binary.size());
 }
@@ -133,7 +133,7 @@ Result<std::string, SpvError> SpvContext::Disassemble(const uint32_t* binary, si
     }
 }
 
-Result<std::string, SpvError> SpvContext::Disassemble(Span<uint32_t> binary)
+Result<std::string, SpvError> SpvContext::Disassemble(Span<const uint32_t> binary)
 {
     return Disassemble(binary.data(), binary.size(), DisassembleOptions::Default);
 }
@@ -179,7 +179,7 @@ Result<std::vector<uint32_t>, SpvError> SpvContext::Assemble(std::string_view as
     return err;
 }
 
-Result<std::string, SpvError> SpvContext::ValidateAndDisassemble(Span<uint32_t> binary,
+Result<std::string, SpvError> SpvContext::ValidateAndDisassemble(Span<const uint32_t> binary,
                                                                  DisassembleOptions options)
 {
     auto validateResult = Validate(binary);

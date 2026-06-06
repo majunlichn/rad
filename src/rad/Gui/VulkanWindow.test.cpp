@@ -43,8 +43,8 @@ void RecordScene(VulkanFrame* frame, const float clearSrgb[4])
     colorClearValues[0].color =
         LinearClearFromSrgb(clearSrgb[0], clearSrgb[1], clearSrgb[2], clearSrgb[3]);
     const vk::Rect2D renderArea = {{0, 0}, frame->GetExtent()};
-    cmd->BeginRendering(MakeSpan(colorViews), MakeSpan(colorLoadOps), MakeSpan(colorStoreOps),
-                        MakeSpan(colorClearValues), nullptr, vk::AttachmentLoadOp::eClear,
+    cmd->BeginRendering(colorViews, colorLoadOps, colorStoreOps,
+                        colorClearValues, nullptr, vk::AttachmentLoadOp::eClear,
                         vk::AttachmentStoreOp::eStore, vk::AttachmentLoadOp::eClear,
                         vk::AttachmentStoreOp::eStore, vk::ClearDepthStencilValue{1.f, 0},
                         &renderArea);

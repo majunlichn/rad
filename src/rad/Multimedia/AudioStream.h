@@ -96,10 +96,10 @@ public:
     std::vector<int> GetOutputChannelMap() const;
     // https://wiki.libsdl.org/SDL3/SDL_SetAudioStreamInputChannelMap
     // https://wiki.libsdl.org/SDL3/SDL_GetAudioStreamFormat
-    bool SetInputChannelMap(Span<int> map);
+    bool SetInputChannelMap(Span<const int> map);
     // https://wiki.libsdl.org/SDL3/SDL_SetAudioStreamOutputChannelMap
     // https://wiki.libsdl.org/SDL3/SDL_GetAudioStreamFormat
-    bool SetOutputChannelMap(Span<int> map);
+    bool SetOutputChannelMap(Span<const int> map);
     // https://wiki.libsdl.org/SDL3/SDL_PutAudioStreamData
     bool PutData(const void* data, int sizeInBytes);
     // https://wiki.libsdl.org/SDL3/SDL_PutAudioStreamDataNoCopy

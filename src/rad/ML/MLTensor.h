@@ -7,7 +7,6 @@
 #include <rad/Common/Span.h>
 
 #include <cstddef>
-#include <initializer_list>
 #include <string_view>
 
 namespace rad
@@ -52,12 +51,5 @@ protected:
 
 [[nodiscard]] Ref<MLTensor> CreateMLTensor(Span<const size_t> shape, MLDataType dataType,
                                            std::string_view deviceId = "cpu:0");
-
-[[nodiscard]] inline Ref<MLTensor> CreateMLTensor(std::initializer_list<size_t> shape,
-                                                  MLDataType dataType,
-                                                  std::string_view deviceId = "cpu:0")
-{
-    return CreateMLTensor(MakeSpan(shape), dataType, deviceId);
-}
 
 } // namespace rad

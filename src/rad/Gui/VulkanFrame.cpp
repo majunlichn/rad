@@ -72,15 +72,17 @@ constexpr vk::SurfaceFormatKHR kHdrWithSdrHighSurfaceFormats[] = {
     {vk::Format::eR8G8B8A8Unorm, kSdrColorSpace},
 };
 
-Span<const vk::SurfaceFormatKHR> GetSurfaceFormatPreferences(bool enableHdr, ColorPrecision precision)
+std::span<const vk::SurfaceFormatKHR> GetSurfaceFormatPreferences(bool enableHdr, ColorPrecision precision)
 {
     if (enableHdr)
     {
-        return precision == ColorPrecision::High ? MakeSpan(kHdrWithSdrHighSurfaceFormats)
-                                                 : MakeSpan(kHdrWithSdrLowMediumSurfaceFormats);
+        return precision == ColorPrecision::High
+                   ? std::span<const vk::SurfaceFormatKHR>(kHdrWithSdrHighSurfaceFormats)
+                   : std::span<const vk::SurfaceFormatKHR>(kHdrWithSdrLowMediumSurfaceFormats);
     }
-    return precision == ColorPrecision::High ? MakeSpan(kSdrHighSurfaceFormats)
-                                             : MakeSpan(kSdrLowMediumSurfaceFormats);
+    return precision == ColorPrecision::High
+               ? std::span<const vk::SurfaceFormatKHR>(kSdrHighSurfaceFormats)
+               : std::span<const vk::SurfaceFormatKHR>(kSdrLowMediumSurfaceFormats);
 }
 
 std::optional<vk::SurfaceFormatKHR> PickPreferredSurfaceFormat(
@@ -101,13 +103,13 @@ std::optional<vk::SurfaceFormatKHR> PickPreferredSurfaceFormat(
 
 bool IsHdrSupportedOnSurface(const std::vector<vk::SurfaceFormatKHR>& available)
 {
-    return PickPreferredSurfaceFormat(available, MakeSpan(kHdrSurfaceFormats)).has_value();
+    return PickPreferredSurfaceFormat(available, kHdrSurfaceFormats).has_value();
 }
 
 vk::SurfaceFormatKHR SelectSurfaceFormat(VulkanDevice* device, vk::SurfaceKHR surface, bool enableHdr,
                                        ColorPrecision precision)
 {
-    const Span<const vk::SurfaceFormatKHR> preferences =
+    const std::span<const vk::SurfaceFormatKHR> preferences =
         GetSurfaceFormatPreferences(enableHdr, precision);
 
     const std::vector<vk::SurfaceFormatKHR> availableFormats = device->GetSurfaceFormats(surface);
