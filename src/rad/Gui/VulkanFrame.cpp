@@ -7,8 +7,8 @@
 #include <rad/Gui/VulkanWindow.h>
 
 #include <algorithm>
-#include <array>
 #include <functional>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 
@@ -30,50 +30,60 @@ bool IsTripleBufferingSupported(VulkanDevice* device, vk::SurfaceKHR surface)
     return SelectMinImageCount(capabilities, 3) >= 3;
 }
 
-constexpr size_t kMaxSurfaceFormatPreferences = 8;
+constexpr vk::ColorSpaceKHR kSdrColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
 
-// Ordered swapchain (format, colorSpace) preferences, highest priority first.
-size_t BuildSurfaceFormatPreferences(bool enableHdr, ColorPrecision precision,
-                                     bool includeSdrFallback, vk::SurfaceFormatKHR* out,
-                                     size_t outCapacity)
+// HDR10 (PQ) first, then scRGB linear.
+constexpr vk::SurfaceFormatKHR kHdrSurfaceFormats[] = {
+    {vk::Format::eA2B10G10R10UnormPack32, vk::ColorSpaceKHR::eHdr10St2084EXT},
+    {vk::Format::eR16G16B16A16Sfloat, vk::ColorSpaceKHR::eExtendedSrgbLinearEXT},
+};
+
+constexpr vk::SurfaceFormatKHR kSdrLowMediumSurfaceFormats[] = {
+    {vk::Format::eA2B10G10R10UnormPack32, kSdrColorSpace},
+    {vk::Format::eA2R10G10B10UnormPack32, kSdrColorSpace},
+    {vk::Format::eB8G8R8A8Unorm, kSdrColorSpace},
+    {vk::Format::eR8G8B8A8Unorm, kSdrColorSpace},
+};
+
+constexpr vk::SurfaceFormatKHR kSdrHighSurfaceFormats[] = {
+    {vk::Format::eR16G16B16A16Sfloat, kSdrColorSpace},
+    {vk::Format::eA2B10G10R10UnormPack32, kSdrColorSpace},
+    {vk::Format::eA2R10G10B10UnormPack32, kSdrColorSpace},
+    {vk::Format::eB8G8R8A8Unorm, kSdrColorSpace},
+    {vk::Format::eR8G8B8A8Unorm, kSdrColorSpace},
+};
+
+constexpr vk::SurfaceFormatKHR kHdrWithSdrLowMediumSurfaceFormats[] = {
+    {vk::Format::eA2B10G10R10UnormPack32, vk::ColorSpaceKHR::eHdr10St2084EXT},
+    {vk::Format::eR16G16B16A16Sfloat, vk::ColorSpaceKHR::eExtendedSrgbLinearEXT},
+    {vk::Format::eA2B10G10R10UnormPack32, kSdrColorSpace},
+    {vk::Format::eA2R10G10B10UnormPack32, kSdrColorSpace},
+    {vk::Format::eB8G8R8A8Unorm, kSdrColorSpace},
+    {vk::Format::eR8G8B8A8Unorm, kSdrColorSpace},
+};
+
+constexpr vk::SurfaceFormatKHR kHdrWithSdrHighSurfaceFormats[] = {
+    {vk::Format::eA2B10G10R10UnormPack32, vk::ColorSpaceKHR::eHdr10St2084EXT},
+    {vk::Format::eR16G16B16A16Sfloat, vk::ColorSpaceKHR::eExtendedSrgbLinearEXT},
+    {vk::Format::eR16G16B16A16Sfloat, kSdrColorSpace},
+    {vk::Format::eA2B10G10R10UnormPack32, kSdrColorSpace},
+    {vk::Format::eA2R10G10B10UnormPack32, kSdrColorSpace},
+    {vk::Format::eB8G8R8A8Unorm, kSdrColorSpace},
+    {vk::Format::eR8G8B8A8Unorm, kSdrColorSpace},
+};
+
+Span<const vk::SurfaceFormatKHR> GetSurfaceFormatPreferences(bool enableHdr, ColorPrecision precision)
 {
-    size_t count = 0;
-    auto push = [&](vk::Format format, vk::ColorSpaceKHR colorSpace) {
-        if (count < outCapacity)
-        {
-            out[count++] = vk::SurfaceFormatKHR{format, colorSpace};
-        }
-    };
-    auto pushSdr = [&]() {
-        const vk::ColorSpaceKHR colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
-        if (precision == ColorPrecision::High)
-        {
-            push(vk::Format::eR16G16B16A16Sfloat, colorSpace);
-        }
-        push(vk::Format::eA2B10G10R10UnormPack32, colorSpace);
-        push(vk::Format::eA2R10G10B10UnormPack32, colorSpace);
-        push(vk::Format::eB8G8R8A8Unorm, colorSpace);
-        push(vk::Format::eR8G8B8A8Unorm, colorSpace);
-    };
-
     if (enableHdr)
     {
-        // HDR10 (PQ) first, then scRGB linear.
-        push(vk::Format::eA2B10G10R10UnormPack32, vk::ColorSpaceKHR::eHdr10St2084EXT);
-        push(vk::Format::eR16G16B16A16Sfloat, vk::ColorSpaceKHR::eExtendedSrgbLinearEXT);
-        if (includeSdrFallback)
-        {
-            pushSdr();
-        }
+        return precision == ColorPrecision::High ? MakeSpan(kHdrWithSdrHighSurfaceFormats)
+                                                 : MakeSpan(kHdrWithSdrLowMediumSurfaceFormats);
     }
-    else
-    {
-        pushSdr();
-    }
-    return count;
+    return precision == ColorPrecision::High ? MakeSpan(kSdrHighSurfaceFormats)
+                                             : MakeSpan(kSdrLowMediumSurfaceFormats);
 }
 
-const vk::SurfaceFormatKHR* PickPreferredSurfaceFormat(
+std::optional<vk::SurfaceFormatKHR> PickPreferredSurfaceFormat(
     const std::vector<vk::SurfaceFormatKHR>& available, Span<const vk::SurfaceFormatKHR> preferences)
 {
     for (const vk::SurfaceFormatKHR& preference : preferences)
@@ -82,31 +92,23 @@ const vk::SurfaceFormatKHR* PickPreferredSurfaceFormat(
         {
             if (format == preference)
             {
-                return &format;
+                return format;
             }
         }
     }
-    return nullptr;
+    return std::nullopt;
 }
 
 bool IsHdrSupportedOnSurface(const std::vector<vk::SurfaceFormatKHR>& available)
 {
-    std::array<vk::SurfaceFormatKHR, kMaxSurfaceFormatPreferences> preferences{};
-    const size_t preferenceCount =
-        BuildSurfaceFormatPreferences(true, ColorPrecision::High, /*includeSdrFallback=*/false,
-                                      preferences.data(), preferences.size());
-    return PickPreferredSurfaceFormat(available,
-                                      Span<const vk::SurfaceFormatKHR>(preferences.data(),
-                                                                       preferenceCount)) != nullptr;
+    return PickPreferredSurfaceFormat(available, MakeSpan(kHdrSurfaceFormats)).has_value();
 }
 
 vk::SurfaceFormatKHR SelectSurfaceFormat(VulkanDevice* device, vk::SurfaceKHR surface, bool enableHdr,
                                        ColorPrecision precision)
 {
-    std::array<vk::SurfaceFormatKHR, kMaxSurfaceFormatPreferences> preferences{};
-    const size_t preferenceCount = BuildSurfaceFormatPreferences(
-        enableHdr, precision, /*includeSdrFallback=*/true, preferences.data(), preferences.size());
-    const Span<const vk::SurfaceFormatKHR> preferenceSpan(preferences.data(), preferenceCount);
+    const Span<const vk::SurfaceFormatKHR> preferences =
+        GetSurfaceFormatPreferences(enableHdr, precision);
 
     const std::vector<vk::SurfaceFormatKHR> availableFormats = device->GetSurfaceFormats(surface);
     if (availableFormats.empty() || (availableFormats.size() == 1 &&
@@ -115,8 +117,8 @@ vk::SurfaceFormatKHR SelectSurfaceFormat(VulkanDevice* device, vk::SurfaceKHR su
         return preferences[0];
     }
 
-    if (const vk::SurfaceFormatKHR* picked =
-            PickPreferredSurfaceFormat(availableFormats, preferenceSpan))
+    if (const std::optional<vk::SurfaceFormatKHR> picked =
+            PickPreferredSurfaceFormat(availableFormats, preferences))
     {
         return *picked;
     }
@@ -264,6 +266,19 @@ uint32_t VulkanFrame::GetFrameLag(BufferingMode mode)
     return mode == BufferingMode::Triple ? 3u : 2u;
 }
 
+bool VulkanFrame::HasExternalWaits(const VulkanFrameWaits& waits)
+{
+    return waits.waitRenderSubmitted || waits.renderCompleteSemaphore != nullptr;
+}
+
+void VulkanFrame::ClearFrameRenderTargets(FrameResources& frame)
+{
+    frame.guiColorImageView.reset();
+    frame.guiColorImage.reset();
+    frame.sceneColorImageView.reset();
+    frame.sceneColorImage.reset();
+}
+
 VulkanFrame::VulkanFrame(VulkanWindow* window) : VulkanFrame(window, Settings{}) {}
 
 VulkanFrame::VulkanFrame(VulkanWindow* window, const Settings& settings) :
@@ -363,7 +378,8 @@ bool VulkanFrame::CreateSwapchain(vk::SwapchainKHR oldSwapchain)
     }
 
     const vk::Extent2D extent = SelectSwapchainExtent(capabilities, width, height);
-    m_swapchainMinImageCount = SelectMinImageCount(capabilities, m_desiredSwapchainImageCount);
+    const uint32_t desiredImageCount = std::max(m_desiredSwapchainImageCount, m_frameLag);
+    m_swapchainMinImageCount = SelectMinImageCount(capabilities, desiredImageCount);
     const vk::PresentModeKHR presentMode = SelectPresentMode(device, surfaceHandle, m_presentMode);
 
     vk::SwapchainCreateInfoKHR swapchainInfo = {};
@@ -465,29 +481,20 @@ bool VulkanFrame::SetPresentMode(vk::PresentModeKHR presentMode)
     {
         return false;
     }
-    if (IsRecording())
-    {
-        RAD_LOG_GUI(warn, "VulkanFrame::SetPresentMode ignored while recording");
-        return false;
-    }
     m_presentMode = presentMode;
-    RecreateSwapchain();
+    RequestRecreateSwapchain();
     return true;
 }
 
 bool VulkanFrame::SetSwapchainImageCount(uint32_t imageCount)
 {
-    if (imageCount == m_desiredSwapchainImageCount)
+    const uint32_t clampedCount = std::max(imageCount, m_frameLag);
+    if (clampedCount == m_desiredSwapchainImageCount)
     {
         return false;
     }
-    if (IsRecording())
-    {
-        RAD_LOG_GUI(warn, "VulkanFrame::SetSwapchainImageCount ignored while recording");
-        return false;
-    }
-    m_desiredSwapchainImageCount = imageCount;
-    RecreateSwapchain();
+    m_desiredSwapchainImageCount = clampedCount;
+    RequestRecreateSwapchain();
     return true;
 }
 
@@ -668,10 +675,7 @@ void VulkanFrame::DestroyFrameSync()
 {
     for (FrameResources& frame : m_framesInFlight)
     {
-        frame.guiColorImageView.reset();
-        frame.guiColorImage.reset();
-        frame.sceneColorImageView.reset();
-        frame.sceneColorImage.reset();
+        ClearFrameRenderTargets(frame);
         frame.fence.reset();
         frame.imageAvailableSemaphore.reset();
         frame.commandBuffer.reset();
@@ -785,10 +789,7 @@ void VulkanFrame::DestroySwapchainDependentResources()
 {
     for (FrameResources& frame : m_framesInFlight)
     {
-        frame.guiColorImageView.reset();
-        frame.guiColorImage.reset();
-        frame.sceneColorImageView.reset();
-        frame.sceneColorImage.reset();
+        ClearFrameRenderTargets(frame);
     }
     m_presentCompleteSemaphores.clear();
 }
@@ -889,29 +890,44 @@ bool VulkanFrame::BeginFrame()
 
     CheckVulkanResult(frame.fence->Wait(), "VulkanFrame fence wait");
 
-    const vk::Result acquireResult =
-        swapchain->AcquireNextImage(UINT64_MAX, frame.imageAvailableSemaphore.get(), nullptr, 1);
-    if (acquireResult == vk::Result::eErrorOutOfDateKHR)
+    // Retry acquire after swapchain recreation, matching Vulkan-Tools cube.c demo_draw().
+    vk::Result acquireResult = vk::Result::eSuccess;
+    do
     {
-        RecreateSwapchain();
-        return false;
-    }
-    if (acquireResult != vk::Result::eSuccess && acquireResult != vk::Result::eSuboptimalKHR)
-    {
-        RAD_LOG_GUI(err, "VulkanFrame AcquireNextImage failed: {}", vk::to_string(acquireResult));
-        return false;
-    }
+        acquireResult =
+            swapchain->AcquireNextImage(UINT64_MAX, frame.imageAvailableSemaphore.get(), nullptr, 1);
+        if (acquireResult == vk::Result::eErrorOutOfDateKHR)
+        {
+            RecreateSwapchain();
+            swapchain = m_swapchain.get();
+            if (!swapchain)
+            {
+                return false;
+            }
+            continue;
+        }
+        if (acquireResult == vk::Result::eErrorSurfaceLostKHR)
+        {
+            RAD_LOG_GUI(err, "VulkanFrame AcquireNextImage: surface lost");
+            return false;
+        }
+        if (acquireResult == vk::Result::eSuboptimalKHR)
+        {
+            break;
+        }
+        if (acquireResult != vk::Result::eSuccess)
+        {
+            RAD_LOG_GUI(err, "VulkanFrame AcquireNextImage failed: {}", vk::to_string(acquireResult));
+            return false;
+        }
+        break;
+    } while (acquireResult == vk::Result::eErrorOutOfDateKHR);
 
     const uint32_t imageIndex = swapchain->GetCurrentImageIndex();
     if (imageIndex >= m_presentCompleteSemaphores.size())
     {
         return false;
     }
-
-    // Reset the fence only once acquisition has succeeded and we are committed to submitting work
-    // this frame. Resetting earlier would leave the fence unsignaled on the early-return paths
-    // above (m_currentFrame is not advanced), deadlocking the next Wait() on this slot.
-    frame.fence->Reset();
 
     m_frameState = VulkanFrameState::Recording;
 
@@ -998,6 +1014,9 @@ bool VulkanFrame::EndFrame(const VulkanFrameWaits* waits)
     const vk::Semaphore signalSemaphores[] = {presentSemaphore->GetHandle()};
     submitInfo.pSignalSemaphores = signalSemaphores;
 
+    // Reset immediately before submit so an EndFrame() failure earlier in this function leaves the
+    // in-flight slot fence signaled and reusable on the next BeginFrame().
+    frame.fence->Reset();
     queue.submit(submitInfo, frame.fence->GetHandle(), dispatcher);
 
     vk::PresentInfoKHR presentInfo;
@@ -1009,22 +1028,41 @@ bool VulkanFrame::EndFrame(const VulkanFrameWaits* waits)
     presentInfo.pImageIndices = &imageIndex;
 
     const vk::Result presentResult = queue.presentKHR(presentInfo, dispatcher);
+
+    // Advance the in-flight slot after submit/present, even when present fails (cube.c pattern).
+    ++m_currentFrame;
+    m_frameState = VulkanFrameState::Idle;
+
     if (presentResult == vk::Result::eErrorOutOfDateKHR)
     {
-        m_frameState = VulkanFrameState::Idle;
         m_recreateSwapchainRequested = false;
         RecreateSwapchain();
         return false;
     }
-    if (presentResult != vk::Result::eSuccess && presentResult != vk::Result::eSuboptimalKHR)
+    if (presentResult == vk::Result::eErrorSurfaceLostKHR)
+    {
+        RAD_LOG_GUI(err, "VulkanFrame presentKHR: surface lost");
+        return false;
+    }
+    if (presentResult == vk::Result::eSuboptimalKHR)
+    {
+        if (VulkanSurface* surface = m_window->GetSurface())
+        {
+            const vk::SurfaceCapabilitiesKHR capabilities =
+                device->GetCapabilities(surface->GetHandle());
+            if (capabilities.currentExtent.width != m_extent.width ||
+                capabilities.currentExtent.height != m_extent.height)
+            {
+                RecreateSwapchain();
+            }
+        }
+    }
+    else if (presentResult != vk::Result::eSuccess)
     {
         RAD_LOG_GUI(err, "VulkanFrame presentKHR failed: {}", vk::to_string(presentResult));
-        m_frameState = VulkanFrameState::Idle;
         return false;
     }
 
-    ++m_currentFrame;
-    m_frameState = VulkanFrameState::Idle;
     if (m_recreateSwapchainRequested)
     {
         m_recreateSwapchainRequested = false;
@@ -1052,7 +1090,7 @@ bool VulkanFrame::SubmitFrame(std::function<void(VulkanFrameWaits*)> recordScene
         buildGui();
     }
 
-    return EndFrame(recordScene ? &waits : nullptr);
+    return EndFrame(HasExternalWaits(waits) ? &waits : nullptr);
 }
 
 } // namespace rad

@@ -13,8 +13,8 @@ class VulkanGuiRenderer;
 class VulkanGuiComposition;
 class VulkanSemaphore;
 
-// Optional waits for an external scene queue.submit. Pass to EndFrame() when use multiple queues or
-// render scene with multi-threading.
+// Optional waits for an external scene queue.submit. Pass to EndFrame() when using multiple queues
+// or rendering the scene on another thread.
 struct VulkanFrameWaits
 {
     // Blocks until an external scene submit has completed (e.g. another thread / queue).
@@ -85,6 +85,7 @@ public:
     // The following recreate the swapchain when not recording. If a frame is open, the change is
     // deferred until after the current frame is presented.
     bool SetPresentMode(vk::PresentModeKHR presentMode);
+    // Clamped to at least GetFrameLag(); deferred while recording like other swapchain settings.
     bool SetSwapchainImageCount(uint32_t imageCount);
     bool SetEnableHdr(bool enableHdr);
     bool SetColorPrecision(ColorPrecision precision);
@@ -162,12 +163,14 @@ private:
 
     bool CreateRenderTargets();
     bool CreatePresentCompleteSemaphores();
+    void ClearFrameRenderTargets(FrameResources& frame);
 
     // Creates the GUI pipeline on first call; resizes it after swapchain recreation.
     bool RebuildGui();
     void RequestRecreateSwapchain();
 
     static uint32_t GetFrameLag(BufferingMode mode);
+    static bool HasExternalWaits(const VulkanFrameWaits& waits);
 
     uint32_t RecordingFrameIndex() const { return m_currentFrame % m_frameLag; }
 
