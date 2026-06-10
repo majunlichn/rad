@@ -8,6 +8,7 @@
 #include <rad/ML/Cpu/CpuMLTensor.h>
 #include <rad/ML/MLCommon.h>
 
+#include <format>
 #include <vector>
 
 #include <stdexcept>
@@ -23,6 +24,32 @@ CpuMLDevice::CpuMLDevice(CpuMLBackend* backend) :
 std::string_view CpuMLDevice::GetName() const noexcept
 {
     return GetCpuBrandString();
+}
+
+bool CpuMLDevice::IsDataTypeSupported(MLDataType dataType) const noexcept
+{
+    switch (dataType)
+    {
+    case MLDataType::Float32:
+    case MLDataType::Float64:
+    case MLDataType::Int8:
+    case MLDataType::Int16:
+    case MLDataType::Int32:
+    case MLDataType::Int64:
+    case MLDataType::Uint8:
+    case MLDataType::Uint16:
+    case MLDataType::Uint32:
+    case MLDataType::Uint64:
+    case MLDataType::Bool:
+    case MLDataType::Float16:
+    case MLDataType::BFloat16:
+    case MLDataType::Float8E4M3:
+    case MLDataType::Float8E5M2:
+        return true;
+    case MLDataType::Undefined:
+    default:
+        return false;
+    }
 }
 
 Ref<MLBuffer> CpuMLDevice::CreateBuffer(size_t sizeInBytes)
@@ -41,6 +68,13 @@ Ref<MLTensor> CpuMLDevice::CreateTensor(const MLTensorDesc& desc, Ref<MLBuffer> 
     if (!ValidateTensorDesc(desc))
     {
         throw std::invalid_argument("CpuMLDevice::CreateTensor requires a valid tensor desc");
+    }
+
+    if (!IsDataTypeSupported(desc.dataType))
+    {
+        throw std::invalid_argument(
+            std::format("CpuMLDevice::CreateTensor does not support tensor data type {}",
+                        GetDataTypeName(desc.dataType)));
     }
 
     if (!buffer)

@@ -27,6 +27,7 @@ public:
     [[nodiscard]] virtual std::string_view GetName() const noexcept = 0;
     // PCI device identifier; 0 when not applicable (e.g. CPU).
     [[nodiscard]] virtual uint32_t GetPciDeviceId() const noexcept = 0;
+    [[nodiscard]] virtual bool IsDataTypeSupported(MLDataType dataType) const noexcept = 0;
 
     [[nodiscard]] virtual Ref<MLBuffer> CreateBuffer(size_t sizeInBytes) = 0;
 

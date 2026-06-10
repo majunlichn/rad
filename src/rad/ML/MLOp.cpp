@@ -18,4 +18,14 @@ MLOp::MLOp(Ref<MLDevice> device) :
 
 MLOp::~MLOp() = default;
 
+void MLOp::SetParameters(const void* data, size_t dataSize)
+{
+    (void)data;
+
+    if (dataSize != 0)
+    {
+        throw std::invalid_argument("MLOp does not accept parameters");
+    }
+}
+
 } // namespace rad

@@ -13,11 +13,11 @@ MLContext::MLContext(Ref<MLDevice> device) :
 
 MLContext::~MLContext() = default;
 
-void MLContext::Execute(MLOp* op)
+void MLContext::Execute(MLOp* op, Span<MLTensor* const> inputs, Span<MLTensor* const> outputs)
 {
     if (op)
     {
-        op->Execute(this);
+        op->Execute(this, inputs, outputs);
     }
 }
 

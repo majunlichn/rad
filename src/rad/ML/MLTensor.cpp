@@ -45,40 +45,40 @@ void MLTensor::UnmapMemory() noexcept
     }
 }
 
-Ref<MLTensor> CreateMLTensor(const MLTensorDesc& desc, std::string_view deviceId)
+Ref<MLTensor> MLCreateTensor(const MLTensorDesc& desc, std::string_view deviceId)
 {
     MLDevice* device = GetMLDevice(deviceId);
     if (!device)
     {
-        throw std::invalid_argument("CreateMLTensor requires a valid device ID");
+        throw std::invalid_argument("MLCreateTensor requires a valid device ID");
     }
 
     return device->CreateTensor(desc);
 }
 
-Ref<MLTensor> CreateMLTensor(const MLTensorDesc& desc, Ref<MLBuffer> buffer, size_t bufferOffset)
+Ref<MLTensor> MLCreateTensor(const MLTensorDesc& desc, Ref<MLBuffer> buffer, size_t bufferOffset)
 {
     if (!buffer)
     {
-        throw std::invalid_argument("CreateMLTensor requires a valid buffer");
+        throw std::invalid_argument("MLCreateTensor requires a valid buffer");
     }
 
     MLDevice* device = buffer->GetDevice();
     if (!device)
     {
-        throw std::invalid_argument("CreateMLTensor requires a buffer with a device");
+        throw std::invalid_argument("MLCreateTensor requires a buffer with a device");
     }
 
     return device->CreateTensor(desc, std::move(buffer), bufferOffset);
 }
 
-Ref<MLTensor> CreateMLTensor(Span<const size_t> shape, MLDataType dataType,
+Ref<MLTensor> MLCreateTensor(Span<const size_t> shape, MLDataType dataType,
                              std::string_view deviceId)
 {
     MLTensorDesc desc;
     desc.shape.assign(shape.begin(), shape.end());
     desc.dataType = dataType;
-    return CreateMLTensor(desc, deviceId);
+    return MLCreateTensor(desc, deviceId);
 }
 
 } // namespace rad

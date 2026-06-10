@@ -18,6 +18,7 @@ public:
     [[nodiscard]] MLBackend* GetBackend() const noexcept override { return m_backend.get(); }
     [[nodiscard]] std::string_view GetName() const noexcept override;
     [[nodiscard]] uint32_t GetPciDeviceId() const noexcept override { return 0; }
+    [[nodiscard]] bool IsDataTypeSupported(MLDataType dataType) const noexcept override;
 
     [[nodiscard]] Ref<MLBuffer> CreateBuffer(size_t sizeInBytes) override;
     [[nodiscard]] Ref<MLTensor> CreateTensor(const MLTensorDesc& desc, Ref<MLBuffer> buffer,

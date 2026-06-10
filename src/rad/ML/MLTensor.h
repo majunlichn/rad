@@ -42,14 +42,14 @@ protected:
 }; // class MLTensor
 
 // Allocates a new buffer on deviceId.
-[[nodiscard]] Ref<MLTensor> CreateMLTensor(const MLTensorDesc& desc,
+[[nodiscard]] Ref<MLTensor> MLCreateTensor(const MLTensorDesc& desc,
                                            std::string_view deviceId = "cpu:0");
 
 // View into an existing buffer; device is taken from the buffer.
-[[nodiscard]] Ref<MLTensor> CreateMLTensor(const MLTensorDesc& desc, Ref<MLBuffer> buffer,
+[[nodiscard]] Ref<MLTensor> MLCreateTensor(const MLTensorDesc& desc, Ref<MLBuffer> buffer,
                                            size_t bufferOffset);
 
-[[nodiscard]] Ref<MLTensor> CreateMLTensor(Span<const size_t> shape, MLDataType dataType,
+[[nodiscard]] Ref<MLTensor> MLCreateTensor(Span<const size_t> shape, MLDataType dataType,
                                            std::string_view deviceId = "cpu:0");
 
 } // namespace rad

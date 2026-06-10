@@ -8,7 +8,7 @@
 
 using namespace rad;
 
-TEST(ML, TensorDescTest)
+TEST(CpuML, TensorDesc)
 {
     MLTensorDesc desc;
     desc.shape = {3, 4};
@@ -21,9 +21,9 @@ TEST(ML, TensorDescTest)
     EXPECT_EQ(GetTensorStorageElementCount(desc.shape, desc.strides), 4u);
 }
 
-TEST(ML, CpuMLTensorTest)
+TEST(CpuML, Tensor)
 {
-    Ref<MLTensor> tensor = CreateMLTensor({512, 512}, MLDataType::Float32);
+    Ref<MLTensor> tensor = MLCreateTensor({512, 512}, MLDataType::Float32);
     ASSERT_NE(tensor, nullptr);
     EXPECT_EQ(tensor->GetElementCount(), 512 * 512);
     EXPECT_EQ(tensor->GetBufferSize(), 512 * 512 * 4);

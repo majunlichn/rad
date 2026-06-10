@@ -21,19 +21,24 @@ set(RAD_ML_SOURCES
 )
 
 set(RAD_ML_CPU_HEADERS
+    Cpu/CpuMLActivations.h
     Cpu/CpuMLBackend.h
     Cpu/CpuMLBuffer.h
     Cpu/CpuMLContext.h
+    Cpu/CpuMLDataTypeTraits.h
     Cpu/CpuMLDevice.h
     Cpu/CpuMLTensor.h
+    Cpu/CpuMLElementWiseUnaryOp.h
 )
 
 set(RAD_ML_CPU_SOURCES
+    Cpu/CpuMLActivations.cpp
     Cpu/CpuMLBackend.cpp
     Cpu/CpuMLBuffer.cpp
     Cpu/CpuMLContext.cpp
     Cpu/CpuMLDevice.cpp
     Cpu/CpuMLTensor.cpp
+    Cpu/CpuMLElementWiseUnaryOp.cpp
 )
 
 add_library(rad_ml STATIC)
@@ -53,6 +58,7 @@ target_link_libraries(rad_ml
 set(RAD_ML_TEST_SOURCES
     ML.test.h
     ML.test.cpp
+    Cpu/CpuMLActivations.test.cpp
     Cpu/CpuMLBackend.test.cpp
     Cpu/CpuMLTensor.test.cpp
 )
