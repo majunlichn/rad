@@ -50,13 +50,13 @@ public:
 
     [[nodiscard]] static constexpr Flags<FlagBits> FromMask(MaskType mask) noexcept
     {
-        assert(FlagTraits<FlagBits>::allBits.HasAllBits(mask));
+        assert(FlagTraits<FlagBits>::allBits.HasBits(mask));
         return Flags<FlagBits>(mask);
     }
 
     [[nodiscard]] constexpr MaskType GetMask() const noexcept { return m_mask; }
 
-    [[nodiscard]] constexpr bool HasAllBits(MaskType otherMask) const noexcept
+    [[nodiscard]] constexpr bool HasBits(MaskType otherMask) const noexcept
     {
         return (m_mask & otherMask) == otherMask;
     }
@@ -127,6 +127,36 @@ private:
     MaskType m_mask = 0;
 
 }; // class Flags
+
+template <typename FlagBits>
+    requires FlagTraits<FlagBits>::isBitmask
+[[nodiscard]] constexpr bool HasBits(FlagBits bits,
+                                     std::underlying_type_t<FlagBits> mask) noexcept
+{
+    using MaskType = std::underlying_type_t<FlagBits>;
+    const MaskType bitMask = static_cast<MaskType>(bits);
+    return (mask & bitMask) == bitMask;
+}
+
+template <typename FlagBits>
+    requires FlagTraits<FlagBits>::isBitmask
+[[nodiscard]] constexpr bool HasAnyBits(FlagBits bits,
+                                        std::underlying_type_t<FlagBits> mask) noexcept
+{
+    using MaskType = std::underlying_type_t<FlagBits>;
+    const MaskType bitMask = static_cast<MaskType>(bits);
+    return (mask & bitMask) != 0;
+}
+
+template <typename FlagBits>
+    requires FlagTraits<FlagBits>::isBitmask
+[[nodiscard]] constexpr bool HasNoBits(FlagBits bits,
+                                     std::underlying_type_t<FlagBits> mask) noexcept
+{
+    using MaskType = std::underlying_type_t<FlagBits>;
+    const MaskType bitMask = static_cast<MaskType>(bits);
+    return (mask & bitMask) == 0;
+}
 
 // bitwise operators
 template <Enumeration FlagBits>
