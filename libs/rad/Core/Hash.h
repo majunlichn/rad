@@ -2,6 +2,8 @@
 
 #include <rad/Core/Integer.h>
 
+#include <xxhash.h>
+
 namespace rad
 {
 

@@ -25,10 +25,16 @@ add_library(rad::rad ALIAS rad)
 target_sources(rad PRIVATE ${RAD_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 
+find_package(xxHash CONFIG REQUIRED)
+
 target_include_directories(rad
     PUBLIC
         $<BUILD_INTERFACE:${RAD_PROJECT_ROOT}/libs>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_link_libraries(rad
+    PUBLIC xxHash::xxhash
 )
 
 if(WIN32)
