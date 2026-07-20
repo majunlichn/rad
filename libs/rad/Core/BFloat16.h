@@ -10,6 +10,11 @@
 namespace rad
 {
 
+// The bfloat16 format was developed by Google Brain, an artificial intelligence research group at Google.
+// https://en.wikipedia.org/wiki/Bfloat16_floating-point_format
+
+// https://github.com/pytorch/pytorch/blob/main/torch/headeronly/util/BFloat16.h
+
 [[nodiscard]] constexpr float bf16_to_fp32(std::uint16_t bits) noexcept
 {
     return std::bit_cast<float>(static_cast<std::uint32_t>(bits) << 16u);
