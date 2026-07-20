@@ -6,6 +6,8 @@ set(RAD_SOURCES
     Core/Integer.h
     Core/IntegerFallback.h
     Core/Integer.cpp
+    Core/MurmurHash3.h
+    Core/MurmurHash3.cpp
     Core/Platform.h
     Core/Platform.cpp
 )
