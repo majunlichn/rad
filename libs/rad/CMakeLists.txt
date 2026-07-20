@@ -1,4 +1,6 @@
 set(RAD_SOURCES
+    Core/Float.h
+    Core/Float.cpp
     Core/Integer.h
     Core/IntegerFallback.h
     Core/Integer.cpp
@@ -8,6 +10,7 @@ set(RAD_SOURCES
 
 set(RAD_TEST_SOURCES
     test.cpp
+    Core/Float.test.cpp
     Core/Integer.test.cpp
     Core/Platform.test.cpp
 )
