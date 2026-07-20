@@ -190,14 +190,14 @@
 #define RAD_COMPILED_X86_BMI2 0
 #endif // defined(__BMI2__)
 
-#if defined(__SSE__) || defined(_M_X64) || defined(_M_AMD64) ||                                        \
+#if defined(__SSE__) || defined(_M_X64) || defined(_M_AMD64) ||                                    \
     (defined(_M_IX86_FP) && _M_IX86_FP >= 1)
 #define RAD_COMPILED_X86_SSE 1
 #else
 #define RAD_COMPILED_X86_SSE 0
 #endif
 
-#if defined(__SSE2__) || defined(_M_X64) || defined(_M_AMD64) ||                                       \
+#if defined(__SSE2__) || defined(_M_X64) || defined(_M_AMD64) ||                                   \
     (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #define RAD_COMPILED_X86_SSE2 1
 #else

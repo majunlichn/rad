@@ -1,10 +1,14 @@
 set(RAD_SOURCES
+    Core/Integer.h
+    Core/IntegerFallback.h
+    Core/Integer.cpp
     Core/Platform.h
     Core/Platform.cpp
 )
 
 set(RAD_TEST_SOURCES
     test.cpp
+    Core/Integer.test.cpp
     Core/Platform.test.cpp
 )
 
