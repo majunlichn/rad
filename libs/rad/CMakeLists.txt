@@ -1,4 +1,6 @@
 set(RAD_SOURCES
+    Core/BFloat16.h
+    Core/BFloat16.cpp
     Core/Float.h
     Core/Float.cpp
     Core/Float16.h
@@ -16,6 +18,7 @@ set(RAD_SOURCES
 
 set(RAD_TEST_SOURCES
     test.cpp
+    Core/BFloat16.test.cpp
     Core/Float.test.cpp
     Core/Integer.test.cpp
     Core/Platform.test.cpp
