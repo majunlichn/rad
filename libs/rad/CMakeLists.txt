@@ -12,6 +12,8 @@ set(RAD_SOURCES
     Core/Integer.h
     Core/IntegerFallback.h
     Core/Integer.cpp
+    Core/Memory.h
+    Core/Memory.cpp
     Core/MurmurHash3.h
     Core/MurmurHash3.cpp
     Core/Platform.h
@@ -24,6 +26,7 @@ set(RAD_TEST_SOURCES
     Core/Float.test.cpp
     Core/Float8.test.cpp
     Core/Integer.test.cpp
+    Core/Memory.test.cpp
     Core/Platform.test.cpp
 )
 
