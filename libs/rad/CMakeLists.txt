@@ -20,6 +20,7 @@ set(RAD_SOURCES
     Core/Platform.cpp
     Core/String.h
     Core/String.cpp
+    Core/TypeTraits.h
 )
 
 set(RAD_TEST_SOURCES
