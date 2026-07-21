@@ -41,6 +41,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 
 find_package(Imath CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
+find_package(pystring CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_include_directories(rad
@@ -51,6 +52,7 @@ target_include_directories(rad
 
 target_link_libraries(rad
     PRIVATE Boost::algorithm
+    PRIVATE pystring::pystring
     PUBLIC Imath::Imath
     PUBLIC xxHash::xxhash
 )

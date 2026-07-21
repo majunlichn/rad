@@ -3,6 +3,7 @@
     "boost-algorithm",
     "gtest",
     "imath",
+    "pystring",
     "xxhash"
   ]
 }
