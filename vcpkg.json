@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "boost-algorithm",
+    "boost-locale",
     "boost-smart-ptr",
     "gtest",
     "imath",

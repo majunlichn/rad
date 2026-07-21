@@ -23,6 +23,8 @@ set(RAD_SOURCES
     Core/String.h
     Core/String.cpp
     Core/TypeTraits.h
+    Core/Unicode.h
+    Core/Unicode.cpp
 )
 
 set(RAD_TEST_SOURCES
@@ -35,6 +37,7 @@ set(RAD_TEST_SOURCES
     Core/Platform.test.cpp
     Core/Span.test.cpp
     Core/String.test.cpp
+    Core/Unicode.test.cpp
 )
 
 add_library(rad STATIC)
@@ -45,6 +48,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 
 find_package(Imath CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
+find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_smart_ptr CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
@@ -57,6 +61,7 @@ target_include_directories(rad
 
 target_link_libraries(rad
     PRIVATE Boost::algorithm
+    PRIVATE Boost::locale
     PUBLIC Boost::smart_ptr
     PRIVATE pystring::pystring
     PUBLIC Imath::Imath
