@@ -18,6 +18,8 @@ set(RAD_SOURCES
     Core/MurmurHash3.cpp
     Core/Platform.h
     Core/Platform.cpp
+    Core/String.h
+    Core/String.cpp
 )
 
 set(RAD_TEST_SOURCES
@@ -28,6 +30,7 @@ set(RAD_TEST_SOURCES
     Core/Integer.test.cpp
     Core/Memory.test.cpp
     Core/Platform.test.cpp
+    Core/String.test.cpp
 )
 
 add_library(rad STATIC)
@@ -37,6 +40,7 @@ target_sources(rad PRIVATE ${RAD_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 
 find_package(Imath CONFIG REQUIRED)
+find_package(boost_algorithm CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_include_directories(rad
@@ -46,6 +50,7 @@ target_include_directories(rad
 )
 
 target_link_libraries(rad
+    PRIVATE Boost::algorithm
     PUBLIC Imath::Imath
     PUBLIC xxHash::xxhash
 )

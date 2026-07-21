@@ -1,0 +1,24 @@
+#pragma once
+
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace rad
+{
+
+[[nodiscard]] std::vector<std::string> StrSplit(std::string_view value,
+                                                std::string_view delimiters,
+                                                bool skipEmpty = false);
+[[nodiscard]] std::string StrReplaceAll(std::string_view value,
+                                        std::string_view search,
+                                        std::string_view replacement);
+[[nodiscard]] bool StrEqual(std::string_view lhs, std::string_view rhs) noexcept;
+[[nodiscard]] bool StrCaseEqual(std::string_view lhs, std::string_view rhs);
+[[nodiscard]] int StrCmp(std::string_view lhs, std::string_view rhs) noexcept;
+[[nodiscard]] int StrCaseCmp(std::string_view lhs, std::string_view rhs) noexcept;
+[[nodiscard]] std::string StrUpper(std::string_view value);
+[[nodiscard]] std::string StrLower(std::string_view value);
+[[nodiscard]] std::string StrTrim(std::string_view value);
+
+} // namespace rad
