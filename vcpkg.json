@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "boost-algorithm",
+    "boost-smart-ptr",
     "gtest",
     "imath",
     "pystring",

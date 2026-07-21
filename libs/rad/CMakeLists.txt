@@ -18,6 +18,7 @@ set(RAD_SOURCES
     Core/MurmurHash3.cpp
     Core/Platform.h
     Core/Platform.cpp
+    Core/RefCounted.h
     Core/Span.h
     Core/String.h
     Core/String.cpp
@@ -44,6 +45,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 
 find_package(Imath CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
+find_package(boost_smart_ptr CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
@@ -55,6 +57,7 @@ target_include_directories(rad
 
 target_link_libraries(rad
     PRIVATE Boost::algorithm
+    PUBLIC Boost::smart_ptr
     PRIVATE pystring::pystring
     PUBLIC Imath::Imath
     PUBLIC xxHash::xxhash
