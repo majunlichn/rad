@@ -18,6 +18,8 @@ set(RAD_SOURCES
     Core/MurmurHash3.cpp
     Core/Platform.h
     Core/Platform.cpp
+    Core/Random.h
+    Core/Random.cpp
     Core/RefCounted.h
     Core/Span.h
     Core/String.h
@@ -38,6 +40,12 @@ set(RAD_TEST_SOURCES
     Core/Span.test.cpp
     Core/String.test.cpp
     Core/Unicode.test.cpp
+)
+
+add_library(pcg_cpp INTERFACE)
+target_include_directories(pcg_cpp
+    INTERFACE
+        "${RAD_PROJECT_ROOT}/libs/pcg-cpp/include"
 )
 
 add_library(rad STATIC)
@@ -62,6 +70,7 @@ target_include_directories(rad
 target_link_libraries(rad
     PRIVATE Boost::algorithm
     PRIVATE Boost::locale
+    PRIVATE "$<BUILD_INTERFACE:pcg_cpp>"
     PUBLIC Boost::smart_ptr
     PRIVATE pystring::pystring
     PUBLIC Imath::Imath
