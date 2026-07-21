@@ -18,6 +18,7 @@ set(RAD_SOURCES
     Core/MurmurHash3.cpp
     Core/Platform.h
     Core/Platform.cpp
+    Core/Span.h
     Core/String.h
     Core/String.cpp
     Core/TypeTraits.h
@@ -31,6 +32,7 @@ set(RAD_TEST_SOURCES
     Core/Integer.test.cpp
     Core/Memory.test.cpp
     Core/Platform.test.cpp
+    Core/Span.test.cpp
     Core/String.test.cpp
 )
 
