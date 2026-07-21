@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <cctype>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -20,5 +22,31 @@ namespace rad
 [[nodiscard]] std::string StrUpper(std::string_view value);
 [[nodiscard]] std::string StrLower(std::string_view value);
 [[nodiscard]] std::string StrTrim(std::string_view value);
+
+struct StringLess
+{
+    using is_transparent = void;
+
+    bool operator()(std::string_view left, std::string_view right) const
+    {
+        return left.compare(right) < 0;
+    }
+};
+
+struct StringLessCaseInsensitive
+{
+    using is_transparent = void;
+
+    bool operator()(std::string_view left, std::string_view right) const
+    {
+        return std::ranges::lexicographical_compare(left,
+                                                    right,
+                                                    [](char a, char b)
+                                                    {
+                                                        return std::tolower(static_cast<unsigned char>(a)) <
+                                                               std::tolower(static_cast<unsigned char>(b));
+                                                    });
+    }
+};
 
 } // namespace rad

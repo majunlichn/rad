@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -99,4 +100,33 @@ TEST(Core, StrTrim)
     EXPECT_EQ(rad::StrTrim("alpha  beta"), "alpha  beta");
     EXPECT_EQ(rad::StrTrim(" \t\r\n"), "");
     EXPECT_EQ(rad::StrTrim("alpha"), "alpha");
+}
+
+TEST(Core, StringLess)
+{
+    const rad::StringLess less;
+
+    EXPECT_TRUE(less("alpha", "beta"));
+    EXPECT_FALSE(less("alpha", "alpha"));
+    EXPECT_FALSE(less("beta", "alpha"));
+
+    const std::string highBit{static_cast<char>(0x80)};
+    const std::string lowBit{static_cast<char>(0x7F)};
+    EXPECT_EQ(less(lowBit, highBit), std::string_view{lowBit}.compare(highBit) < 0);
+    EXPECT_EQ(less(highBit, lowBit), std::string_view{highBit}.compare(lowBit) < 0);
+
+    std::set<std::string, rad::StringLess> values = {"alpha", "beta"};
+    EXPECT_NE(values.find(std::string_view{"alpha"}), values.end());
+}
+
+TEST(Core, StringLessCaseInsensitive)
+{
+    const rad::StringLessCaseInsensitive less;
+
+    EXPECT_TRUE(less("alpha", "beta"));
+    EXPECT_FALSE(less("alpha", "ALPHA"));
+    EXPECT_FALSE(less("ALPHA", "alpha"));
+
+    std::set<std::string, rad::StringLessCaseInsensitive> values = {"alpha", "beta"};
+    EXPECT_NE(values.find(std::string_view{"ALPHA"}), values.end());
 }
