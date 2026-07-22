@@ -27,6 +27,8 @@ set(RAD_SOURCES
     Core/TypeTraits.h
     Core/Unicode.h
     Core/Unicode.cpp
+    IO/Logging.h
+    IO/Logging.cpp
 )
 
 set(RAD_TEST_SOURCES
@@ -40,6 +42,7 @@ set(RAD_TEST_SOURCES
     Core/Span.test.cpp
     Core/String.test.cpp
     Core/Unicode.test.cpp
+    IO/Logging.test.cpp
 )
 
 add_library(pcg_cpp INTERFACE)
@@ -59,6 +62,7 @@ find_package(boost_algorithm CONFIG REQUIRED)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_smart_ptr CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_include_directories(rad
@@ -73,6 +77,7 @@ target_link_libraries(rad
     PRIVATE "$<BUILD_INTERFACE:pcg_cpp>"
     PUBLIC Boost::smart_ptr
     PRIVATE pystring::pystring
+    PUBLIC spdlog::spdlog
     PUBLIC Imath::Imath
     PUBLIC xxHash::xxhash
 )

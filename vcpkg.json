@@ -6,6 +6,7 @@
     "gtest",
     "imath",
     "pystring",
+    "spdlog",
     "xxhash"
   ]
 }
