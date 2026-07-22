@@ -29,6 +29,8 @@ set(RAD_SOURCES
     Core/TypeTraits.h
     Core/Unicode.h
     Core/Unicode.cpp
+    IO/Image.h
+    IO/Image.cpp
     IO/Logging.h
     IO/Logging.cpp
 )
@@ -44,6 +46,7 @@ set(RAD_TEST_SOURCES
     Core/Span.test.cpp
     Core/String.test.cpp
     Core/Unicode.test.cpp
+    IO/Image.test.cpp
     IO/Logging.test.cpp
 )
 
@@ -65,12 +68,15 @@ find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_smart_ptr CONFIG REQUIRED)
 find_package(pystring CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(Stb REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_include_directories(rad
     PUBLIC
         $<BUILD_INTERFACE:${RAD_PROJECT_ROOT}/libs>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    PRIVATE
+        "${Stb_INCLUDE_DIR}"
 )
 
 target_link_libraries(rad
