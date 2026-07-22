@@ -14,6 +14,8 @@ set(RAD_SOURCES
     Core/Integer.cpp
     Core/Memory.h
     Core/Memory.cpp
+    Core/MemoryDebug.h
+    Core/MemoryDebug.cpp
     Core/MurmurHash3.h
     Core/MurmurHash3.cpp
     Core/Platform.h
