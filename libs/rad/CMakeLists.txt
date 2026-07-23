@@ -47,6 +47,8 @@ set(RAD_SOURCES
     System/Process.cpp
     System/SignalHandling.h
     System/SignalHandling.cpp
+    System/Thread.h
+    System/Thread.cpp
     System/Time.h
     System/Time.cpp
 )
@@ -70,6 +72,7 @@ set(RAD_TEST_SOURCES
     System/CpuInfo.test.cpp
     System/OS.test.cpp
     System/Process.test.cpp
+    System/Thread.test.cpp
     System/Time.test.cpp
 )
 
@@ -105,6 +108,7 @@ endif()
 find_package(pystring CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Stb REQUIRED)
+find_package(Threads REQUIRED)
 find_package(xxHash CONFIG REQUIRED)
 
 target_include_directories(rad
@@ -129,6 +133,7 @@ target_link_libraries(rad
     PUBLIC Boost::smart_ptr
     PRIVATE pystring::pystring
     PUBLIC spdlog::spdlog
+    PRIVATE Threads::Threads
     PUBLIC Imath::Imath
     PUBLIC xxHash::xxhash
 )
