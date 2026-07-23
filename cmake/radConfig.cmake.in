@@ -1,6 +1,7 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
+find_dependency(CpuFeatures CONFIG)
 find_dependency(Imath CONFIG)
 find_dependency(xxHash CONFIG)
 if(WIN32)

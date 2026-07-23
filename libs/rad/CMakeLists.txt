@@ -33,6 +33,8 @@ set(RAD_SOURCES
     IO/Image.cpp
     IO/Logging.h
     IO/Logging.cpp
+    System/CpuInfo.h
+    System/CpuInfo.cpp
     System/StackTrace.h
     System/StackTrace.cpp
     System/Time.h
@@ -52,6 +54,7 @@ set(RAD_TEST_SOURCES
     Core/Unicode.test.cpp
     IO/Image.test.cpp
     IO/Logging.test.cpp
+    System/CpuInfo.test.cpp
     System/StackTrace.test.cpp
     System/Time.test.cpp
 )
@@ -72,6 +75,7 @@ find_package(Imath CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_smart_ptr CONFIG REQUIRED)
+find_package(CpuFeatures CONFIG REQUIRED)
 if(WIN32)
     find_package(boost_stacktrace_windbg CONFIG REQUIRED)
     set(RAD_STACKTRACE_BACKEND Boost::stacktrace_windbg)
@@ -95,6 +99,7 @@ target_include_directories(rad
 target_link_libraries(rad
     PRIVATE Boost::algorithm
     PRIVATE Boost::locale
+    PUBLIC CpuFeatures::cpu_features
     PRIVATE ${RAD_STACKTRACE_BACKEND}
     PRIVATE "$<BUILD_INTERFACE:pcg_cpp>"
     PUBLIC Boost::smart_ptr

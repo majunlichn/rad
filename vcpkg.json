@@ -4,6 +4,7 @@
     "boost-locale",
     "boost-smart-ptr",
     "boost-stacktrace",
+    "cpu-features",
     "gtest",
     "imath",
     "pystring",
