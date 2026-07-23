@@ -33,6 +33,8 @@ set(RAD_SOURCES
     IO/Image.cpp
     IO/Logging.h
     IO/Logging.cpp
+    System/StackTrace.h
+    System/StackTrace.cpp
     System/Time.h
     System/Time.cpp
 )
@@ -50,6 +52,7 @@ set(RAD_TEST_SOURCES
     Core/Unicode.test.cpp
     IO/Image.test.cpp
     IO/Logging.test.cpp
+    System/StackTrace.test.cpp
     System/Time.test.cpp
 )
 
@@ -69,6 +72,13 @@ find_package(Imath CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_smart_ptr CONFIG REQUIRED)
+if(WIN32)
+    find_package(boost_stacktrace_windbg CONFIG REQUIRED)
+    set(RAD_STACKTRACE_BACKEND Boost::stacktrace_windbg)
+else()
+    find_package(boost_stacktrace_basic CONFIG REQUIRED)
+    set(RAD_STACKTRACE_BACKEND Boost::stacktrace_basic)
+endif()
 find_package(pystring CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Stb REQUIRED)
@@ -85,6 +95,7 @@ target_include_directories(rad
 target_link_libraries(rad
     PRIVATE Boost::algorithm
     PRIVATE Boost::locale
+    PRIVATE ${RAD_STACKTRACE_BACKEND}
     PRIVATE "$<BUILD_INTERFACE:pcg_cpp>"
     PUBLIC Boost::smart_ptr
     PRIVATE pystring::pystring

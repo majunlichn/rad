@@ -377,6 +377,15 @@
 // Utils
 ////////////////////////////////////////////////////////////////////////////////
 
+// Prevents the compiler from inlining a function
+#if defined(RAD_COMPILER_CLANG) || defined(RAD_COMPILER_GCC)
+#define RAD_NOINLINE __attribute__((noinline))
+#elif defined(RAD_COMPILER_MSVC)
+#define RAD_NOINLINE __declspec(noinline)
+#else
+#define RAD_NOINLINE
+#endif
+
 // Communicates to the compiler that the block is unreachable
 #if defined(RAD_COMPILER_CLANG) || defined(RAD_COMPILER_GCC)
 #define RAD_UNREACHABLE() __builtin_unreachable()

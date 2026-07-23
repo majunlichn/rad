@@ -3,6 +3,7 @@
     "boost-algorithm",
     "boost-locale",
     "boost-smart-ptr",
+    "boost-stacktrace",
     "gtest",
     "imath",
     "pystring",
