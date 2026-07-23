@@ -35,6 +35,8 @@ set(RAD_SOURCES
     IO/Logging.cpp
     System/CpuInfo.h
     System/CpuInfo.cpp
+    System/OS.h
+    System/OS.cpp
     System/Process.h
     System/Process.cpp
     System/StackTrace.h
@@ -57,6 +59,7 @@ set(RAD_TEST_SOURCES
     IO/Image.test.cpp
     IO/Logging.test.cpp
     System/CpuInfo.test.cpp
+    System/OS.test.cpp
     System/Process.test.cpp
     System/StackTrace.test.cpp
     System/Time.test.cpp
@@ -115,6 +118,7 @@ target_link_libraries(rad
 )
 
 if(WIN32)
+    target_link_libraries(rad PRIVATE bcrypt advapi32)
     target_compile_definitions(rad
         PUBLIC NOMINMAX=1
         PUBLIC WIN32_LEAN_AND_MEAN=1
