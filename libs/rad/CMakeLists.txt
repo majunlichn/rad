@@ -29,6 +29,10 @@ set(RAD_SOURCES
     Core/TypeTraits.h
     Core/Unicode.h
     Core/Unicode.cpp
+    Diagnostics/Exception.h
+    Diagnostics/Exception.cpp
+    Diagnostics/StackTrace.h
+    Diagnostics/StackTrace.cpp
     IO/Image.h
     IO/Image.cpp
     IO/Logging.h
@@ -43,8 +47,6 @@ set(RAD_SOURCES
     System/Process.cpp
     System/SignalHandling.h
     System/SignalHandling.cpp
-    System/StackTrace.h
-    System/StackTrace.cpp
     System/Time.h
     System/Time.cpp
 )
@@ -60,13 +62,14 @@ set(RAD_TEST_SOURCES
     Core/Span.test.cpp
     Core/String.test.cpp
     Core/Unicode.test.cpp
+    Diagnostics/Exception.test.cpp
+    Diagnostics/StackTrace.test.cpp
     IO/Image.test.cpp
     IO/Logging.test.cpp
     System/Application.test.cpp
     System/CpuInfo.test.cpp
     System/OS.test.cpp
     System/Process.test.cpp
-    System/StackTrace.test.cpp
     System/Time.test.cpp
 )
 
@@ -85,6 +88,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 find_package(Imath CONFIG REQUIRED)
 find_package(Backward CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
+find_package(boost_exception CONFIG REQUIRED)
 find_package(boost_filesystem CONFIG REQUIRED)
 find_package(boost_locale CONFIG REQUIRED)
 find_package(boost_nowide CONFIG REQUIRED)
@@ -113,13 +117,14 @@ target_include_directories(rad
 
 target_link_libraries(rad
     PRIVATE Boost::algorithm
+    PUBLIC Boost::exception
     PRIVATE Boost::filesystem
     PRIVATE Boost::locale
     PRIVATE Boost::nowide
     PRIVATE Boost::process
     PRIVATE Backward::Backward
     PUBLIC CpuFeatures::cpu_features
-    PRIVATE ${RAD_STACKTRACE_BACKEND}
+    PUBLIC ${RAD_STACKTRACE_BACKEND}
     PRIVATE "$<BUILD_INTERFACE:pcg_cpp>"
     PUBLIC Boost::smart_ptr
     PRIVATE pystring::pystring

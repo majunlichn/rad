@@ -2,8 +2,9 @@
 
 #include <rad/Core/MemoryDebug.h>
 #include <rad/Core/Platform.h>
+#include <rad/Diagnostics/Exception.h>
+#include <rad/Diagnostics/StackTrace.h>
 #include <rad/IO/Logging.h>
-#include <rad/System/StackTrace.h>
 
 #include <boost/nowide/args.hpp>
 #include <boost/nowide/filesystem.hpp>
@@ -88,6 +89,7 @@ void Application::DefaultSignalHandler(int signal) noexcept
 void Application::DefaultTerminateHandler() noexcept
 {
     std::string reason = "Unhandled exception";
+    bool hasCapturedStackTrace = false;
     try
     {
         if (const std::exception_ptr exception = std::current_exception())
@@ -95,6 +97,12 @@ void Application::DefaultTerminateHandler() noexcept
             try
             {
                 std::rethrow_exception(exception);
+            }
+            catch (const Exception& error)
+            {
+                reason += ":\n";
+                reason += error.DiagnosticInformation();
+                hasCapturedStackTrace = !error.StackTrace().empty();
             }
             catch (const std::exception& error)
             {
@@ -111,8 +119,11 @@ void Application::DefaultTerminateHandler() noexcept
             reason = "std::terminate called without an active exception";
         }
 
-        reason += '\n';
-        reason += GetStackTrace();
+        if (!hasCapturedStackTrace)
+        {
+            reason += '\n';
+            reason += GetStackTrace();
+        }
 
         auto& application = Instance();
         if (application.m_logger)

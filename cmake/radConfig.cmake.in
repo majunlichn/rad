@@ -1,6 +1,7 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
+find_dependency(boost_exception CONFIG)
 find_dependency(CpuFeatures CONFIG)
 find_dependency(Imath CONFIG)
 find_dependency(xxHash CONFIG)

@@ -2,6 +2,7 @@
   "dependencies": [
     "backward-cpp",
     "boost-algorithm",
+    "boost-exception",
     "boost-filesystem",
     "boost-locale",
     "boost-nowide",
