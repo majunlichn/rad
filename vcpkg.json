@@ -1,7 +1,10 @@
 {
   "dependencies": [
+    "backward-cpp",
     "boost-algorithm",
+    "boost-filesystem",
     "boost-locale",
+    "boost-nowide",
     "boost-process",
     "boost-smart-ptr",
     "boost-stacktrace",

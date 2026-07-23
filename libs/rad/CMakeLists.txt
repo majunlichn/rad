@@ -33,12 +33,16 @@ set(RAD_SOURCES
     IO/Image.cpp
     IO/Logging.h
     IO/Logging.cpp
+    System/Application.h
+    System/Application.cpp
     System/CpuInfo.h
     System/CpuInfo.cpp
     System/OS.h
     System/OS.cpp
     System/Process.h
     System/Process.cpp
+    System/SignalHandling.h
+    System/SignalHandling.cpp
     System/StackTrace.h
     System/StackTrace.cpp
     System/Time.h
@@ -58,6 +62,7 @@ set(RAD_TEST_SOURCES
     Core/Unicode.test.cpp
     IO/Image.test.cpp
     IO/Logging.test.cpp
+    System/Application.test.cpp
     System/CpuInfo.test.cpp
     System/OS.test.cpp
     System/Process.test.cpp
@@ -78,8 +83,11 @@ target_sources(rad PRIVATE ${RAD_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 
 find_package(Imath CONFIG REQUIRED)
+find_package(Backward CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
+find_package(boost_filesystem CONFIG REQUIRED)
 find_package(boost_locale CONFIG REQUIRED)
+find_package(boost_nowide CONFIG REQUIRED)
 find_package(boost_process CONFIG REQUIRED)
 find_package(boost_smart_ptr CONFIG REQUIRED)
 find_package(CpuFeatures CONFIG REQUIRED)
@@ -105,8 +113,11 @@ target_include_directories(rad
 
 target_link_libraries(rad
     PRIVATE Boost::algorithm
+    PRIVATE Boost::filesystem
     PRIVATE Boost::locale
+    PRIVATE Boost::nowide
     PRIVATE Boost::process
+    PRIVATE Backward::Backward
     PUBLIC CpuFeatures::cpu_features
     PRIVATE ${RAD_STACKTRACE_BACKEND}
     PRIVATE "$<BUILD_INTERFACE:pcg_cpp>"

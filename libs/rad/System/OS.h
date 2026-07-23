@@ -85,6 +85,9 @@ struct DirEntry
 
 [[nodiscard]] FilePath getcwd();
 void chdir(const FilePath& path);
+[[nodiscard]] FilePath executable_path();
+[[nodiscard]] FilePath executable_directory();
+[[nodiscard]] FilePath temp_directory_path();
 [[nodiscard]] std::vector<FilePath> listdir(const FilePath& path = FilePath{"."});
 [[nodiscard]] std::vector<DirEntry> scandir(const FilePath& path = FilePath{"."});
 
@@ -155,3 +158,10 @@ namespace path
 } // namespace path
 
 } // namespace rad::os
+
+namespace rad
+{
+
+[[nodiscard]] std::string PathToUtf8(const os::FilePath& path);
+
+} // namespace rad

@@ -22,6 +22,7 @@ public:
 
     // fileName is expected to be UTF-8 encoded when provided.
     void Init(std::string_view fileName = {}, bool truncate = false);
+    [[nodiscard]] bool IsInitialized() const noexcept;
     // Logger names are registered with spdlog and must be unique until Shutdown().
     [[nodiscard]] std::shared_ptr<spdlog::logger> CreateLogger(std::string_view name);
 

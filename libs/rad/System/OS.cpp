@@ -30,6 +30,10 @@
 #include <unistd.h>
 #include <utime.h>
 
+#if defined(RAD_OS_MACOS)
+#include <mach-o/dyld.h>
+#endif
+
 extern char** environ;
 #endif
 
@@ -144,6 +148,26 @@ void ValidateEnvironmentKey(std::string_view key)
     return !error && predicate(status);
 }
 
+#if !defined(RAD_OS_WINDOWS)
+[[nodiscard]] FilePath ReadLinkPath(const char* path)
+{
+    std::vector<char> buffer(256);
+    while (true)
+    {
+        const auto size = ::readlink(path, buffer.data(), buffer.size());
+        if (size < 0)
+        {
+            ThrowErrno("os::executable_path");
+        }
+        if (static_cast<std::size_t>(size) < buffer.size())
+        {
+            return FilePath(std::string(buffer.data(), static_cast<std::size_t>(size)));
+        }
+        buffer.resize(buffer.size() * 2);
+    }
+}
+#endif
+
 } // namespace
 
 FilePath getcwd()
@@ -165,6 +189,68 @@ void chdir(const FilePath& path)
     {
         ThrowError(error, "os::chdir");
     }
+}
+
+FilePath executable_path()
+{
+#if defined(RAD_OS_WINDOWS)
+    std::vector<wchar_t> buffer(256);
+    while (true)
+    {
+        SetLastError(ERROR_SUCCESS);
+        const DWORD size =
+            GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (size == 0)
+        {
+            ThrowError(std::error_code(static_cast<int>(GetLastError()), std::system_category()),
+                       "os::executable_path");
+        }
+        if (size < buffer.size())
+        {
+            return FilePath(std::wstring(buffer.data(), size));
+        }
+        buffer.resize(buffer.size() * 2);
+    }
+#elif defined(RAD_OS_LINUX) || defined(RAD_OS_ANDROID)
+    return ReadLinkPath("/proc/self/exe");
+#elif defined(RAD_OS_MACOS)
+    std::uint32_t size = 0;
+    if (_NSGetExecutablePath(nullptr, &size) != -1 || size == 0)
+    {
+        ThrowError(std::make_error_code(std::errc::io_error), "os::executable_path");
+    }
+
+    std::vector<char> buffer(size);
+    if (_NSGetExecutablePath(buffer.data(), &size) != 0)
+    {
+        ThrowError(std::make_error_code(std::errc::io_error), "os::executable_path");
+    }
+
+    std::error_code error;
+    FilePath result = std::filesystem::weakly_canonical(FilePath(buffer.data()), error);
+    return error ? std::filesystem::absolute(FilePath(buffer.data())) : result;
+#elif defined(RAD_OS_FREEBSD)
+    return ReadLinkPath("/proc/curproc/file");
+#else
+    ThrowError(std::make_error_code(std::errc::operation_not_supported),
+               "os::executable_path");
+#endif
+}
+
+FilePath executable_directory()
+{
+    return executable_path().parent_path();
+}
+
+FilePath temp_directory_path()
+{
+    std::error_code error;
+    FilePath result = std::filesystem::temp_directory_path(error);
+    if (error)
+    {
+        ThrowError(error, "os::temp_directory_path");
+    }
+    return result;
 }
 
 std::vector<FilePath> listdir(const FilePath& path)
@@ -1053,3 +1139,17 @@ std::pair<FilePath, FilePath> splitext(const FilePath& value)
 } // namespace path
 
 } // namespace rad::os
+
+namespace rad
+{
+
+std::string PathToUtf8(const os::FilePath& path)
+{
+#if defined(RAD_OS_WINDOWS)
+    return WideToUtf8(path.native());
+#else
+    return path.string();
+#endif
+}
+
+} // namespace rad

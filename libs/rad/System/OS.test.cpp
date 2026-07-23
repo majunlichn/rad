@@ -12,6 +12,10 @@ TEST(System, OS)
 {
     EXPECT_GT(rad::os::getpid(), 0U);
     EXPECT_FALSE(rad::os::get_exec_path().empty());
+    EXPECT_TRUE(rad::os::path::isfile(rad::os::executable_path()));
+    EXPECT_FALSE(rad::PathToUtf8(rad::os::executable_path()).empty());
+    EXPECT_EQ(rad::os::executable_directory(), rad::os::executable_path().parent_path());
+    EXPECT_TRUE(rad::os::path::isdir(rad::os::temp_directory_path()));
 
     EXPECT_TRUE(rad::os::path::isabs(rad::os::path::realpath("missing-component")));
     const auto [dotRoot, dotExtension] = rad::os::path::splitext("....jpg");

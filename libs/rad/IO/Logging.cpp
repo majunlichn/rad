@@ -39,6 +39,11 @@ void LogManager::Init(std::string_view fileName, bool truncate)
     }
 }
 
+bool LogManager::IsInitialized() const noexcept
+{
+    return !m_sinks.empty();
+}
+
 std::shared_ptr<spdlog::logger> LogManager::CreateLogger(std::string_view name)
 {
     if (m_sinks.empty())
