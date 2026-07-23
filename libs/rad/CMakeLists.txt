@@ -33,6 +33,8 @@ set(RAD_SOURCES
     IO/Image.cpp
     IO/Logging.h
     IO/Logging.cpp
+    System/Time.h
+    System/Time.cpp
 )
 
 set(RAD_TEST_SOURCES
@@ -48,6 +50,7 @@ set(RAD_TEST_SOURCES
     Core/Unicode.test.cpp
     IO/Image.test.cpp
     IO/Logging.test.cpp
+    System/Time.test.cpp
 )
 
 add_library(pcg_cpp INTERFACE)
