@@ -35,6 +35,8 @@ set(RAD_SOURCES
     IO/Logging.cpp
     System/CpuInfo.h
     System/CpuInfo.cpp
+    System/Process.h
+    System/Process.cpp
     System/StackTrace.h
     System/StackTrace.cpp
     System/Time.h
@@ -55,6 +57,7 @@ set(RAD_TEST_SOURCES
     IO/Image.test.cpp
     IO/Logging.test.cpp
     System/CpuInfo.test.cpp
+    System/Process.test.cpp
     System/StackTrace.test.cpp
     System/Time.test.cpp
 )
@@ -74,6 +77,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${RAD_SOURCES})
 find_package(Imath CONFIG REQUIRED)
 find_package(boost_algorithm CONFIG REQUIRED)
 find_package(boost_locale CONFIG REQUIRED)
+find_package(boost_process CONFIG REQUIRED)
 find_package(boost_smart_ptr CONFIG REQUIRED)
 find_package(CpuFeatures CONFIG REQUIRED)
 if(WIN32)
@@ -99,6 +103,7 @@ target_include_directories(rad
 target_link_libraries(rad
     PRIVATE Boost::algorithm
     PRIVATE Boost::locale
+    PRIVATE Boost::process
     PUBLIC CpuFeatures::cpu_features
     PRIVATE ${RAD_STACKTRACE_BACKEND}
     PRIVATE "$<BUILD_INTERFACE:pcg_cpp>"

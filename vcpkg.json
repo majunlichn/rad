@@ -2,6 +2,7 @@
   "dependencies": [
     "boost-algorithm",
     "boost-locale",
+    "boost-process",
     "boost-smart-ptr",
     "boost-stacktrace",
     "cpu-features",
